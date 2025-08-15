@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const firebaseConfig = {
@@ -17,12 +17,31 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
-
-export const signInWithGoogle = () => signInWithPopup(auth, provider);
-export const logOut = () => signOut(auth);
-
 // Firestore and Storage
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+export const signIn = async ({ name }) => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    await setDoc(doc(db, "users", user.uid), {
+      id: user.uid,
+      name,
+      email: user.email
+    }, { merge: true });
+
+    return { ...user, name };
+  } catch (err) {
+    console.error("Error signing in or saving user:", err);
+    throw err;
+  }
+};
+
+
+// export const signInWithGoogle = () => signInWithPopup(auth, provider);
+export const logOut = () => signOut(auth);
+
 
 export { db, storage };

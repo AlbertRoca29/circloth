@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { db, storage } from "./firebase";
-import { collection, query, where, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { storage } from "./firebase";
 import { ref, deleteObject } from "firebase/storage";
 
-function ItemList({ user }) {
+function ItemList({ user, refreshSignal }) {
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState([]);
@@ -11,13 +10,12 @@ function ItemList({ user }) {
   const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    const q = query(collection(db, "items"), where("ownerId", "==", user.uid));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const itemsData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setItems(itemsData);
-    });
-    return () => unsubscribe();
-  }, [user]);
+    // Fetch items from backend
+    fetch(`http://localhost:8000/items/${user.uid}`)
+      .then(res => res.json())
+      .then(data => setItems(data.items || []))
+      .catch(() => setItems([]));
+  }, [user, refreshSignal]);
 
   const handleDelete = async (item) => {
     if (!window.confirm("Delete this item?")) return;
@@ -39,7 +37,10 @@ function ItemList({ user }) {
           }
         }
       }
-      await deleteDoc(doc(db, "items", item.id));
+      // Delete item from backend
+      const res = await fetch(`http://localhost:8000/item/${item.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete item");
+      setItems(items => items.filter(i => i.id !== item.id));
     } catch (err) {
       alert("Error deleting item");
     }
@@ -50,7 +51,7 @@ function ItemList({ user }) {
 
   return (
     <div>
-      <h2 style={{ textAlign: "center", color: "#1976d2", marginBottom: 24 }}>Your Clothing Items</h2>
+  <h2 style={{ textAlign: "center", color: "var(--primary-dark, #15803d)", fontWeight: 800, fontSize: "1.5rem", letterSpacing: "0.01em", fontFamily: 'Inter, Segoe UI, Arial, sans-serif', marginBottom: 24 }}>Your Clothing Items</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         {items.map((item) => (
           <div
@@ -78,7 +79,7 @@ function ItemList({ user }) {
                       height: 60,
                       objectFit: "cover",
                       borderRadius: 8,
-                      border: idx === 0 ? "2px solid #1976d2" : "2px solid #ccc",
+                      border: idx === 0 ? "2.5px solid var(--primary, #22c55e)" : "2px solid #ccc",
                       cursor: "pointer"
                     }}
                     onClick={() => {
@@ -91,7 +92,7 @@ function ItemList({ user }) {
                 ))}
               </div>
               {item.photoURLs && item.photoURLs.length > 1 && (
-                <span style={{ fontSize: 10, color: "#1976d2" }}>Click to view</span>
+                <span style={{ fontSize: 10, color: "var(--primary, #22c55e)" }}>Click to view</span>
               )}
             </div>
             <div style={{ flex: 1 }}>
@@ -127,7 +128,7 @@ function ItemList({ user }) {
               <button
                 onClick={() => alert("Edit functionality coming soon!")}
                 style={{
-                  background: "#1976d2",
+                  background: "var(--primary, #22c55e)",
                   color: "#fff",
                   border: "none",
                   borderRadius: 6,
@@ -178,7 +179,7 @@ function ItemList({ user }) {
                     height: 40,
                     objectFit: "cover",
                     borderRadius: 6,
-                    border: idx === modalIdx ? "2px solid #1976d2" : "2px solid #ccc",
+                    border: idx === modalIdx ? "2.5px solid var(--primary, #22c55e)" : "2px solid #ccc",
                     cursor: "pointer"
                   }}
                   onClick={() => setModalIdx(idx)}

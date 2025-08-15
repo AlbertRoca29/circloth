@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { db, storage } from "./firebase";
-import { collection, addDoc, updateDoc, doc } from "firebase/firestore";
+import { storage } from "./firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 
-function AddItem({ user }) {
+function AddItem({ user, onItemAdded }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [size, setSize] = useState("");
@@ -25,7 +24,7 @@ function AddItem({ user }) {
     if (!name || !category || !size || !color) {
       alert("Please fill all required fields");
       return;
-    }   
+    }
     if (photoFiles.length < 2) {
       alert("Please add at least 2 photos (max 5)");
       return;
@@ -37,23 +36,7 @@ function AddItem({ user }) {
       console.log("aaa");
       console.log({ user, name, category, size, color, brand, material, description });
 
-      itemDoc = await addDoc(collection(db, "items"), {
-        ownerId: user.uid,
-        name,
-        category,
-        size,
-        color,
-        brand,
-        material,
-        description,
-        photoURLs: [],
-        dateAdded: new Date(),
-      });
-      console.log("aaa")
-      console.log("Item added with ID: ", itemDoc.id);
-
-      // Image compression and upload (multiple)
-      const itemId = itemDoc.id;
+      // 1. Upload images to Firebase Storage
       const photoURLs = [];
       for (let i = 0; i < photoFiles.length; i++) {
         const file = photoFiles[i];
@@ -61,7 +44,7 @@ function AddItem({ user }) {
         const compressedFile = await imageCompression(file, options);
         const ext = file.name.split('.').pop() || 'jpg';
         const imageId = `photo${i+1}`;
-        const photoRef = ref(storage, `items/${user.uid}/${itemId}/${imageId}.${ext}`);
+        const photoRef = ref(storage, `items/${user.uid}/${Date.now()}_${imageId}.${ext}`);
         try {
           await uploadBytes(photoRef, compressedFile);
           const photoURL = await getDownloadURL(photoRef);
@@ -72,25 +55,36 @@ function AddItem({ user }) {
       }
       // Place thumbnail first in array
       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
-      await updateDoc(doc(db, "items", itemId), { photoURLs: orderedPhotoURLs });
-
-      alert("Clothing item added successfully!");
-      setName("");
-      setCategory("");
-      setSize("");
-      setColor("");
-      setBrand("");
-      setMaterial("");
-      setDescription("");
-      setPhotoFiles([]);
-      setThumbnailIdx(0);
+      // 2. Send item data to backend
+      const res = await fetch("http://localhost:8000/item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ownerId: user.uid,
+          name,
+          category,
+          size,
+          color,
+          brand,
+          material,
+          description,
+          photoURLs: orderedPhotoURLs
+        })
+      });
+      if (!res.ok) throw new Error("Failed to add item");
+  setName("");
+  setCategory("");
+  setSize("");
+  setColor("");
+  setBrand("");
+  setMaterial("");
+  setDescription("");
+  setPhotoFiles([]);
+  setThumbnailIdx(0);
+  if (onItemAdded) onItemAdded();
     } catch (error) {
-      if (itemDoc && itemDoc.id) {
-        // Optionally, delete the Firestore item if anything failed
-        // await deleteDoc(doc(db, "items", itemDoc.id));
-      }
       console.error("Error adding clothing item: ", error);
-      alert("Failed to add clothing item");
+  // Optionally show error UI
     } finally {
       setLoading(false);
     }
@@ -112,7 +106,7 @@ function AddItem({ user }) {
 
       <input
         type="text"
-        placeholder="Name (e.g. Blue T-shirt)"
+  placeholder="Name (e.g. Green T-shirt)"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
@@ -180,7 +174,7 @@ function AddItem({ user }) {
               <img
                 src={URL.createObjectURL(file)}
                 alt={`preview-${idx}`}
-                style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: idx === thumbnailIdx ? "2px solid #1976d2" : "2px solid #ccc", cursor: "pointer" }}
+                style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, border: idx === thumbnailIdx ? "2.5px solid var(--primary, #22c55e)" : "2px solid #ccc", cursor: "pointer" }}
                 onClick={() => setThumbnailIdx(idx)}
                 title={idx === thumbnailIdx ? "Thumbnail" : "Set as thumbnail"}
               />
@@ -208,7 +202,7 @@ function AddItem({ user }) {
                 title="Remove"
               >×</button>
               {idx === thumbnailIdx && (
-                <div style={{ position: "absolute", bottom: -18, left: 0, right: 0, textAlign: "center", fontSize: 10, color: "#1976d2" }}>Thumbnail</div>
+                <div style={{ position: "absolute", bottom: -18, left: 0, right: 0, textAlign: "center", fontSize: 10, color: "var(--primary, #22c55e)" }}>Thumbnail</div>
               )}
             </div>
           ))}
@@ -220,11 +214,11 @@ function AddItem({ user }) {
                 height: 60,
                 borderRadius: 8,
                 background: "#e3eafc",
-                color: "#1976d2",
+                color: "var(--primary, #22c55e)",
                 fontSize: 32,
                 textAlign: "center",
                 lineHeight: "60px",
-                border: "2px dashed #1976d2"
+                border: "2px dashed var(--primary, #22c55e)"
               }}>+</span>
               <input
                 type="file"
@@ -248,7 +242,7 @@ function AddItem({ user }) {
           padding: 12,
           borderRadius: 6,
           border: "none",
-          background: loading ? "#ccc" : "#1976d2",
+          background: loading ? "#ccc" : "var(--primary, #22c55e)",
           color: "#fff",
           fontSize: 18,
           fontWeight: 600,
