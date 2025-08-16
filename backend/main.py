@@ -13,14 +13,16 @@ app = FastAPI()
 
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
-    cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "serviceAccountKey.json")
+    # cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "serviceAccountKey.json")
+    cred_path = "/mnt/secrets/firestore-key/FIRESTORE_KEY"
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
+
 db = FirestoreDB()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://circloth.com", "https://circloth--circl0th.europe-west4.hosted.app/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
