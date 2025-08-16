@@ -146,3 +146,8 @@ def update_user_profile(user_id: str, user: UserModel):
 def get_user_actions(user_id: str):
     actions = db.get_user_actions(user_id)
     return {"actions": actions}
+
+# --- Cloud Run entrypoint ---
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8080)
