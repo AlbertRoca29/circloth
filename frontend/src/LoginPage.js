@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { auth, provider } from "./firebase";
 import { signInWithPopup } from "firebase/auth";
 import "./Common.css";
+import BACKEND_URL from "./config";
 
 function LoginPage({ firebaseUser, setAppUser }) {
   const [localName, setLocalName] = useState("");
@@ -14,7 +15,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       // Try to fetch user profile from backend
-      const res = await fetch(`http://localhost:8000/user/${user.uid}`);
+        const res = await fetch(`${BACKEND_URL}/user/${user.uid}`);
       if (res.ok) {
         const data = await res.json();
         setAppUser({ ...user, ...data });
@@ -39,7 +40,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
         screen: { width: window.screen.width, height: window.screen.height },
       };
       // Create user in backend
-      const res = await fetch(`http://localhost:8000/user/${pendingUser.uid}`, {
+        const res = await fetch(`${BACKEND_URL}/user/${pendingUser.uid}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

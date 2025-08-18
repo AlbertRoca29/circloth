@@ -8,6 +8,7 @@ import ProfilePage from "./ProfilePage";
 import Tabs from "./Tabs";
 import Matching from "./Matching";
 import "./Common.css";
+import BACKEND_URL from "./config";
 
 function App() {
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
@@ -28,7 +29,7 @@ function App() {
       } else {
         // Fetch user profile from backend
         try {
-          const res = await fetch(`http://localhost:8000/user/${user.uid}`);
+          const res = await fetch(`${BACKEND_URL}/user/${user.uid}`);
           if (res.ok) {
             const data = await res.json();
             setAppUser({ ...user, ...data });
@@ -51,7 +52,7 @@ function App() {
       return;
     }
     // Fetch items from backend
-    fetch(`http://localhost:8000/items/${appUser.uid}`)
+    fetch(`${BACKEND_URL}/items/${appUser.uid}`)
       .then(res => res.json())
       .then(data => setHasClothes(data.items && data.items.length > 0))
       .catch(() => setHasClothes(false));

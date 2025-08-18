@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { storage } from "./firebase";
 import { ref, deleteObject } from "firebase/storage";
+import BACKEND_URL from "./config";
 
 function ItemList({ user, refreshSignal }) {
   const [items, setItems] = useState([]);
@@ -11,7 +12,7 @@ function ItemList({ user, refreshSignal }) {
 
   useEffect(() => {
     // Fetch items from backend
-    fetch(`http://localhost:8000/items/${user.uid}`)
+    fetch(`${BACKEND_URL}/items/${user.uid}`)
       .then(res => res.json())
       .then(data => setItems(data.items || []))
       .catch(() => setItems([]));
@@ -37,8 +38,8 @@ function ItemList({ user, refreshSignal }) {
           }
         }
       }
-      // Delete item from backend
-      const res = await fetch(`http://localhost:8000/item/${item.id}`, { method: "DELETE" });
+  // Delete item from backend
+  const res = await fetch(`${BACKEND_URL}/item/${item.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete item");
       setItems(items => items.filter(i => i.id !== item.id));
     } catch (err) {

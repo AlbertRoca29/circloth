@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { storage } from "./firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
+import BACKEND_URL from "./config";
 
 function AddItem({ user, onItemAdded }) {
   const [name, setName] = useState("");
@@ -56,7 +57,7 @@ function AddItem({ user, onItemAdded }) {
       // Place thumbnail first in array
       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
       // 2. Send item data to backend
-      const res = await fetch("http://localhost:8000/item", {
+  const res = await fetch(`${BACKEND_URL}/item`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,0 +1,3 @@
+// Set the backend URL from environment variable or default to localhost
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+export default BACKEND_URL;
