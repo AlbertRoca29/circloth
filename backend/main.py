@@ -38,8 +38,9 @@ db = FirestoreDB()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
+        # "http://localhost:3000",
         "https://circloth.com",
+        "https:///www.circloth.com",
         "https://circloth--circl0th.europe-west4.hosted.app/",
     ],
     allow_credentials=True,
