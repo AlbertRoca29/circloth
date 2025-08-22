@@ -1,4 +1,3 @@
-// Utility for calling the backend matching API
 import BACKEND_URL from "./config";
 export async function fetchMatchItem(userId) {
   const res = await fetch(`${BACKEND_URL}/match`, {
@@ -25,4 +24,14 @@ export async function sendMatchAction(userId, itemId, action, deviceInfo = {}) {
     throw new Error(err.detail || "Failed to send action");
   }
   return res.json();
+}
+
+
+
+// Fetch all matches for the user (from backend)
+export async function fetchMatches(userId) {
+  const res = await fetch(`${BACKEND_URL}/matches/${userId}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.matches || [];
 }

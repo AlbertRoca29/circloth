@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { storage } from "./firebase";
 import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "./config";
+import { getCategoryEmoji } from "./utils/general";
 
 function ItemList({ user, refreshSignal }) {
   const [items, setItems] = useState([]);
@@ -79,18 +80,8 @@ function ItemList({ user, refreshSignal }) {
     );
   }
 
-  const categoryEmoji = {
-    "tops": "👕",
-    "jackets_sweaters": "🧥",
-    "pants_shorts": "👖",
-    "dresses_skirts": "👗",
-    "shoes": "👟",
-    "accessories": "👜",
-    "other": "✨"
-  };
-
   return (
-    <div style={{ maxWidth: 280, margin: '0 auto' }}>
+    <div style={{ maxWidth: 500, margin: '0 auto' }}>
       {errorMsg && (
         <div style={{
           color: 'var(--danger, #e11d48)',
@@ -145,15 +136,15 @@ function ItemList({ user, refreshSignal }) {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 8px' }}>
                 <span style={{ fontSize: 24, marginRight: 2 }}>
-                  {categoryEmoji[item.category] || '👕'}
+                  {getCategoryEmoji(item.category)}
                 </span>
 
                 {item.color && item.color.trim() && (
                   <span
                     style={{
                       display: 'inline-block',
-                      width: 14,
-                      height: 14,
+                      width: 15,
+                      height: 15,
                       borderRadius: '50%',
                       background: item.color,
                       border: '1.5px solid #eee',
@@ -177,21 +168,28 @@ function ItemList({ user, refreshSignal }) {
 
                 <div style={{ flex: 1 }}></div>
 
+
                 <button
                   onClick={e => { e.stopPropagation(); setErrorMsg("Edit functionality coming soon!"); }}
                   style={{
                     background: "#fff",
                     color: "#22c55e",
-                    border: "1.2px solid #22c55e",
-                    borderRadius: 8,
-                    padding: "2px 8px",
-                    fontWeight: 200,
+                    border: "none",
+                    borderRadius: '50%',
+                    padding: 8,
+                    fontSize: 22,
                     cursor: "pointer",
-                    fontSize: 12,
                     marginLeft: 4,
-                    marginRight: 2
+                    marginRight: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
-                >Edit</button>
+                  title="Edit"
+                >
+                  <span role="img" aria-label="edit">✏️</span>
+                </button>
 
                 <button
                   onClick={e => { e.stopPropagation(); handleDelete(item); }}
@@ -199,15 +197,21 @@ function ItemList({ user, refreshSignal }) {
                   style={{
                     background: "#fff",
                     color: "#e11d48",
-                    border: "1.2px solid #e11d48",
-                    borderRadius: 8,
-                    padding: "2px 8px",
-                    fontWeight: 200,
+                    border: "none",
+                    borderRadius: '50%',
+                    padding: 8,
+                    fontSize: 22,
                     cursor: "pointer",
-                    fontSize: 12,
-                    marginLeft: 2
+                    marginLeft: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
-                >{deletingId === item.id ? "..." : "Delete"}</button>
+                  title="Delete"
+                >
+                  <span role="img" aria-label="delete">🗑️</span>
+                </button>
               </div>
             </div>
           ))}
@@ -232,8 +236,8 @@ function ItemList({ user, refreshSignal }) {
             borderRadius: 24,
             boxShadow: '0 8px 32px rgba(34,197,94,0.13)',
             padding: '2.2rem 1.5rem',
-            minWidth: 320,
-            maxWidth: 380,
+            minWidth: 380,
+            maxWidth: 45,
             width: '100%',
             maxHeight: 'calc(100vh - 80px)',
             overflowY: 'auto',
@@ -243,26 +247,70 @@ function ItemList({ user, refreshSignal }) {
             position: 'relative',
             margin: 0,
           }}>
-            <div style={{ fontWeight: 800, fontSize: 22, marginBottom: 12, color: 'var(--primary-dark, #15803d)', textAlign: 'center' }}>
-              {modalItem.brand || 'Clothing Item'}
-            </div>
 
-            {modalItem.photoURLs && modalItem.photoURLs[0] && (
-              <img
-                src={modalItem.photoURLs[0]}
-                alt="main"
-                style={{
-                  width: '100%',
-                  height: 180,
-                  objectFit: 'cover',
-                  borderRadius: 12,
-                  marginBottom: 16
-                }}
-              />
+
+            {modalItem.photoURLs && modalItem.photoURLs.length > 0 && (
+              <div style={{ position: 'relative', width: '100%', marginBottom: 16, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <img
+                  src={modalItem.photoURLs[modalIdx]}
+                  alt={`item-${modalIdx}`}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: 340,
+                    borderRadius: 12,
+                    display: 'block',
+                    objectFit: 'contain',
+                    background: '#f6f6f6',
+                  }}
+                />
+                {modalItem.photoURLs.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setModalIdx((modalIdx - 1 + modalItem.photoURLs.length) % modalItem.photoURLs.length)}
+                      style={{
+                        position: 'absolute',
+                        left: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(255,255,255,0.7)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 32,
+                        height: 32,
+                        fontSize: 20,
+                        cursor: 'pointer',
+                        zIndex: 2
+                      }}
+                      aria-label="Previous image"
+                    >&#8592;</button>
+                    <button
+                      onClick={() => setModalIdx((modalIdx + 1) % modalItem.photoURLs.length)}
+                      style={{
+                        position: 'absolute',
+                        right: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'rgba(255,255,255,0.7)',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: 32,
+                        height: 32,
+                        fontSize: 20,
+                        cursor: 'pointer',
+                        zIndex: 2
+                      }}
+                      aria-label="Next image"
+                    >&#8594;</button>
+                    <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '2px 10px', fontSize: 13 }}>
+                      {modalIdx + 1} / {modalItem.photoURLs.length}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
 
             <div style={{ marginBottom: 8 }}>
-              <strong>Category:</strong> {categoryEmoji[modalItem.category] || '👕'}
+              <strong>Category:</strong> {getCategoryEmoji(modalItem.category)}
             </div>
 
             {modalItem.color && (
@@ -325,14 +373,19 @@ function ItemList({ user, refreshSignal }) {
                 background: '#22c55e',
                 color: '#fff',
                 border: 'none',
-                borderRadius: 8,
-                padding: '8px 24px',
-                fontWeight: 200,
-                fontSize: 16,
-                cursor: 'pointer'
+                borderRadius: '50%',
+                padding: 12,
+                fontSize: 26,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.13)',
+                transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
               }}
+              title="Close"
             >
-              Close
+              <span role="img" aria-label="close">❌</span>
             </button>
           </div>
         </div>

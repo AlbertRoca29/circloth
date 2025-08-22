@@ -3,6 +3,23 @@ from firebase_admin import firestore
 from typing import List, Optional
 
 class FirestoreDB:
+    def delete_user_action(self, user_id: str, item_id: str):
+        """Delete all actions for a user and item (so new action can overwrite)."""
+        actions_ref = self.db.collection("users").document(user_id).collection("actions")
+        for doc in actions_ref.where("item_id", "==", item_id).stream():
+            doc.reference.delete()
+
+    def get_latest_user_actions(self, user_id: str) -> dict:
+        """Return a dict of item_id -> latest action dict for the user."""
+        actions_ref = self.db.collection("users").document(user_id).collection("actions")
+        latest = {}
+        for doc in actions_ref.stream():
+            data = doc.to_dict()
+            item_id = data["item_id"]
+            prev = latest.get(item_id)
+            if not prev or data["timestamp"] > prev["timestamp"]:
+                latest[item_id] = data
+        return latest
     def __init__(self):
         self.db = firestore.client()
 
@@ -53,3 +70,29 @@ class FirestoreDB:
     def get_user_actions(self, user_id: str) -> list:
         actions_ref = self.db.collection("users").document(user_id).collection("actions")
         return [doc.to_dict() for doc in actions_ref.stream()]
+
+
+    # --- Chat message logic ---
+    def add_chat_message(self, sender: str, receiver: str, content: str, timestamp: str):
+        """Add a chat message between sender and receiver."""
+        # Store messages in a collection 'messages', with a conversation id
+        conv_id = self._get_conversation_id(sender, receiver)
+        msg_ref = self.db.collection("chats").document(conv_id).collection("messages")
+        msg_ref.add({
+            "sender": sender,
+            "receiver": receiver,
+            "content": content,
+            "timestamp": timestamp
+        })
+
+    def get_chat_messages(self, user1: str, user2: str, limit: int = 50) -> list:
+        """Get chat messages between user1 and user2, sorted by timestamp ascending."""
+        conv_id = self._get_conversation_id(user1, user2)
+        msg_ref = self.db.collection("chats").document(conv_id).collection("messages")
+        msgs = msg_ref.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit).stream()
+        result = [doc.to_dict() for doc in msgs]
+        return list(reversed(result))
+
+    def _get_conversation_id(self, user1: str, user2: str) -> str:
+        """Return a unique conversation id for two users (order-independent)."""
+        return "_".join(sorted([user1, user2]))

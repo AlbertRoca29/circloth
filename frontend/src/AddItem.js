@@ -5,6 +5,7 @@ import imageCompression from "browser-image-compression";
 import BACKEND_URL from "./config";
 
 import Box from "@mui/material/Box";
+import { getCategoryEmoji } from "./utils/general";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -30,15 +31,6 @@ const categories = [
   { key: 'other', label: 'Other' },
 ];
 
-const categoryEmoji = {
-  "tops": "👕",
-  "jackets_sweaters": "🧥",
-  "pants_shorts": "👖",
-  "dresses_skirts": "👗",
-  "shoes": "👟",
-  "accessories": "👜",
-  "other": "✨"
-};
 
 
 const sizeOptions = {
@@ -248,7 +240,7 @@ function AddItem({ user, onItemAdded }) {
                       '&:hover': { background: '#F3F4F6', borderColor: '#166232ff' },
                     }}
                   >
-                    <span style={{ fontSize: 32, lineHeight: 1 }}>{categoryEmoji[cat.key]}</span>
+                    <span style={{ fontSize: 32, lineHeight: 1 }}>{getCategoryEmoji(cat.key)}</span>
                     <span style={{ fontSize: 9.5, color: '#666', marginTop: 8, lineHeight: 1.2 }}>{cat.label}</span>
                   </Button>
                 </Grid>
@@ -391,7 +383,7 @@ function AddItem({ user, onItemAdded }) {
                   fontSize: 13,
                   marginRight: 6,
                   color: '#64748b',
-                  fontWeight: 600,
+                  fontWeight: 200,
                 }}>▶</span>
                 <Typography sx={{ fontWeight: 150, color: '#191919ff', fontSize: 13, letterSpacing: 0.01, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>More details</Typography>
               </AccordionSummary>

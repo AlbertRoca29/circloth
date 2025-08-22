@@ -7,6 +7,8 @@ import google.auth
 import os
 from fastapi.middleware.cors import CORSMiddleware
 from db import FirestoreDB
+ # removed local messages import; use FirestoreDB for chat
+from matching_service import get_available_items_for_user, handle_user_action
 import logging
 from datetime import datetime
 
@@ -38,7 +40,7 @@ db = FirestoreDB()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        # "http://localhost:3000",
+        "http://localhost:3000",
         "https://circloth.com",
         "https:///www.circloth.com",
         "https://circloth--circl0th.europe-west4.hosted.app/",
@@ -90,50 +92,30 @@ class ActionRequest(BaseModel):
 def health():
     return {"ok": True}
 
+
+# Use new matching logic
 @app.post("/match")
 def match_items(req: MatchRequest):
     user = db.get_user(req.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    actions = db.get_user_actions(req.user_id)
-    excluded_item_ids = set(a["item_id"] for a in actions)
-
-    all_items = db.list_items()
-    available_items = [
-        item
-        for item in all_items
-        if item.get("ownerId") != req.user_id and item.get("id") not in excluded_item_ids
-    ]
-
+    available_items = get_available_items_for_user(req.user_id)
     logging.warning(
-        f"[MATCH DEBUG] user_id={req.user_id} excluded_item_ids={excluded_item_ids} available_items={len(available_items)}"
+        f"[MATCH DEBUG] user_id={req.user_id} available_items={len(available_items)}"
     )
     if not available_items:
-        raise HTTPException(status_code=404, detail="No items found")
-
+        return {"message": "🧺 No matches right now... but your next favorite outfit is just around the corner! ✨", "item": None}
     return {"item": available_items[0]}
 
 
+
+# Use new action logic
 @app.post("/action")
 def handle_action(req: ActionRequest):
     user = db.get_user(req.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    if req.action == "pass":
-        passed = user.get("passed_items", [])
-        if req.item_id not in passed:
-            passed.append(req.item_id)
-            user["passed_items"] = passed
-            db.update_user(req.user_id, user)
-
-    db.save_user_action(
-        req.user_id,
-        req.item_id,
-        req.action,
-        datetime.utcnow().isoformat() + "Z",
-    )
+    handle_user_action(req.user_id, req.item_id, req.action, req.device_info)
     return {"message": "Action handled successfully"}
 
 
@@ -200,6 +182,96 @@ def update_user_profile(user_id: str, user: UserModel):
 def get_user_actions(user_id: str):
     actions = db.get_user_actions(user_id)
     return {"actions": actions}
+
+
+@app.get("/matches/{user_id}")
+def get_matches(user_id: str):
+    dbi = FirestoreDB()
+    # 1. Get all actions by this user (likes given)
+    my_actions = dbi.get_user_actions(user_id)
+    my_likes = [a for a in my_actions if a.get("action") == "like"]
+    # 2. Get all items owned by this user
+    my_items = dbi.list_user_items(user_id)
+    my_item_ids = set(i["id"] for i in my_items)
+    # 3. For each of my items, get likes received
+    received_likes = []
+    for item in my_items:
+        # Find all actions where someone else liked this item
+        actions = []
+        users_ref = dbi.db.collection("users")
+        for user_doc in users_ref.stream():
+            other_user_id = user_doc.id
+            if other_user_id == user_id:
+                continue
+            other_actions = dbi.get_user_actions(other_user_id)
+            for act in other_actions:
+                if act.get("action") == "like" and act.get("item_id") == item["id"]:
+                    act = dict(act)
+                    act["user_id"] = other_user_id
+                    received_likes.append(act)
+    # 4. Find reciprocal likes
+    matches = []
+    for my_like in my_likes:
+        their_item_id = my_like["item_id"]
+        # Find the item to get ownerId
+        their_item = dbi.get_item(their_item_id)
+        if not their_item:
+            continue
+        their_user_id = their_item.get("ownerId")
+        if not their_user_id or their_user_id == user_id:
+            continue
+        # Did this user like any of my items?
+        reciprocal = next((l for l in received_likes if l["user_id"] == their_user_id), None)
+        if reciprocal:
+            # Get their user info
+            other_user = dbi.get_user(their_user_id) or {"id": their_user_id}
+            # Get my item they liked
+            your_item = next((i for i in my_items if i["id"] == reciprocal["item_id"]), None)
+            if their_item and your_item:
+                matches.append({
+                    "id": f"{user_id}_{their_user_id}_{their_item_id}_{your_item['id']}",
+                    "otherUser": other_user,
+                    "theirItem": their_item,
+                    "yourItem": your_item
+                })
+    return {"matches": matches}
+
+
+
+
+
+# --- Chat Message Models ---
+class MessageSendRequest(BaseModel):
+    sender: str
+    receiver: str
+    content: str
+
+class MessageListRequest(BaseModel):
+    user1: str
+    user2: str
+    limit: Optional[int] = 50
+
+# --- Chat Endpoints using FirestoreDB ---
+@app.post("/chat/send")
+def send_message(req: MessageSendRequest):
+    if not req.sender or not req.receiver or not req.content:
+        raise HTTPException(status_code=400, detail="Missing sender, receiver, or content")
+    db.add_chat_message(req.sender, req.receiver, req.content, datetime.utcnow().isoformat())
+    return {"message": "Message sent"}
+
+@app.post("/chat/list")
+def list_messages(req: MessageListRequest):
+    try:
+        messages = db.get_chat_messages(req.user1, req.user2, req.limit)
+        # If no messages, return empty list (not error)
+        if not messages:
+            return {"messages": []}
+        return {"messages": messages}
+    except Exception as e:
+        import logging
+        logging.exception(f"Error fetching chat messages for {req.user1} <-> {req.user2}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch messages: {str(e)}")
+
 
 
 # --- Entrypoint ---

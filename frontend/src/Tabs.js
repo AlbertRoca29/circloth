@@ -150,7 +150,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         style={{
           textAlign: "center",
           color: "#e11d48",
-          fontWeight: 500,
+          fontWeight: 150,
           fontSize: "1rem",
           marginTop: 10,
           minHeight: 22,

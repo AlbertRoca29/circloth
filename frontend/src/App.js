@@ -9,6 +9,7 @@ import Tabs from "./Tabs";
 import Matching from "./Matching";
 import "./Common.css";
 import BACKEND_URL from "./config";
+import Chats from "./Chats";
 
 function App() {
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
@@ -101,7 +102,7 @@ function App() {
                 fontSize: "1rem",
                 letterSpacing: "0.01em"
               }}>
-                Hi, {appUser.name || appUser.displayName}
+                {/* Hi, {appUser.name || appUser.displayName} */}
               </span>
               <button
                 title="Profile"
@@ -166,16 +167,11 @@ function App() {
           </>
         )}
         {activeTab === "matching" && <Matching user={appUser} />}
-        {activeTab === "chats" && (
-          <div className="card" style={{
-            textAlign: "center",
-            color: "var(--gray-text, #64748b)",
-            fontSize: "1.2rem",
-            marginTop: 40
-          }}>
-            <p>Chats feature coming soon!</p>
-          </div>
-        )}
+           {activeTab === "chats" && (
+             <React.Suspense fallback={<div className="card">Loading chats...</div>}>
+               <Chats user={appUser} />
+             </React.Suspense>
+           )}
       </div>
 
       {/* Floating Tabs - fixed, outside main-container */}
