@@ -49,17 +49,21 @@ app.add_middleware(
 )
 
 # --- Models ---
+
+# Canonical item model matching AddItem.js
 class ItemModel(BaseModel):
     id: Optional[str] = None
     ownerId: str
-    name: str
-    category: Optional[str] = None
+    category: str
+    size: str
+    itemStory: str
+    photoURLs: List[str]
+    # Optional fields
     color: Optional[str] = None
-    size: Optional[str] = None
     brand: Optional[str] = None
     material: Optional[str] = None
-    description: Optional[str] = None
-    photoURLs: Optional[List[str]] = None
+    additionalInfo: Optional[str] = None
+    sizeDetails: Optional[str] = None
 
 
 class UserModel(BaseModel):
@@ -147,14 +151,27 @@ def get_item(item_id: str):
 
 
 @app.post("/item")
+
+# Validate required fields and min 2 photos
+@app.post("/item")
 def create_item(item: ItemModel):
+    if not item.category or not item.size or not item.itemStory:
+        raise HTTPException(status_code=400, detail="Missing required fields: category, size, or itemStory")
+    if not item.photoURLs or len(item.photoURLs) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 photos are required")
     item_dict = item.dict(exclude_unset=True)
     item_id = db.create_item(item_dict)
     return {"id": item_id}
 
 
 @app.put("/item/{item_id}")
+
+@app.put("/item/{item_id}")
 def update_item(item_id: str, item: ItemModel):
+    if not item.category or not item.size or not item.itemStory:
+        raise HTTPException(status_code=400, detail="Missing required fields: category, size, or itemStory")
+    if not item.photoURLs or len(item.photoURLs) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 photos are required")
     db.update_item(item_id, item.dict(exclude_unset=True))
     return {"message": "Item updated"}
 
