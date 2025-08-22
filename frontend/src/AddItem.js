@@ -20,60 +20,84 @@ import Collapse from "@mui/material/Collapse";
 
 
 
-// Local icon loader
-const getCategoryIcon = (key) => (
-  <img src={require(`./assets/category-icons/${key}.png`)} alt={key} style={{ width: 36, height: 36, objectFit: 'contain' }} />
-);
-
 const categories = [
-  { key: 'shirt', label: 'Shirt' },
-  { key: 'tshirt', label: 'T-shirt' },
-  { key: 'jacket', label: 'Jacket' },
-  { key: 'sweater', label: 'Sweater' },
-  { key: 'pants', label: 'Pants' },
-  { key: 'jeans', label: 'Jeans' },
-  { key: 'shorts', label: 'Shorts' },
-  { key: 'dress', label: 'Dress' },
-  { key: 'skirt', label: 'Skirt' },
+  { key: 'tops', label: 'Tops' },
+  { key: 'jackets_sweaters', label: 'Jackets & Sweaters' },
+  { key: 'pants_shorts', label: 'Pants & Shorts' },
+  { key: 'dresses_skirts', label: 'Dresses & Skirts' },
   { key: 'shoes', label: 'Shoes' },
-  { key: 'hat', label: 'Hat' },
-  { key: 'bag', label: 'Bag' },
-  { key: 'accessory', label: 'Accessory' },
+  { key: 'accessories', label: 'Accessories' },
   { key: 'other', label: 'Other' },
 ];
 
-const sizeOptions = {
-  shirt: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  tshirt: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  jacket: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  sweater: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  pants: ['28', '30', '32', '34', '36', '38', '40', '42'],
-  jeans: ['28', '30', '32', '34', '36', '38', '40', '42'],
-  shorts: ['XS', 'S', 'M', 'L', 'XL'],
-  dress: ['XS', 'S', 'M', 'L', 'XL'],
-  skirt: ['XS', 'S', 'M', 'L', 'XL'],
-  shoes: ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'],
-  hat: ['S', 'M', 'L', 'XL'],
-  bag: ['S', 'M', 'L'],
-  accessory: ['S', 'M', 'L'],
-  other: ['One Size', 'Custom'],
+const categoryEmoji = {
+  "tops": "👕",
+  "jackets_sweaters": "🧥",
+  "pants_shorts": "👖",
+  "dresses_skirts": "👗",
+  "shoes": "👟",
+  "accessories": "👜",
+  "other": "✨"
 };
+
+
+const sizeOptions = {
+  tops: [
+    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Other'
+  ],
+  jackets_sweaters: [
+    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size', 'Other'
+  ],
+  pants_shorts: [
+    '28-30', '32-34', '36-38', '40-42', '44+', 'S', 'M', 'L', 'XL', 'Other'
+  ],
+  dresses_skirts: [
+    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL','One Size', 'Other'
+  ],
+  shoes: [
+    '35-37', '38-40', '41-43', '44-46', '47+','Other'
+  ],
+  accessories: [
+    'One Size', 'S', 'M', 'L', 'XL'
+  ],
+  other: [
+    'One Size', 'S', 'M', 'L', 'XL'
+  ]
+};
+
 
 // App green color
 const APP_GREEN = '#22c55e';
+// Expanded and grouped color palette for clothing
 const colorPalette = [
+  // Neutrals
   '#FFFFFF', // White
   '#F3F4F6', // Light Gray
+  '#BDBDBD', // Gray
   '#000000', // Black
-  '#E57373', // Soft Red
-  '#F9A825', // Amber
+  '#A1887F', // Brown
+  '#D7CCC8', // Light Brown
+  '#E0C097', // Beige
+  '#F5E6CA', // Cream
+  // Blues
+  '#1E293B', // Navy
+  '#3B82F6', // Denim Blue
+  '#60A5FA', // Light Blue
+  // Greens
+  '#4B6043', // Olive
+  '#A3B18A', // Sage
   '#81C784', // Light Green
   APP_GREEN, // App Green
-  '#BA68C8', // Purple
+  // Reds/Pinks
+  '#E57373', // Soft Red
+  '#B91C1C', // Deep Red
+  '#F472B6', // Pink
+  // Yellows/Oranges
   '#FFD54F', // Yellow
-  '#4DD0E1', // Teal
-  '#A1887F', // Brown
+  '#F9A825', // Amber
   '#FF8A65', // Orange
+  // Purples
+  '#BA68C8', // Purple
 ];
 
 function AddItem({ user, onItemAdded }) {
@@ -91,6 +115,7 @@ function AddItem({ user, onItemAdded }) {
   const [thumbnailIdx, setThumbnailIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleCategorySelect = (cat) => {
     setCategory(cat);
@@ -101,12 +126,12 @@ function AddItem({ user, onItemAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!category || !size || !itemStory.trim()) {
-      alert("Please fill all required fields");
-      return;
+  setErrorMsg("Please fill all required fields");
+  return;
     }
     if (photoFiles.length < 2) {
-      alert("Please add at least 2 photos (max 5)");
-      return;
+  setErrorMsg("Please add at least 2 photos (max 5)");
+  return;
     }
     setLoading(true);
     try {
@@ -161,21 +186,28 @@ function AddItem({ user, onItemAdded }) {
 
   return (
     <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {errorMsg && (
+        <Box sx={{ color: '#e53935', background: '#fff0f0', border: '1px solid #e53935', borderRadius: 2, p: 1.5, mb: 2, textAlign: 'center', fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>
+          {errorMsg}
+        </Box>
+      )}
       {!open && (
         <Button
           variant="contained"
           onClick={() => setOpen(true)}
           sx={{
-            fontSize: 18,
-            borderRadius: 3,
-            px: 4,
-            py: 2,
+            fontSize: 16,
+            borderRadius: 2.5,
+            px: 3.5,
+            py: 1.4,
             background: '#22c55e',
             color: '#fff',
             boxShadow: '0 2px 8px rgba(34,197,94,0.10)',
             textTransform: 'none',
-            fontWeight: 700,
-            minWidth: 180,
+            fontWeight: 150,
+            fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
+            minWidth: 140,
+            mb: 2.5,
             '&:hover': { background: '#15803d' }
           }}
         >
@@ -186,106 +218,141 @@ function AddItem({ user, onItemAdded }) {
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>
 
           <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8 }}>×</Button>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: '#15803d' }}>Add New Item</Typography>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Add New Item</Typography>
+
 
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <Typography sx={{ mb: 0.5, fontWeight: 600, color: APP_GREEN, fontSize: 16 }}>Category</Typography>
-            <Button
-              variant="outlined"
-              onClick={() => setCategoryDialog(true)}
-              sx={{
-                justifyContent: 'flex-start',
-                borderRadius: 2,
-                border: `2px solid ${APP_GREEN}`,
-                background: '#F3F4F6',
-                color: '#222',
-                fontWeight: 600,
-                fontSize: 15,
-                px: 1.5,
-                py: 0.7,
-                minHeight: 36,
-                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
-                '&:hover': { background: '#E3E8EF', borderColor: '#15803d' },
-                mt: 0.5,
-              }}
-              endIcon={<span style={{ fontSize: 16, marginLeft: 8 }}>▼</span>}
-            >
-              {category ? (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {getCategoryIcon(category)}
-                  <Typography sx={{ ml: 1 }}>{categories.find(c => c.key === category)?.label}</Typography>
-                </Box>
-              ) : 'Select Category'}
-            </Button>
-            <Dialog open={categoryDialog} onClose={() => setCategoryDialog(false)}>
-              <DialogTitle>Select Category</DialogTitle>
-              <DialogContent>
-                <Grid container spacing={2}>
-                  {categories.map(cat => (
-                    <Grid item xs={4} key={cat.key}>
-                      <Button onClick={() => handleCategorySelect(cat.key)} sx={{ flexDirection: 'column', borderRadius: 2, border: `1.5px solid ${APP_GREEN}`, background: '#F3F4F6', mb: 1, '&:hover': { background: '#E3E8EF' } }}>
-                        {getCategoryIcon(cat.key)}
-                        <Typography variant="body2">{cat.label}</Typography>
-                      </Button>
-                    </Grid>
-                  ))}
+            {/* <Typography sx={{ mb: 0.5, fontWeight: 600, color: '#222', fontSize: 16 }}>Category</Typography> */}
+            <Grid container spacing={1} sx={{ mb: 1, mt: 0.5, justifyContent: 'center', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontWeight: 100 }}>
+              {categories.map(cat => (
+                <Grid item xs={3} key={cat.key} sx={{ textAlign: 'center' }}>
+                  <Button
+                    onClick={() => handleCategorySelect(cat.key)}
+                    sx={{
+                      flexDirection: 'column',
+                      borderRadius: 2,
+                      border: category === cat.key ? `2.5px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
+                      background: '#fff',
+                      mb: 0.5,
+                      minWidth: 0,
+                      minHeight: 0,
+                      width: 88,
+                      height: 88,
+                      boxShadow: category === cat.key ? `2px 2px 0px 1px ${APP_GREEN}` : 'none',
+                      p: 0,
+                      transition: 'border 0s, box-shadow 0.4s',
+                      fontSize: 30,
+                      color: '#28720dff',
+                      fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
+                      fontWeight: 100,
+                      '&:hover': { background: '#F3F4F6', borderColor: '#166232ff' },
+                    }}
+                  >
+                    <span style={{ fontSize: 32, lineHeight: 1 }}>{categoryEmoji[cat.key]}</span>
+                    <span style={{ fontSize: 9.5, color: '#666', marginTop: 8, lineHeight: 1.2 }}>{cat.label}</span>
+                  </Button>
                 </Grid>
-              </DialogContent>
-            </Dialog>
+              ))}
+            </Grid>
+
 
 
             {category && (
               <>
-                <Box sx={{ mb: 1.2, mt: 1.2 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 600, color: '#222', fontSize: 15 }}>Size</Typography>
-                  <Grid container spacing={1}>
-                    {(sizeOptions[category] || []).map(opt => (
-                      <Grid item xs={6} key={opt}>
-                        <Button
-                          variant={size === opt ? 'contained' : 'outlined'}
-                          onClick={() => setSize(opt)}
-                          sx={{ width: '100%', borderRadius: 2, minHeight: 32, fontSize: 14, py: 0.5 }}
-                        >
-                          {opt}
-                        </Button>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Box>
+                <Box sx={{ mb: 1.7, mt: 1 }}>
+                    <Typography
+                        sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}
+                    >
+                        Size
+                    </Typography>
+                    <Grid container spacing={1}>
+                        {(sizeOptions[category] || []).map(opt => (
+                        <Grid item xs={4} key={opt}>
+                            <Button
+                            variant={size === opt ? 'contained' : 'outlined'}
+                            onClick={() => setSize(opt)}
+                            sx={{
+                                width: '100%',
+                                borderRadius: 1.5,
+                                minHeight: 32,
+                                fontSize: 14,
+                                py: 0.5
+                            }}
+                            >
+                            {opt}
+                            </Button>
+                        </Grid>
+                        ))}
+                    </Grid>
+                    </Box>
+
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Details of Size</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Details of Size</Typography>
                   <TextField
                     value={sizeDetails}
                     onChange={e => setSizeDetails(e.target.value)}
                     placeholder="e.g. Oversized, fits small, etc."
                     fullWidth
                     size="small"
-                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        fontSize: 14,
+                        py: 0.5,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderWidth: '1px',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor:  '#bcbcbcff',
+                          borderWidth: '0.5px',
+                        },
+                      }
+                    }}
                   />
                 </FormControl>
-              </>
-            )}
+              <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Size</Typography>
 
-            {/* Space between category/size and Item Story */}
-            <Box sx={{ height: 10 }} />
+                </>
+
+            )}
+            <Box sx={{ height: 20 }} />
             <FormControl fullWidth sx={{ mb: 1.5 }}>
-              <Typography sx={{ mb: 0.2, fontWeight: 600, color: '#222', fontSize: 15 }}>Item Story</Typography>
+              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Item Story 📝</Typography>
               <TextField
                 value={itemStory}
                 onChange={e => setItemStory(e.target.value)}
                 placeholder="Describe your item, its story, why you love it..."
                 fullWidth
                 multiline
-                minRows={3}
+                minRows={2}
+                sx={{
+                    "& .MuiInputBase-inputMultiline": {
+                    padding: "6px 0px"  // top/bottom, left/right
+                    }
+                }}
                 required
                 size="small"
-                InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                InputProps={{
+                  sx: {
+                    borderRadius: 2,
+                    fontSize: 14,
+                    py: 0.5,
+                    background: '#FFFBEA',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderWidth: '1px',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#dede33ff',
+                      borderWidth: '3px',
+                    },
+                  }
+                }}
               />
             </FormControl>
 
             {/* Photos */}
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ mb: 1 }}>Photos (2-5)</Typography>
+              <Typography sx={{ mb: 1, fontWeight: 100, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Photos (2-5)</Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {photoFiles.map((file, idx) => (
                   <Box key={idx} sx={{ position: 'relative' }}>
@@ -308,43 +375,44 @@ function AddItem({ user, onItemAdded }) {
             </Box>
 
 
+
             <Accordion
               expanded={showAdvanced}
               onChange={() => setShowAdvanced(!showAdvanced)}
-              sx={{ mb: 1.5, borderRadius: 2, boxShadow: 1, background: '#F3F4F6', border: `1.5px solid ${APP_GREEN}`, overflow: 'hidden' }}
+              sx={{ mb: 1.5, borderRadius: 2, boxShadow: 1, background: '#fff', border: 'none', overflow: 'hidden' }}
             >
               <AccordionSummary
-                sx={{ cursor: 'pointer', px: 1.5, py: 1, background: '#E3E8EF', borderBottom: showAdvanced ? `1.5px solid ${APP_GREEN}` : 'none', display: 'flex', alignItems: 'center', minHeight: 36 }}
+                sx={{ cursor: 'pointer', px: 1, py: 0.5, background: 'transparent', borderBottom: showAdvanced ? `1px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center', minHeight: 28 }}
               >
                 <span style={{
                   display: 'inline-block',
                   transition: 'transform 0.2s',
                   transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
-                  fontSize: 16,
-                  marginRight: 8,
-                  color: APP_GREEN,
-                  fontWeight: 700,
+                  fontSize: 13,
+                  marginRight: 6,
+                  color: '#64748b',
+                  fontWeight: 600,
                 }}>▶</span>
-                <Typography sx={{ fontWeight: 600, color: APP_GREEN, fontSize: 15 }}>More Details</Typography>
+                <Typography sx={{ fontWeight: 150, color: '#191919ff', fontSize: 13, letterSpacing: 0.01, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>More details</Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ background: '#F9FAFB', pt: 1.2, borderRadius: 2, px: 1.5 }}>
+              <AccordionDetails sx={{ background: '#fff', pt: 1, borderRadius: 2, px: 1.2, boxShadow: 'none', border: 'none' }}>
                 {/* Color picker */}
-                <Typography sx={{ mb: 0.5, fontWeight: 500, color: APP_GREEN, fontSize: 14 }}>Color</Typography>
-                <Grid container spacing={1} sx={{ mb: 1.5 }}>
-                  {colorPalette.map(c => (
+                <Typography sx={{ mb: 0.5, fontWeight: 100, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Color</Typography>
+                <Grid container spacing={0.5} sx={{ mb: 1.2 }}>
+                  {colorPalette.map((c, idx) => (
                     <Grid item xs={3} key={c}>
                       <Box sx={{ position: 'relative', display: 'inline-block' }}>
                         <Button
                           variant="outlined"
                           onClick={() => setColor(c)}
                           sx={{
-                            width: 30,
-                            height: 30,
-                            minWidth: 30,
-                            minHeight: 30,
+                            width: 34,
+                            height: 34,
+                            minWidth: 34,
+                            minHeight: 34,
                             borderRadius: '50%',
                             background: c,
-                            border: color === c ? `3px solid ${APP_GREEN}` : '2px solid #bdbdbd',
+                            border: color === c ? `2.5px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
                             boxShadow: color === c ? `0 0 0 2px ${APP_GREEN}` : 'none',
                             p: 0,
                             position: 'relative',
@@ -354,11 +422,11 @@ function AddItem({ user, onItemAdded }) {
                           {color === c && (
                             <span style={{
                               position: 'absolute',
-                              top: 3,
-                              left: 8,
+                              top: 4,
+                              left: 10,
                               color: APP_GREEN,
                               fontWeight: 900,
-                              fontSize: 16,
+                              fontSize: 15,
                               pointerEvents: 'none',
                             }}>✓</span>
                           )}
@@ -368,44 +436,88 @@ function AddItem({ user, onItemAdded }) {
                   ))}
                 </Grid>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Brand</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Brand</Typography>
                   <TextField
                     value={brand}
                     onChange={e => setBrand(e.target.value)}
                     placeholder="e.g. Nike, Zara, Uniqlo"
                     fullWidth
                     size="small"
-                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        fontSize: 14,
+                        py: 0.5,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderWidth: '1px',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor:  '#bcbcbcff',
+                          borderWidth: '0.5px',
+                        },
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Material</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Material</Typography>
                   <TextField
                     value={material}
                     onChange={e => setMaterial(e.target.value)}
                     placeholder="e.g. 100% Cotton, Polyester"
                     fullWidth
                     size="small"
-                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        fontSize: 14,
+                        py: 0.5,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderWidth: '1px',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#bcbcbcff',
+                          borderWidth: '0.5px',
+                        },
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormControl fullWidth>
-                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Additional Info</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Additional Info</Typography>
                   <TextField
                     value={additionalInfo}
                     onChange={e => setAdditionalInfo(e.target.value)}
                     placeholder="e.g. Slightly worn, limited edition, etc."
                     fullWidth
                     multiline
+                    sx={{
+                            "& .MuiInputBase-inputMultiline": {
+                            padding: "6px 0px"  // top/bottom, left/right
+                            }
+                        }}
                     minRows={2}
                     size="small"
-                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        fontSize: 14,
+                        py: 0.5,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderWidth: '1px',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor:  '#bcbcbcff',
+                          borderWidth: '0.5px',
+                        },
+                      }
+                    }}
                   />
                 </FormControl>
               </AccordionDetails>
             </Accordion>
 
-            <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', fontWeight: 700, '&:hover': { background: '#15803d' } }} disabled={loading}>
+            <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }} disabled={loading}>
               {loading ? "Adding..." : "Submit"}
             </Button>
 

@@ -8,6 +8,7 @@
   z-index: 1000;
 }
 .profile-modal {
+  font-weight: 100;
   background: var(--glass-bg, rgba(255,255,255,0.7));
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(34, 197, 94, 0.13);
@@ -20,6 +21,7 @@
   backdrop-filter: var(--glass-blur, blur(12px));
   -webkit-backdrop-filter: var(--glass-blur, blur(12px));
   border: 1.5px solid var(--primary-light, #e6faed);
+  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
 }
 .close-btn {
   position: absolute;
@@ -36,8 +38,10 @@
   color: var(--primary, #22c55e);
 }
 .profile-info {
+  font-weight: 100;
   margin-top: 1.2rem;
   font-size: 1.1rem;
+  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
   color: #222;
   display: flex;
   flex-direction: column;

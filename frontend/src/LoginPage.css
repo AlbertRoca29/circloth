@@ -23,19 +23,21 @@
 .login-card h2 {
   margin-bottom: 1.5rem;
   color: var(--primary-dark, #15803d);
-  font-weight: 800;
+  font-weight: 200;
   font-size: 2rem;
   letter-spacing: 0.5px;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
 }
 
 .login-input {
+  font-weight: 100;
   width: 100%;
   padding: 0.85rem 1.1rem;
   border-radius: 12px;
   border: 1.5px solid var(--primary-light, #e6faed);
   margin-bottom: 1.2rem;
   font-size: 1.08rem;
+  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
   outline: none;
   transition: border 0.18s, box-shadow 0.18s;
   background: #f9fafb;

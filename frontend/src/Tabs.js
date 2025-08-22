@@ -1,80 +1,164 @@
-import React from "react";
+import React, { useRef } from "react";
 import "./Common.css";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
-  return (
-    <div style={{ width: "100%", margin: "2rem 0 2.5rem 0", background: "transparent", padding: 0 }}>
-      <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
-      <button
-        className="tab-btn"
-        style={{
-          background: activeTab === "clothes" ? "var(--primary, #22c55e)" : "none",
-          color: activeTab === "clothes" ? "#fff" : "var(--primary-dark, #15803d)",
-          fontWeight: activeTab === "clothes" ? 700 : 500,
-          border: "none",
-          borderRadius: 8,
-          padding: "0.7rem 1.2rem",
-          fontSize: "1.08rem",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          boxShadow: activeTab === "clothes" ? "0 4px 16px rgba(34,197,94,0.13)" : "none",
-          cursor: "pointer",
-          transition: "background 0.18s, color 0.18s, box-shadow 0.18s"
-        }}
-        onClick={() => setActiveTab("clothes")}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        My clothes
-      </button>
-      <button
-        className="tab-btn"
-        style={{
-          background: activeTab === "matching" ? "var(--primary, #22c55e)" : "none",
-          color: !hasClothes ? "#94a3b8" : (activeTab === "matching" ? "#fff" : "var(--primary-dark, #15803d)"),
-          fontWeight: activeTab === "matching" ? 700 : 500,
-          border: "none",
-          borderRadius: 8,
-          padding: "0.7rem 1.2rem",
-          fontSize: "1.08rem",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          boxShadow: activeTab === "matching" ? "0 4px 16px rgba(34,197,94,0.13)" : "none",
-          cursor: !hasClothes ? "not-allowed" : "pointer",
-          opacity: !hasClothes ? 0.6 : 1,
-          transition: "background 0.18s, color 0.18s, box-shadow 0.18s"
-        }}
-        onClick={() => hasClothes && setActiveTab("matching")}
-        disabled={!hasClothes}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-.5.5-.5-.5a5.5 5.5 0 0 0-7.8 7.8l.5.5L12 21.3l7.3-7.3.5-.5a5.5 5.5 0 0 0 0-7.8z"/></svg>
-        Matching
-      </button>
-      <button
-        className="tab-btn"
-        style={{
-          background: activeTab === "chats" ? "var(--primary, #22c55e)" : "none",
-          color: activeTab === "chats" ? "#fff" : "var(--primary-dark, #15803d)",
-          fontWeight: activeTab === "chats" ? 700 : 500,
-          border: "none",
-          borderRadius: 8,
-          padding: "0.7rem 1.2rem",
-          fontSize: "1.08rem",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          boxShadow: activeTab === "chats" ? "0 4px 16px rgba(34,197,94,0.13)" : "none",
-          cursor: "pointer",
-          transition: "background 0.18s, color 0.18s, box-shadow 0.18s"
-        }}
-        onClick={() => setActiveTab("chats")}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Chats
-      </button>
+  const messageRef = useRef(null);
+
+  const handleMatchingClick = () => {
+    if (!hasClothes) {
+      if (messageRef.current) {
+        messageRef.current.textContent =
+          "You have to upload at least one item to access Matching.";
+        messageRef.current.style.opacity = 1;
+        setTimeout(() => {
+          if (messageRef.current) messageRef.current.style.opacity = 0;
+        }, 2500);
+      }
+      return;
+    }
+    setActiveTab("matching");
+  };
+
+  const TabButton = ({ tab, label, icon, onClick, disabled }) => (
+    <button
+      className={`tab-btn${tab === activeTab ? ' tab-btn-active' : ''}`}
+      style={{
+        flex: 1,
+        background: "none",
+        border: "none",
+        outline: "none",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        color:
+          tab === activeTab
+            ? "#fff"
+            : disabled
+            ? "#94a3b8"
+            : "var(--primary-dark, #15803d)",
+        borderRadius: 10,
+        padding: "4px 0 2px 0",
+        fontSize: "0.68rem",
+        fontWeight: tab === activeTab ? 150 : 100,
+        transition: "all 0.22s",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.6 : 1,
+        background:
+          tab === activeTab ? "var(--primary, #22c55e)" : "transparent",
+        minWidth: 0,
+        fontFamily: "'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif",
+        letterSpacing: tab === activeTab ? "0.01em" : "0.02em"
+      }}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 2 }}>
+        {icon}
       </div>
-    </div>
+      {label}
+    </button>
+  );
+
+  return (
+    <>
+      {/* Floating bottom navigation bar */}
+      <div
+        style={{
+          position: "fixed",
+          left: "50%",
+          bottom: 16,
+          transform: "translateX(-50%)",
+          width: "220px",
+          maxWidth: 440,
+          height: 64,
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "center",
+          borderRadius: 20,
+          background: "rgba(255,255,255,0.92)",
+          backdropFilter: "blur(12px)",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+          zIndex: 200,
+          padding: "0 8px"
+        }}
+      >
+        <TabButton
+          tab="clothes"
+          label="Clothes"
+          onClick={() => setActiveTab("clothes")}
+          icon={
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          }
+        />
+        <TabButton
+          tab="matching"
+          label="Matching"
+          onClick={handleMatchingClick}
+          disabled={!hasClothes}
+          icon={
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-.5.5-.5-.5a5.5 5.5 0 0 0-7.8 7.8l.5.5L12 21.3l7.3-7.3.5-.5a5.5 5.5 0 0 0 0-7.8z" />
+            </svg>
+          }
+        />
+        <TabButton
+          tab="chats"
+          label="Chats"
+          onClick={() => setActiveTab("chats")}
+          icon={
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          }
+        />
+      </div>
+
+      {/* Message feedback */}
+      <div
+        ref={messageRef}
+        style={{
+          textAlign: "center",
+          color: "#e11d48",
+          fontWeight: 500,
+          fontSize: "1rem",
+          marginTop: 10,
+          minHeight: 22,
+          opacity: 0,
+          transition: "opacity 0.3s",
+        }}
+      ></div>
+    </>
   );
 }
 

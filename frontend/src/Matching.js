@@ -50,10 +50,10 @@ function Matching({ user }) {
   if (!item) return <div className="card">No more items to show. Check back later!</div>;
 
   return (
-    <div className="card" style={{ maxWidth: 400, margin: "0 auto" }}>
+  <div className="card matching-card-fixed" style={{ maxWidth: 400, margin: "0 auto", overflow: "hidden", maxHeight: 480 }}>
   <h2 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 800, fontSize: "1.5rem", letterSpacing: "0.01em", fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>Matching</h2>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-        <b>{item.category} {item.brand ? `- ${item.brand}` : ''}</b> <span style={{ color: "var(--gray-text, #64748b)", fontWeight: 500 }}>{item.size}{item.sizeDetails ? ` (${item.sizeDetails})` : ''}</span>
+        <b>{item.category} {item.brand ? `- ${item.brand}` : ''}</b> <span style={{ color: "var(--gray-text, #64748b)", fontWeight: 200 }}>{item.size}{item.sizeDetails ? ` (${item.sizeDetails})` : ''}</span>
         {item.photoURLs && item.photoURLs.length > 0 && (
           <div style={{ marginTop: 8 }}>
             <img src={item.photoURLs[0]} alt={item.category} style={{ width: 120, borderRadius: 8 }} />
@@ -63,7 +63,7 @@ function Matching({ user }) {
           {item.itemStory}
           {item.color && <div><strong>Color:</strong> {item.color}</div>}
           {item.material && <div><strong>Material:</strong> {item.material}</div>}
-          {item.additionalInfo && <div><strong>Info:</strong> {item.additionalInfo}</div>}
+          {item.additionalInfo && <div><strong>Additional Info:</strong> {item.additionalInfo}</div>}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           <button className="btn gray" onClick={() => handleAction("pass")} disabled={actionLoading}>Pass</button>

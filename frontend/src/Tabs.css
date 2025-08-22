@@ -17,12 +17,13 @@
     border: none;
     border-radius: 12px;
     padding: 0.7rem 1.6rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.18s, color 0.18s, transform 0.12s;
-    border-bottom: 3px solid transparent;
-    letter-spacing: 0.01em;
+  font-size: 1.1rem;
+  font-weight: 150;
+  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+  border-bottom: 3px solid transparent;
+  letter-spacing: 0.01em;
   }
   .tab-btn.active {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
