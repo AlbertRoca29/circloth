@@ -74,7 +74,7 @@ function ItemList({ user, refreshSignal }) {
                   <img
                     key={idx}
                     src={url}
-                    alt={item.name + "-" + idx}
+                    alt={`${item.category}${item.brand ? '-' + item.brand : ''}-${idx}`}
                     style={{
                       width: 60,
                       height: 60,
@@ -97,18 +97,20 @@ function ItemList({ user, refreshSignal }) {
               )}
             </div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ margin: 0, color: "#222", fontSize: 20 }}>{item.name}</h3>
+              <h3 style={{ margin: 0, color: "#222", fontSize: 20 }}>{item.category} {item.brand ? `- ${item.brand}` : ''}</h3>
               <div style={{ color: "#555", fontSize: 15, margin: "6px 0" }}>
                 <span style={{ marginRight: 12 }}><strong>Category:</strong> {item.category}</span>
                 <span><strong>Size:</strong> {item.size}</span>
+                {item.sizeDetails && <span style={{ marginLeft: 12 }}><strong>Details:</strong> {item.sizeDetails}</span>}
               </div>
               <div style={{ color: "#555", fontSize: 15 }}>
-                <span style={{ marginRight: 12 }}><strong>Color:</strong> {item.color}</span>
+                {item.color && <span style={{ marginRight: 12 }}><strong>Color:</strong> {item.color}</span>}
                 {item.brand && <span style={{ marginRight: 12 }}><strong>Brand:</strong> {item.brand}</span>}
-                {item.material && <span><strong>Material:</strong> {item.material}</span>}
+                {item.material && <span style={{ marginRight: 12 }}><strong>Material:</strong> {item.material}</span>}
+                {item.additionalInfo && <span><strong>Info:</strong> {item.additionalInfo}</span>}
               </div>
-              {item.description && (
-                <div style={{ color: "#888", fontSize: 14, marginTop: 6 }}>{item.description}</div>
+              {item.itemStory && (
+                <div style={{ color: "#888", fontSize: 14, marginTop: 6 }}>{item.itemStory}</div>
               )}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>

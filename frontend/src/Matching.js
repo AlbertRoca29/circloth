@@ -53,14 +53,17 @@ function Matching({ user }) {
     <div className="card" style={{ maxWidth: 400, margin: "0 auto" }}>
   <h2 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 800, fontSize: "1.5rem", letterSpacing: "0.01em", fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>Matching</h2>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-  <b>{item.name}</b> <span style={{ color: "var(--gray-text, #64748b)", fontWeight: 500 }}>{item.category}</span>
+        <b>{item.category} {item.brand ? `- ${item.brand}` : ''}</b> <span style={{ color: "var(--gray-text, #64748b)", fontWeight: 500 }}>{item.size}{item.sizeDetails ? ` (${item.sizeDetails})` : ''}</span>
         {item.photoURLs && item.photoURLs.length > 0 && (
           <div style={{ marginTop: 8 }}>
-            <img src={item.photoURLs[0]} alt={item.name} style={{ width: 120, borderRadius: 8 }} />
+            <img src={item.photoURLs[0]} alt={item.category} style={{ width: 120, borderRadius: 8 }} />
           </div>
         )}
-  <div style={{ color: "var(--gray-text, #64748b)", fontSize: 14, marginBottom: 12 }}>
-          {item.description}
+        <div style={{ color: "var(--gray-text, #64748b)", fontSize: 14, marginBottom: 12 }}>
+          {item.itemStory}
+          {item.color && <div><strong>Color:</strong> {item.color}</div>}
+          {item.material && <div><strong>Material:</strong> {item.material}</div>}
+          {item.additionalInfo && <div><strong>Info:</strong> {item.additionalInfo}</div>}
         </div>
         <div style={{ display: "flex", gap: 16 }}>
           <button className="btn gray" onClick={() => handleAction("pass")} disabled={actionLoading}>Pass</button>

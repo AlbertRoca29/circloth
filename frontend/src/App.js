@@ -70,7 +70,7 @@ function App() {
     <div className="main-container">
       <div className="header-bubble">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-          <h1 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 800, fontSize: "2rem", margin: 0, letterSpacing: "0.01em", fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>Circloth</h1>
+          <h1 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 800, fontSize: "clamp(1.3rem, 1.5vw, 1.5rem)", margin: 0, letterSpacing: "0.01em", fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>Circloth</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
             <span style={{ fontWeight: 500, color: "var(--gray-text, #64748b)", marginRight: 18, fontSize: "1.13rem", letterSpacing: "0.01em" }}>
               Hi, {appUser.name || appUser.displayName}

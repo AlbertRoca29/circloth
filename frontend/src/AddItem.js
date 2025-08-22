@@ -18,12 +18,6 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
 
-// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-// import CloseIcon from '@mui/icons-material/Close';
-
-// import { styled } from '@mui/material/styles';
-
 
 
 // Local icon loader
@@ -65,8 +59,21 @@ const sizeOptions = {
   other: ['One Size', 'Custom'],
 };
 
+// App green color
+const APP_GREEN = '#22c55e';
 const colorPalette = [
-  '#ffffff', '#bdbdbd', '#000000', '#e11d48', '#f59e42', '#fbbf24', '#22c55e', '#15803d', '#a16207', '#d97706', '#be185d', '#7c3aed'
+  '#FFFFFF', // White
+  '#F3F4F6', // Light Gray
+  '#000000', // Black
+  '#E57373', // Soft Red
+  '#F9A825', // Amber
+  '#81C784', // Light Green
+  APP_GREEN, // App Green
+  '#BA68C8', // Purple
+  '#FFD54F', // Yellow
+  '#4DD0E1', // Teal
+  '#A1887F', // Brown
+  '#FF8A65', // Orange
 ];
 
 function AddItem({ user, onItemAdded }) {
@@ -182,8 +189,27 @@ function AddItem({ user, onItemAdded }) {
           <Typography variant="h5" sx={{ mb: 2, fontWeight: 700, color: '#15803d' }}>Add New Item</Typography>
 
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <Typography sx={{ mb: 1 }}>Category</Typography>
-            <Button variant="outlined" onClick={() => setCategoryDialog(true)} sx={{ justifyContent: 'flex-start' }}>
+            <Typography sx={{ mb: 0.5, fontWeight: 600, color: APP_GREEN, fontSize: 16 }}>Category</Typography>
+            <Button
+              variant="outlined"
+              onClick={() => setCategoryDialog(true)}
+              sx={{
+                justifyContent: 'flex-start',
+                borderRadius: 2,
+                border: `2px solid ${APP_GREEN}`,
+                background: '#F3F4F6',
+                color: '#222',
+                fontWeight: 600,
+                fontSize: 15,
+                px: 1.5,
+                py: 0.7,
+                minHeight: 36,
+                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                '&:hover': { background: '#E3E8EF', borderColor: '#15803d' },
+                mt: 0.5,
+              }}
+              endIcon={<span style={{ fontSize: 16, marginLeft: 8 }}>▼</span>}
+            >
               {category ? (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {getCategoryIcon(category)}
@@ -197,7 +223,7 @@ function AddItem({ user, onItemAdded }) {
                 <Grid container spacing={2}>
                   {categories.map(cat => (
                     <Grid item xs={4} key={cat.key}>
-                      <Button onClick={() => handleCategorySelect(cat.key)} sx={{ flexDirection: 'column' }}>
+                      <Button onClick={() => handleCategorySelect(cat.key)} sx={{ flexDirection: 'column', borderRadius: 2, border: `1.5px solid ${APP_GREEN}`, background: '#F3F4F6', mb: 1, '&:hover': { background: '#E3E8EF' } }}>
                         {getCategoryIcon(cat.key)}
                         <Typography variant="body2">{cat.label}</Typography>
                       </Button>
@@ -207,17 +233,18 @@ function AddItem({ user, onItemAdded }) {
               </DialogContent>
             </Dialog>
 
+
             {category && (
               <>
-                <Box sx={{ mb: 2, mt: 2 }}>
-                  <Typography sx={{ mb: 1 }}>Size</Typography>
+                <Box sx={{ mb: 1.2, mt: 1.2 }}>
+                  <Typography sx={{ mb: 0.2, fontWeight: 600, color: '#222', fontSize: 15 }}>Size</Typography>
                   <Grid container spacing={1}>
                     {(sizeOptions[category] || []).map(opt => (
                       <Grid item xs={6} key={opt}>
                         <Button
                           variant={size === opt ? 'contained' : 'outlined'}
                           onClick={() => setSize(opt)}
-                          sx={{ width: '100%', borderRadius: 2 }}
+                          sx={{ width: '100%', borderRadius: 2, minHeight: 32, fontSize: 14, py: 0.5 }}
                         >
                           {opt}
                         </Button>
@@ -225,26 +252,36 @@ function AddItem({ user, onItemAdded }) {
                     ))}
                   </Grid>
                 </Box>
-                <TextField
-                  label="Details of Size"
-                  value={sizeDetails}
-                  onChange={e => setSizeDetails(e.target.value)}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                />
+                <FormControl fullWidth sx={{ mb: 1 }}>
+                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Details of Size</Typography>
+                  <TextField
+                    value={sizeDetails}
+                    onChange={e => setSizeDetails(e.target.value)}
+                    placeholder="e.g. Oversized, fits small, etc."
+                    fullWidth
+                    size="small"
+                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                  />
+                </FormControl>
               </>
             )}
 
-            <TextField
-              label="Item Story"
-              value={itemStory}
-              onChange={e => setItemStory(e.target.value)}
-              fullWidth
-              multiline
-              minRows={3}
-              required
-              sx={{ mb: 2 }}
-            />
+            {/* Space between category/size and Item Story */}
+            <Box sx={{ height: 10 }} />
+            <FormControl fullWidth sx={{ mb: 1.5 }}>
+              <Typography sx={{ mb: 0.2, fontWeight: 600, color: '#222', fontSize: 15 }}>Item Story</Typography>
+              <TextField
+                value={itemStory}
+                onChange={e => setItemStory(e.target.value)}
+                placeholder="Describe your item, its story, why you love it..."
+                fullWidth
+                multiline
+                minRows={3}
+                required
+                size="small"
+                InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+              />
+            </FormControl>
 
             {/* Photos */}
             <Box sx={{ mb: 2 }}>
@@ -270,26 +307,101 @@ function AddItem({ user, onItemAdded }) {
               </Box>
             </Box>
 
-            <Accordion expanded={showAdvanced} onChange={() => setShowAdvanced(!showAdvanced)} sx={{ mb: 2 }}>
-              <AccordionSummary>
-                <Typography>More Details</Typography>
+
+            <Accordion
+              expanded={showAdvanced}
+              onChange={() => setShowAdvanced(!showAdvanced)}
+              sx={{ mb: 1.5, borderRadius: 2, boxShadow: 1, background: '#F3F4F6', border: `1.5px solid ${APP_GREEN}`, overflow: 'hidden' }}
+            >
+              <AccordionSummary
+                sx={{ cursor: 'pointer', px: 1.5, py: 1, background: '#E3E8EF', borderBottom: showAdvanced ? `1.5px solid ${APP_GREEN}` : 'none', display: 'flex', alignItems: 'center', minHeight: 36 }}
+              >
+                <span style={{
+                  display: 'inline-block',
+                  transition: 'transform 0.2s',
+                  transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
+                  fontSize: 16,
+                  marginRight: 8,
+                  color: APP_GREEN,
+                  fontWeight: 700,
+                }}>▶</span>
+                <Typography sx={{ fontWeight: 600, color: APP_GREEN, fontSize: 15 }}>More Details</Typography>
               </AccordionSummary>
-              <AccordionDetails>
+              <AccordionDetails sx={{ background: '#F9FAFB', pt: 1.2, borderRadius: 2, px: 1.5 }}>
                 {/* Color picker */}
-                <Grid container spacing={1}>
+                <Typography sx={{ mb: 0.5, fontWeight: 500, color: APP_GREEN, fontSize: 14 }}>Color</Typography>
+                <Grid container spacing={1} sx={{ mb: 1.5 }}>
                   {colorPalette.map(c => (
-                    <Grid item xs={4} key={c}>
-                      <Button
-                        variant={color === c ? 'contained' : 'outlined'}
-                        onClick={() => setColor(c)}
-                        sx={{ width: 40, height: 40, minWidth: 40, minHeight: 40, borderRadius: '50%', background: c }}
-                      />
+                    <Grid item xs={3} key={c}>
+                      <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setColor(c)}
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            minWidth: 30,
+                            minHeight: 30,
+                            borderRadius: '50%',
+                            background: c,
+                            border: color === c ? `3px solid ${APP_GREEN}` : '2px solid #bdbdbd',
+                            boxShadow: color === c ? `0 0 0 2px ${APP_GREEN}` : 'none',
+                            p: 0,
+                            position: 'relative',
+                            transition: 'border 0.2s, box-shadow 0.2s',
+                          }}
+                        >
+                          {color === c && (
+                            <span style={{
+                              position: 'absolute',
+                              top: 3,
+                              left: 8,
+                              color: APP_GREEN,
+                              fontWeight: 900,
+                              fontSize: 16,
+                              pointerEvents: 'none',
+                            }}>✓</span>
+                          )}
+                        </Button>
+                      </Box>
                     </Grid>
                   ))}
                 </Grid>
-                <TextField label="Brand" value={brand} onChange={e => setBrand(e.target.value)} fullWidth sx={{ mb: 2 }} />
-                <TextField label="Material" value={material} onChange={e => setMaterial(e.target.value)} fullWidth sx={{ mb: 2 }} />
-                <TextField label="Additional Info" value={additionalInfo} onChange={e => setAdditionalInfo(e.target.value)} fullWidth multiline minRows={2} />
+                <FormControl fullWidth sx={{ mb: 1 }}>
+                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Brand</Typography>
+                  <TextField
+                    value={brand}
+                    onChange={e => setBrand(e.target.value)}
+                    placeholder="e.g. Nike, Zara, Uniqlo"
+                    fullWidth
+                    size="small"
+                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                  />
+                </FormControl>
+                <FormControl fullWidth sx={{ mb: 1 }}>
+                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Material</Typography>
+                  <TextField
+                    value={material}
+                    onChange={e => setMaterial(e.target.value)}
+                    placeholder="e.g. 100% Cotton, Polyester"
+                    fullWidth
+                    size="small"
+                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                  />
+                </FormControl>
+                <FormControl fullWidth>
+                  <Typography sx={{ mb: 0.2, fontWeight: 500, color: '#222', fontSize: 14 }}>Additional Info</Typography>
+                  <TextField
+                    value={additionalInfo}
+                    onChange={e => setAdditionalInfo(e.target.value)}
+                    placeholder="e.g. Slightly worn, limited edition, etc."
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    size="small"
+                    InputProps={{ sx: { borderRadius: 2, fontSize: 14, py: 0.5 } }}
+                  />
+                </FormControl>
               </AccordionDetails>
             </Accordion>
 
@@ -305,265 +417,3 @@ function AddItem({ user, onItemAdded }) {
 }
 
 export default AddItem;
-
-
-
-
-
-
-
-// function AddItem({ user, onItemAdded }) {
-//   const [name, setName] = useState("");
-//   const [category, setCategory] = useState("");
-//   const [size, setSize] = useState("");
-//   const [color, setColor] = useState("");
-//   const [brand, setBrand] = useState("");
-//   const [material, setMaterial] = useState("");
-//   const [description, setDescription] = useState("");
-//   const [photoFiles, setPhotoFiles] = useState([]); // Array of files
-//   const [thumbnailIdx, setThumbnailIdx] = useState(0);
-//   const [loading, setLoading] = useState(false);
-
-//   const categories = [
-//     "T-shirt", "Shirt", "Jacket", "Sweater", "Pants", "Jeans", "Shorts", "Dress", "Skirt", "Shoes", "Hat", "Other"
-//   ];
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!name || !category || !size || !color) {
-//       alert("Please fill all required fields");
-//       return;
-//     }
-//     if (photoFiles.length < 2) {
-//       alert("Please add at least 2 photos (max 5)");
-//       return;
-//     }
-
-//     setLoading(true);
-//     let itemDoc = null;
-//     try {
-//       console.log("aaa");
-//       console.log({ user, name, category, size, color, brand, material, description });
-
-//       // 1. Upload images to Firebase Storage
-//       const photoURLs = [];
-//       for (let i = 0; i < photoFiles.length; i++) {
-//         const file = photoFiles[i];
-//         const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
-//         const compressedFile = await imageCompression(file, options);
-//         const ext = file.name.split('.').pop() || 'jpg';
-//         const imageId = `photo${i+1}`;
-//         const photoRef = ref(storage, `items/${user.uid}/${Date.now()}_${imageId}.${ext}`);
-//         try {
-//           await uploadBytes(photoRef, compressedFile);
-//           const photoURL = await getDownloadURL(photoRef);
-//           photoURLs.push(photoURL);
-//         } catch (imgErr) {
-//           throw imgErr;
-//         }
-//       }
-//       // Place thumbnail first in array
-//       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
-//       // 2. Send item data to backend
-//   const res = await fetch(`${BACKEND_URL}/item`, {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           ownerId: user.uid,
-//           name,
-//           category,
-//           size,
-//           color,
-//           brand,
-//           material,
-//           description,
-//           photoURLs: orderedPhotoURLs
-//         })
-//       });
-//       if (!res.ok) throw new Error("Failed to add item");
-//   setName("");
-//   setCategory("");
-//   setSize("");
-//   setColor("");
-//   setBrand("");
-//   setMaterial("");
-//   setDescription("");
-//   setPhotoFiles([]);
-//   setThumbnailIdx(0);
-//   if (onItemAdded) onItemAdded();
-//     } catch (error) {
-//       console.error("Error adding clothing item: ", error);
-//   // Optionally show error UI
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit} style={{
-//       maxWidth: 400,
-//       margin: "0 auto",
-//       background: "#fff",
-//       borderRadius: 12,
-//       boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-//       padding: 24,
-//       display: "flex",
-//       flexDirection: "column",
-//       gap: 16
-//     }}>
-//       <h2 style={{ textAlign: "center", marginBottom: 16 }}>Add a Clothing Item</h2>
-
-//       <input
-//         type="text"
-//   placeholder="Name (e.g. Green T-shirt)"
-//         value={name}
-//         onChange={(e) => setName(e.target.value)}
-//         required
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       />
-
-//       <select
-//         value={category}
-//         onChange={e => setCategory(e.target.value)}
-//         required
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       >
-//         <option value="" disabled>Category</option>
-//         {categories.map(cat => (
-//           <option key={cat} value={cat}>{cat}</option>
-//         ))}
-//       </select>
-
-//       <input
-//         type="text"
-//         placeholder="Size (e.g. M, L, 42)"
-//         value={size}
-//         onChange={(e) => setSize(e.target.value)}
-//         required
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       />
-
-//       <input
-//         type="text"
-//         placeholder="Color"
-//         value={color}
-//         onChange={(e) => setColor(e.target.value)}
-//         required
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       />
-
-//       <input
-//         type="text"
-//         placeholder="Brand (optional)"
-//         value={brand}
-//         onChange={(e) => setBrand(e.target.value)}
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       />
-
-//       <input
-//         type="text"
-//         placeholder="Material (optional)"
-//         value={material}
-//         onChange={(e) => setMaterial(e.target.value)}
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16 }}
-//       />
-
-//       <textarea
-//         placeholder="Description (optional)"
-//         value={description}
-//         onChange={(e) => setDescription(e.target.value)}
-//         style={{ padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 16, minHeight: 60 }}
-//       />
-
-//       <div style={{ marginBottom: 12 }}>
-//         <label style={{ fontWeight: 600, marginBottom: 4, display: "block" }}>Photos (2-5):</label>
-//         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-//           {photoFiles.map((file, idx) => (
-//             <div key={idx} style={{ position: "relative", display: "inline-block" }}>
-//               <img
-//                 src={URL.createObjectURL(file)}
-//                 alt={`preview-${idx}`}
-//                 style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, border: idx === thumbnailIdx ? "2.5px solid var(--primary, #22c55e)" : "2px solid #ccc", cursor: "pointer" }}
-//                 onClick={() => setThumbnailIdx(idx)}
-//                 title={idx === thumbnailIdx ? "Thumbnail" : "Set as thumbnail"}
-//               />
-//               <button
-//                 type="button"
-//                 onClick={() => {
-//                   const newFiles = photoFiles.filter((_, i) => i !== idx);
-//                   setPhotoFiles(newFiles);
-//                   if (thumbnailIdx === idx) setThumbnailIdx(0);
-//                   else if (thumbnailIdx > idx) setThumbnailIdx(thumbnailIdx - 1);
-//                 }}
-//                 style={{
-//                   position: "absolute",
-//                   top: -8,
-//                   right: -8,
-//                   background: "#e53935",
-//                   color: "#fff",
-//                   border: "none",
-//                   borderRadius: "50%",
-//                   width: 20,
-//                   height: 20,
-//                   fontSize: 12,
-//                   cursor: "pointer"
-//                 }}
-//                 title="Remove"
-//               >×</button>
-//               {idx === thumbnailIdx && (
-//                 <div style={{ position: "absolute", bottom: -18, left: 0, right: 0, textAlign: "center", fontSize: 10, color: "var(--primary, #22c55e)" }}>Thumbnail</div>
-//               )}
-//             </div>
-//           ))}
-//           {photoFiles.length < 5 && (
-//             <label style={{ display: "inline-block", cursor: "pointer" }}>
-//               <span style={{
-//                 display: "inline-block",
-//                 width: 60,
-//                 height: 60,
-//                 borderRadius: 8,
-//                 background: "#e3eafc",
-//                 color: "var(--primary, #22c55e)",
-//                 fontSize: 32,
-//                 textAlign: "center",
-//                 lineHeight: "60px",
-//                 border: "2px dashed var(--primary, #22c55e)"
-//               }}>+</span>
-//               <input
-//                 type="file"
-//                 accept="image/*"
-//                 style={{ display: "none" }}
-//                 onChange={e => {
-//                   if (!e.target.files[0]) return;
-//                   if (photoFiles.length >= 5) return;
-//                   setPhotoFiles([...photoFiles, e.target.files[0]]);
-//                 }}
-//               />
-//             </label>
-//           )}
-//         </div>
-//       </div>
-
-//       <button
-//         type="submit"
-//         disabled={loading}
-//         style={{
-//           padding: 12,
-//           borderRadius: 6,
-//           border: "none",
-//           background: loading ? "#ccc" : "var(--primary, #22c55e)",
-//           color: "#fff",
-//           fontSize: 18,
-//           fontWeight: 600,
-//           marginTop: 8,
-//           cursor: loading ? "not-allowed" : "pointer",
-//           transition: "background 0.2s"
-//         }}
-//       >
-//         {loading ? "Adding..." : "Add Clothing Item"}
-//       </button>
-//     </form>
-//   );
-// }
-
-// export default AddItem;
