@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { auth, provider } from "./firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signInWithRedirect } from "firebase/auth";
 import "./Common.css";
 import BACKEND_URL from "./config";
 
@@ -12,17 +12,28 @@ function LoginPage({ firebaseUser, setAppUser }) {
 
   const handleGoogleClick = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      // Try to fetch user profile from backend
-        const res = await fetch(`${BACKEND_URL}/user/${user.uid}`);
-      if (res.ok) {
-        const data = await res.json();
-        setAppUser({ ...user, ...data });
+      // Detect mobile device
+      const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+      let user = null;
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+        // On redirect, Firebase will handle the login and reload the app, so we don't need to do anything else here.
+        return;
       } else {
-        // New user → ask extra info
-        setPendingUser(user);
-        setNeedsExtraInfo(true);
+        const result = await signInWithPopup(auth, provider);
+        user = result.user;
+      }
+      // Try to fetch user profile from backend
+      if (user) {
+        const res = await fetch(`${BACKEND_URL}/user/${user.uid}`);
+        if (res.ok) {
+          const data = await res.json();
+          setAppUser({ ...user, ...data });
+        } else {
+          // New user → ask extra info
+          setPendingUser(user);
+          setNeedsExtraInfo(true);
+        }
       }
     } catch (err) {
       console.error("Google sign-in failed:", err);
