@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, provider } from "./firebase";
 import { signInWithPopup, signInWithRedirect } from "firebase/auth";
 import "./Common.css";
@@ -7,8 +7,41 @@ import BACKEND_URL from "./config";
 function LoginPage({ firebaseUser, setAppUser }) {
   const [localName, setLocalName] = useState("");
   const [privacyChecked, setPrivacyChecked] = useState(false);
-  const [needsExtraInfo, setNeedsExtraInfo] = useState(false);
-  const [pendingUser, setPendingUser] = useState(null);
+  const [needsExtraInfo, setNeedsExtraInfo] = useState(() => {
+    try {
+      return localStorage.getItem('needsExtraInfo') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [pendingUser, setPendingUser] = useState(() => {
+    try {
+      const u = localStorage.getItem('pendingUser');
+      return u ? JSON.parse(u) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Keep localStorage in sync
+  useEffect(() => {
+    try {
+      if (needsExtraInfo) {
+        localStorage.setItem('needsExtraInfo', 'true');
+      } else {
+        localStorage.removeItem('needsExtraInfo');
+      }
+    } catch {}
+  }, [needsExtraInfo]);
+  useEffect(() => {
+    try {
+      if (pendingUser) {
+        localStorage.setItem('pendingUser', JSON.stringify(pendingUser));
+      } else {
+        localStorage.removeItem('pendingUser');
+      }
+    } catch {}
+  }, [pendingUser]);
 
   const handleGoogleClick = async () => {
     try {
@@ -29,6 +62,8 @@ function LoginPage({ firebaseUser, setAppUser }) {
         if (res.ok) {
           const data = await res.json();
           setAppUser({ ...user, ...data });
+          setPendingUser(null);
+          setNeedsExtraInfo(false);
         } else {
           // New user → ask extra info
           setPendingUser(user);
@@ -51,7 +86,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
         screen: { width: window.screen.width, height: window.screen.height },
       };
       // Create user in backend
-        const res = await fetch(`${BACKEND_URL}/user/${pendingUser.uid}`, {
+      const res = await fetch(`${BACKEND_URL}/user/${pendingUser.uid}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -68,6 +103,8 @@ function LoginPage({ firebaseUser, setAppUser }) {
         setNeedsExtraInfo(false);
         setLocalName("");
         setPrivacyChecked(false);
+        localStorage.removeItem('pendingUser');
+        localStorage.removeItem('needsExtraInfo');
       } else {
         throw new Error("Failed to create user profile");
       }
