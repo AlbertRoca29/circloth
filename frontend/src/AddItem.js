@@ -7,9 +7,9 @@ import BACKEND_URL from "./config";
 import Box from "@mui/material/Box";
 import { getCategoryEmoji } from "./utils/general";
 import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
+// import Dialog from "@mui/material/Dialog";
+// import DialogTitle from "@mui/material/DialogTitle";
+// import DialogContent from "@mui/material/DialogContent";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -108,6 +108,20 @@ function AddItem({ user, onItemAdded }) {
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Track object URLs for previews
+  const [objectURLs, setObjectURLs] = useState([]);
+  React.useEffect(() => {
+    // When photoFiles changes, update objectURLs
+    // Clean up old URLs
+    objectURLs.forEach(url => URL.revokeObjectURL(url));
+    const newURLs = photoFiles.map(file => URL.createObjectURL(file));
+    setObjectURLs(newURLs);
+    return () => {
+      newURLs.forEach(url => URL.revokeObjectURL(url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photoFiles]);
 
   const handleCategorySelect = (cat) => {
     setCategory(cat);
@@ -348,7 +362,7 @@ function AddItem({ user, onItemAdded }) {
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {photoFiles.map((file, idx) => (
                   <Box key={idx} sx={{ position: 'relative' }}>
-                    <img src={URL.createObjectURL(file)} alt={`preview-${idx}`} style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, border: idx === thumbnailIdx ? "2.5px solid #22c55e" : "2px solid #222", cursor: "pointer" }} onClick={() => setThumbnailIdx(idx)} />
+                    <img src={objectURLs[idx]} alt={`preview-${idx}`} style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, border: idx === thumbnailIdx ? "2.5px solid #22c55e" : "2px solid #222", cursor: "pointer" }} onClick={() => setThumbnailIdx(idx)} />
                     <Button size="small" onClick={() => {
                       const newFiles = photoFiles.filter((_, i) => i !== idx);
                       setPhotoFiles(newFiles);
