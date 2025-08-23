@@ -23,6 +23,7 @@ function ChatMatchCard({ match, onShowDetails, onChat }) {
       <img
         src={match.theirItem.photoURLs?.[0]}
         alt="Their item"
+        loading="lazy"
         style={{ width: 88, height: 88, borderRadius: 16, objectFit: "cover", border: "2.5px solid #e0e0e0", cursor: "pointer" }}
         onClick={() => onShowDetails(match)}
       />
@@ -35,6 +36,7 @@ function ChatMatchCard({ match, onShowDetails, onChat }) {
           <img
             src={match.yourItem.photoURLs?.[0]}
             alt="Your item"
+            loading="lazy"
             style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", border: "1.5px solid #e0e0e0" }}
           />
         </div>

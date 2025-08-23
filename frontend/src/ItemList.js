@@ -123,6 +123,7 @@ function ItemList({ user, refreshSignal }) {
                   <img
                     src={item.photoURLs[0]}
                     alt="main"
+                    loading="lazy"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -254,6 +255,7 @@ function ItemList({ user, refreshSignal }) {
                 <img
                   src={modalItem.photoURLs[modalIdx]}
                   alt={`item-${modalIdx}`}
+                  loading="lazy"
                   style={{
                     maxWidth: '100%',
                     maxHeight: 340,

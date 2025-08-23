@@ -20,6 +20,7 @@ function Matching({ user }) {
   const [showDetails, setShowDetails] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
 
+  // Log when matching loads a large number of matches (potential memory usage)
   const loadNextItem = () => {
     setLoading(true);
     setError(null);
@@ -95,6 +96,7 @@ function Matching({ user }) {
           <img
             src={images[imgIdx]}
             alt={item.category}
+            loading="lazy"
             style={{
               height: '90%',
               width: 'auto',

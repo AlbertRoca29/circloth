@@ -61,7 +61,7 @@ function Chats({ user }) {
     return (
       <div style={{ position: 'fixed', top: 300, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.08)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 8px 32px rgba(34,197,94,0.13)', padding: '2.2rem 1.5rem', minWidth: 380, maxWidth: 450, width: '100%', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', margin: 0 }}>
-          <img src={item.photoURLs?.[0]} alt="item" style={{ maxWidth: '100%', maxHeight: 340, borderRadius: 12, objectFit: 'contain', background: '#f6f6f6', marginBottom: 16 }} />
+          <img src={item.photoURLs?.[0]} alt="item" loading="lazy" style={{ maxWidth: '100%', maxHeight: 340, borderRadius: 12, objectFit: 'contain', background: '#f6f6f6', marginBottom: 16 }} />
           <div style={{ marginBottom: 8 }}><strong>Category:</strong> {item.category}</div>
           {item.color && <div style={{ marginBottom: 8 }}><strong>Color:</strong> <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: '50%', background: item.color, border: '1.5px solid #eee', verticalAlign: 'middle' }}></span></div>}
           {item.size && <div style={{ marginBottom: 8 }}><strong>Size:</strong> {item.size}</div>}
