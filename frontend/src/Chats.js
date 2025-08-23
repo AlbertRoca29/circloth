@@ -95,11 +95,68 @@ function Chats({ user }) {
   }
 
   if (chattingWith) {
-    // Simple chat UI
+    // Special chat UI for 1 of your item matched with 2 of their items
+    if (chattingWith.theirItems && chattingWith.theirItems.length === 2) {
+      return (
+        <div className="card" style={{ maxWidth: 650, margin: '0 auto', marginTop: 30, borderRadius: 24, minHeight: 400, display: 'flex', flexDirection: 'column', height: 650, alignItems: 'center', padding: 32 }}>
+          <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 18 }}>
+            {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 18, marginBottom: 12 }}>
+            {chattingWith.theirItems.map((item, i) => (
+              <img
+                key={item.id || i}
+                src={item.photoURLs?.[0]}
+                alt={`Their item ${i + 1}`}
+                loading="lazy"
+                style={{ width: 110, height: 110, borderRadius: 18, objectFit: 'cover', border: '2.5px solid #e0e0e0', background: '#f6f6f6' }}
+              />
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: 15, color: '#aaa' }}>{t('your_item')}:</span>
+            <img
+              src={chattingWith.yourItem?.photoURLs?.[0]}
+              alt="Your item"
+              loading="lazy"
+              style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'cover', border: '1.5px solid #e0e0e0' }}
+            />
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto', background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10, width: '100%' }}>
+            {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
+            {messages.map((msg, i) => (
+              <div key={i} style={{
+                textAlign: msg.sender === user.uid ? 'right' : 'left',
+                margin: '6px 0',
+              }}>
+                <span style={{
+                  display: 'inline-block',
+                  background: msg.sender === user.uid ? '#bbf7d0' : '#fff',
+                  color: '#222',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  maxWidth: '70%',
+                  wordBreak: 'break-word',
+                  fontSize: 15,
+                }}>{msg.content}</span>
+                <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <form onSubmit={handleSend} style={{ display: 'flex', gap: 8, width: '100%' }}>
+            <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 8, fontSize: 15 }} />
+            <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
+          </form>
+          <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
+        </div>
+      );
+    }
+    // Default chat UI
     return (
       <div className="card" style={{ maxWidth: 420, margin: '0 auto', marginTop: 30, borderRadius: 18, minHeight: 300, display: 'flex', flexDirection: 'column', height: 500 }}>
         <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10 }}>
-          Chat with {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
+          {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
         </div>
         <div style={{ flex: 1, overflowY: 'auto', background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
           {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
@@ -125,26 +182,61 @@ function Chats({ user }) {
         </div>
         <form onSubmit={handleSend} style={{ display: 'flex', gap: 8 }}>
           <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 8, fontSize: 15 }} />
-          <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>Send</button>
+          <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
         </form>
-        <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>Back</button>
+  <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
       </div>
     );
   }
 
+  // Group matches: key = otherUser.id + yourItem.id, value = {otherUser, yourItem, theirItems: []}
+  const grouped = {};
+  matches.forEach(m => {
+    const yourItemId = Array.isArray(m.yourItems) && m.yourItems.length === 1 ? m.yourItems[0].id : m.yourItem?.id;
+    const key = m.otherUser.id + "_" + yourItemId;
+    if (!grouped[key]) {
+      // Always set yourItems as an array
+      let yourItemsArr = Array.isArray(m.yourItems) ? m.yourItems : (m.yourItem ? [m.yourItem] : []);
+      grouped[key] = {
+        otherUser: m.otherUser,
+        yourItems: yourItemsArr,
+        theirItems: [],
+        matchIds: [],
+        originalMatches: [],
+        theirItem: undefined, // will set below
+      };
+    }
+    grouped[key].theirItems.push(m.theirItem);
+    // Always set theirItem to the first in theirItems for default card
+    if (!grouped[key].theirItem && m.theirItem) {
+      grouped[key].theirItem = m.theirItem;
+    }
+    grouped[key].matchIds.push(m.id);
+    grouped[key].originalMatches.push(m);
+  });
+
+  // After grouping, ensure theirItem is set for all groups (fallback to first in theirItems)
+  Object.values(grouped).forEach(group => {
+    if (!group.theirItem && group.theirItems.length > 0) {
+      group.theirItem = group.theirItems[0];
+    }
+  });
+
+  const groupedArr = Object.values(grouped);
+
   return (
     <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
       {matches.length === 0 && (
-        <div className="card" style={{ textAlign: 'center', color: '#64748b', fontSize: '1.2rem', marginTop: 40 }}>
-          No matches yet.
+        <div className="card" style={{ textAlign: 'center', color: '#469061ff', fontSize: '1.2rem', marginTop: 40, fontWeight: 150, lineHeight: "1.45em" }}>
+          {t('no_matches_cool')}
         </div>
       )}
-      {matches.map(match => (
+      {groupedArr.map((group, idx) => (
         <ChatMatchCard
-          key={match.id}
-          match={match}
-          onShowDetails={m => setShowItem({ item: m.theirItem, otherUser: m.otherUser })}
-          onChat={m => setChattingWith(m)}
+          key={group.matchIds.join('-')}
+          match={group}
+          onShowDetails={itemObj => setShowItem(itemObj)}
+          onChat={chatObj => setChattingWith(chatObj)}
         />
       ))}
     </div>

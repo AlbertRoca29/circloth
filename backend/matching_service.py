@@ -2,14 +2,17 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from db import FirestoreDB
 import os
+import random
+import math
+
 
 # Configurable expiry for pass actions (in seconds for testing, can be set to days)
 PASS_EXPIRY_SECONDS = int(os.getenv("PASS_EXPIRY_SECONDS", 60))  # default 60 seconds for testing
 
-
-def get_available_items_for_user(user_id: str) -> List[dict]:
+def get_available_items_for_user(user_id: str, location: dict = None) -> List[dict]:
     """
     Returns items available for matching for the user, considering pass expiry.
+    If location is provided, items are ordered by proximity. Otherwise, order is randomized.
     """
     db = FirestoreDB()
     user = db.get_user(user_id)
@@ -47,6 +50,22 @@ def get_available_items_for_user(user_id: str) -> List[dict]:
         item for item in all_items
         if item.get("ownerId") != user_id and item.get("id") not in excluded_item_ids
     ]
+
+    if location and "lat" in location and "lng" in location:
+        def distance(item):
+            loc = item.get("location")
+            if loc and "lat" in loc and "lng" in loc:
+                # Haversine formula for distance in km
+                R = 6371
+                dlat = math.radians(loc["lat"] - location["lat"])
+                dlon = math.radians(loc["lng"] - location["lng"])
+                a = math.sin(dlat/2)**2 + math.cos(math.radians(location["lat"])) * math.cos(math.radians(loc["lat"])) * math.sin(dlon/2)**2
+                c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+                return R * c
+            return float('inf')
+        available_items.sort(key=distance)
+    else:
+        random.shuffle(available_items)
     return available_items
 
 def handle_user_action(user_id: str, item_id: str, action: str, device_info: Optional[dict] = None):

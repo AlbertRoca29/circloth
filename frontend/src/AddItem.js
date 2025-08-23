@@ -157,11 +157,12 @@ function AddItem({ user, onItemAdded }) {
       <Collapse in={open} sx={{ width: '100%', maxWidth: 500, mt: 0.5 }}>
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>
           <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8 }}>×</Button>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('add_item')}</Typography>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontSize: 22 }}>{t('add_item')}</Typography>
 
 
           <FormControl fullWidth sx={{ mb: 2 }}>
             {/* <Typography sx={{ mb: 0.5, fontWeight: 600, color: '#222', fontSize: 16 }}>Category</Typography> */}
+            <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('category')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
             <Grid container spacing={1} sx={{ mb: 1, mt: 0.5, justifyContent: 'center', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontWeight: 100 }}>
               {categories.map(cat => (
                 <Grid item xs={3} key={cat.key} sx={{ textAlign: 'center' }}>
@@ -198,12 +199,8 @@ function AddItem({ user, onItemAdded }) {
 
             {category && (
               <>
-                <Box sx={{ mb: 1.7, mt: 1 }}>
-                    <Typography
-                        sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}
-                    >
-                        {t('size')}
-                    </Typography>
+        <Box sx={{ mb: 1.7, mt: 1 }}>
+          <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('size')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
                     <Grid container spacing={1}>
             {(sizeOptions[category] || []).map(opt => (
             <Grid item xs={4} key={opt.key}>
@@ -226,11 +223,11 @@ function AddItem({ user, onItemAdded }) {
                     </Box>
 
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
                   <TextField
                     value={sizeDetails}
                     onChange={e => setSizeDetails(e.target.value)}
-                    placeholder="e.g. Oversized, fits small, etc."
+                    placeholder={t('placeholder_size_details')}
                     fullWidth
                     size="small"
                     InputProps={{
@@ -254,11 +251,11 @@ function AddItem({ user, onItemAdded }) {
             )}
             <Box sx={{ height: 20 }} />
             <FormControl fullWidth sx={{ mb: 1.5 }}>
-              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')}</Typography>
+              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
               <TextField
                 value={itemStory}
                 onChange={e => setItemStory(e.target.value)}
-                placeholder="Describe your item, its story, why you love it..."
+                placeholder={t('placeholder_item_story')}
                 fullWidth
                 multiline
                 minRows={2}
@@ -289,7 +286,7 @@ function AddItem({ user, onItemAdded }) {
 
             {/* Photos */}
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ mb: 1, fontWeight: 100, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')}</Typography>
+              <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {photoFiles.map((file, idx) => (
                   <Box key={idx} sx={{ position: 'relative' }}>
@@ -316,10 +313,10 @@ function AddItem({ user, onItemAdded }) {
             <Accordion
               expanded={showAdvanced}
               onChange={() => setShowAdvanced(!showAdvanced)}
-              sx={{ mb: 1.5, borderRadius: 2, boxShadow: 1, background: '#fff', border: 'none', overflow: 'hidden' }}
+              sx={{ mb: 1.5,  borderRadius: 2, boxShadow: 1, background: '#fff', border: 'none', overflow: 'hidden' }}
             >
               <AccordionSummary
-                sx={{ cursor: 'pointer', px: 1, py: 0.5, background: 'transparent', borderBottom: showAdvanced ? `1px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center', minHeight: 28 }}
+                sx={{ cursor: 'pointer', px: 1, py: 0.5, background: 'transparent', borderBottom: showAdvanced ? `1.5px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center', minHeight: 28 }}
               >
                 <span style={{
                   display: 'inline-block',
@@ -330,11 +327,11 @@ function AddItem({ user, onItemAdded }) {
                   color: '#64748b',
                   fontWeight: 200,
                 }}>▶</span>
-                <Typography sx={{ fontWeight: 150, color: '#191919ff', fontSize: 13, letterSpacing: 0.01, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
+                <Typography sx={{ fontWeight: 150, color: '#545454ff', fontSize: 14, letterSpacing: 0.3, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ background: '#fff', pt: 1, borderRadius: 2, px: 1.2, boxShadow: 'none', border: 'none' }}>
                 {/* Color picker */}
-                <Typography sx={{ mb: 0.5, fontWeight: 100, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('color')}</Typography>
+                <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('color')}</Typography>
                 <Grid container spacing={0.5} sx={{ mb: 1.2 }}>
                   {colorPalette.map((c, idx) => (
                     <Grid item xs={3} key={c}>
@@ -373,11 +370,11 @@ function AddItem({ user, onItemAdded }) {
                   ))}
                 </Grid>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
                   <TextField
                     value={brand}
                     onChange={e => setBrand(e.target.value)}
-                    placeholder="e.g. Nike, Zara, Uniqlo"
+                    placeholder={t('placeholder_brand')}
                     fullWidth
                     size="small"
                     InputProps={{
@@ -397,11 +394,11 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
                   <TextField
                     value={material}
                     onChange={e => setMaterial(e.target.value)}
-                    placeholder="e.g. 100% Cotton, Polyester"
+                    placeholder={t('placeholder_material')}
                     fullWidth
                     size="small"
                     InputProps={{
@@ -421,11 +418,11 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
                   <TextField
                     value={additionalInfo}
                     onChange={e => setAdditionalInfo(e.target.value)}
-                    placeholder="e.g. Slightly worn, limited edition, etc."
+                    placeholder={t('placeholder_additional_info')}
                     fullWidth
                     multiline
                     sx={{
@@ -454,7 +451,8 @@ function AddItem({ user, onItemAdded }) {
               </AccordionDetails>
             </Accordion>
 
-            <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }} disabled={loading}>
+
+            <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', mt:2, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }} disabled={loading}>
               {loading ? "Adding..." : "Submit"}
             </Button>
 

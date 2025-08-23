@@ -1,4 +1,12 @@
 {
+  "your_item": "Tu artículo",
+  "your_items": "Tus artículos",
+  "show_more": "Ver más",
+  "show_more_1": "Ver más 1",
+  "show_more_2": "Ver más 2",
+  "send": "Enviar",
+  "back": "Atrás",
+  "chat_with": "Chatear con {{name}}",
   "category": "Categoria",
   "category_tops": "Tops",
   "category_jackets_sweaters": "Chaquetas y Suéteres",
@@ -43,5 +51,19 @@
   "other": "Otro",
   "no_clothing_items_added_yet": "No se han añadido artículos de ropa todavía.",
   "size_details": "Detalles sobre la talla",
-  "location_closed": "Activa la ubicación para ver los matches ordenados por distancia."
+  "location_closed": "Activa la ubicación para ver los matches ordenados por distancia.",
+
+  "enter_name": "Introduce tu nombre",
+  "agree_privacy": "Acepto la ",
+  "privacy_policy": "Política de Privacidad",
+  "sign_in": "Iniciar sesión",
+
+  "login_with_google": "Iniciar sesión con Google",
+  "no_matches_cool": "🌱 ¡Aún no hay matches! Mantén tus artículos actualizados y vuelve pronto para nuevas conexiones.",
+  "placeholder_size_details": "p.ej. Oversize, talla pequeña, etc.",
+  "placeholder_item_story": "Describe tu artículo, su historia, por qué te gusta...",
+  "placeholder_brand": "p.ej. Nike, Zara, Uniqlo",
+  "placeholder_material": "p.ej. 100% Algodón, Poliéster",
+  "placeholder_additional_info": "p.ej. Ligeramente usado, edición limitada, etc.",
+  "edit_coming_soon": "¡La funcionalidad de edición estará disponible pronto!"
 }

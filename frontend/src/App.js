@@ -4,6 +4,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { auth, logOut } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import LoginPage from "./LoginPage";
+import PrivacyPolicy from "./PrivacyPolicy";
 import AddItem from "./AddItem";
 import ItemList from "./ItemList";
 import ProfilePage from "./ProfilePage";
@@ -14,8 +15,10 @@ import "./Common.css";
 import BACKEND_URL from "./config";
 import Chats from "./Chats";
 
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 function App() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
   const [appUser, setAppUser] = useState(null);           // Backend user profile
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,10 @@ function App() {
           if (res.ok) {
             const data = await res.json();
             setAppUser({ ...user, ...data });
+            // Set language from user profile if exists
+            if (data.language) {
+              i18n.changeLanguage(data.language);
+            }
           } else {
             setAppUser(null); // triggers LoginPage for extra info
           }
@@ -50,7 +57,7 @@ function App() {
       }
     });
     return unsubscribe;
-  }, []);
+  }, [i18n]);
 
   // Listen for clothing items to enable Matching tab
   useEffect(() => {
@@ -76,8 +83,14 @@ function App() {
 
   // If no user or appUser → show login page
   if (!firebaseUser || !appUser) {
-    // useTranslation is already called at the top, so this is safe
-    return <LoginPage firebaseUser={firebaseUser} setAppUser={setAppUser} />;
+    return (
+      <Router>
+        <Routes>
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="*" element={<LoginPage firebaseUser={firebaseUser} setAppUser={setAppUser} />} />
+        </Routes>
+      </Router>
+    );
   }
 
   // Main logged-in UI
@@ -96,6 +109,7 @@ function App() {
               fontWeight: 800,
               fontSize: "clamp(1.6rem, 1.5vw, 2.5rem)",
               margin: 0,
+              marginLeft: "12px",
               letterSpacing: "0.01em",
               fontFamily: "Inter, Segoe UI, Arial, sans-serif"
             }}>
@@ -143,6 +157,7 @@ function App() {
                   border: "none",
                   padding: 0,
                   margin: 0,
+                  marginRight: "12px",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center"

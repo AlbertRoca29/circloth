@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Body
 from pydantic import BaseModel
 from typing import List, Optional
 import firebase_admin
@@ -40,6 +40,7 @@ db = FirestoreDB()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        # "http://localhost:3000",
         "https://circloth-9014370275.europe-west1.run.app",
         "https://circloth.com",
         "https://www.circloth.com",
@@ -66,6 +67,8 @@ class ItemModel(BaseModel):
     material: Optional[str] = None
     additionalInfo: Optional[str] = None
     sizeDetails: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
 
 
 class UserModel(BaseModel):
@@ -74,10 +77,17 @@ class UserModel(BaseModel):
     email: Optional[str] = None
     device_info: Optional[dict] = None
     passed_items: Optional[List[str]] = []
+    location: Optional[dict] = None  # {"lat": float, "lng": float, "updated_at": str}
+    created_at: Optional[str] = None
+    last_active: Optional[str] = None
+    preferences: Optional[dict] = None
+    notification_settings: Optional[dict] = None
+    language: Optional[str] = None
 
 
 class MatchRequest(BaseModel):
     user_id: str
+
 
 
 class ActionRequest(BaseModel):
@@ -85,9 +95,40 @@ class ActionRequest(BaseModel):
     item_id: str
     action: str  # "like" or "pass"
     device_info: Optional[dict] = None
+    location: Optional[dict] = None  # Expecting {"lat": float, "lng": float} or similar
+
 
 
 # --- Endpoints ---
+# --- USER DELETE & EDIT ---
+# Edit user name
+@app.patch("/user/{user_id}")
+def edit_user_name(user_id: str, name: str = Body(..., embed=True)):
+    user = db.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    db.update_user(user_id, {"name": name})
+    return {"message_key": "USER_NAME_UPDATED"}
+
+# Delete user and all related data
+@app.delete("/user/{user_id}")
+def delete_user(user_id: str):
+    user = db.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    # Delete all items of user
+    items = db.list_user_items(user_id)
+    for item in items:
+        db.delete_item(item["id"])
+    # Delete all actions by user
+    db.delete_user_actions(user_id)
+    # Delete all chat messages involving user
+    db.delete_user_chats(user_id)
+    # Delete all matches involving user (by removing likes)
+    db.delete_user_matches(user_id)
+    # Delete user itself
+    db.delete_user(user_id)
+    return {"message_key": "USER_DELETED"}
 @app.get("/")
 def health():
     return {"ok": True}
@@ -98,13 +139,17 @@ def health():
 def match_items(req: MatchRequest):
     user = db.get_user(req.user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    available_items = get_available_items_for_user(req.user_id)
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    # Optionally update location if sent
+    location = getattr(req, "location", None)
+    if location:
+        db.update_user(req.user_id, {"location": {**location, "updated_at": datetime.utcnow().isoformat() + "Z"}})
+    available_items = get_available_items_for_user(req.user_id, location)
     logging.warning(
         f"[MATCH DEBUG] user_id={req.user_id} available_items={len(available_items)}"
     )
     if not available_items:
-        return {"message": "🧺 No matches right now... but your next favorite outfit is just around the corner! ✨", "item": None}
+        return {"message_key": "NO_MATCHES", "item": None}
     return {"item": available_items[0]}
 
 
@@ -114,9 +159,12 @@ def match_items(req: MatchRequest):
 def handle_action(req: ActionRequest):
     user = db.get_user(req.user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    # Only update location if present
+    if hasattr(req, "location") and req.location:
+        db.update_user(req.user_id, {"location": {**req.location, "updated_at": datetime.utcnow().isoformat() + "Z"}})
     handle_user_action(req.user_id, req.item_id, req.action, req.device_info)
-    return {"message": "Action handled successfully"}
+    return {"message_key": "ACTION_HANDLED"}
 
 
 @app.get("/items/{user_id}")
@@ -128,22 +176,51 @@ def get_user_items(user_id: str):
 def get_item(item_id: str):
     item = db.get_item(item_id)
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="ITEM_NOT_FOUND")
     return item
 
 
 @app.post("/item")
 
-# Validate required fields and min 2 photos
+
+# Create item (no auth required)
 @app.post("/item")
 def create_item(item: ItemModel):
+    # All fields are required except optional ones
     if not item.category or not item.size or not item.itemStory:
-        raise HTTPException(status_code=400, detail="Missing required fields: category, size, or itemStory")
+        raise HTTPException(status_code=400, detail="MISSING_REQUIRED_FIELDS")
     if not item.photoURLs or len(item.photoURLs) < 2:
-        raise HTTPException(status_code=400, detail="At least 2 photos are required")
+        raise HTTPException(status_code=400, detail="NOT_ENOUGH_PHOTOS")
     item_dict = item.dict(exclude_unset=True)
     item_id = db.create_item(item_dict)
     return {"id": item_id}
+
+# Edit item (same fields as creation)
+@app.patch("/item/{item_id}")
+def edit_item(item_id: str, item: ItemModel):
+    # Only update provided fields
+    db.update_item(item_id, item.dict(exclude_unset=True))
+    return {"message_key": "ITEM_UPDATED"}
+
+# Delete item and its relationships (not user)
+@app.delete("/item/{item_id}")
+def delete_item(item_id: str):
+    # Delete all actions related to this item (likes, passes)
+    db.delete_item_actions(item_id)
+    # Delete all matches related to this item (remove likes)
+    db.delete_item_matches(item_id)
+    # Delete the item itself
+    db.delete_item(item_id)
+    return {"message_key": "ITEM_DELETED"}
+# --- MATCH DELETE ---
+# Delete a match by erasing the like(s) on both or one end
+@app.delete("/match/{user_id}/{other_user_id}/{item_id}/{your_item_id}")
+def delete_match(user_id: str, other_user_id: str, item_id: str, your_item_id: str):
+    # Remove like from user to other's item
+    db.remove_like(user_id, item_id)
+    # Remove like from other user to your item
+    db.remove_like(other_user_id, your_item_id)
+    return {"message_key": "MATCH_DELETED"}
 
 
 @app.put("/item/{item_id}")
@@ -151,31 +228,31 @@ def create_item(item: ItemModel):
 @app.put("/item/{item_id}")
 def update_item(item_id: str, item: ItemModel):
     if not item.category or not item.size or not item.itemStory:
-        raise HTTPException(status_code=400, detail="Missing required fields: category, size, or itemStory")
+        raise HTTPException(status_code=400, detail="MISSING_REQUIRED_FIELDS")
     if not item.photoURLs or len(item.photoURLs) < 2:
-        raise HTTPException(status_code=400, detail="At least 2 photos are required")
+        raise HTTPException(status_code=400, detail="NOT_ENOUGH_PHOTOS")
     db.update_item(item_id, item.dict(exclude_unset=True))
-    return {"message": "Item updated"}
+    return {"message_key": "ITEM_UPDATED"}
 
 
 @app.delete("/item/{item_id}")
 def delete_item(item_id: str):
     db.delete_item(item_id)
-    return {"message": "Item deleted"}
+    return {"message_key": "ITEM_DELETED"}
 
 
 @app.get("/user/{user_id}")
 def get_user_profile(user_id: str):
     user = db.get_user(user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
     return user
 
 
 @app.put("/user/{user_id}")
 def update_user_profile(user_id: str, user: UserModel):
     db.update_user(user_id, user.dict(exclude_unset=True))
-    return {"message": "User updated"}
+    return {"message_key": "USER_UPDATED"}
 
 
 @app.get("/user/{user_id}/actions")
@@ -210,30 +287,32 @@ def get_matches(user_id: str):
                     act["user_id"] = other_user_id
                     received_likes.append(act)
     # 4. Find reciprocal likes
-    matches = []
-    for my_like in my_likes:
-        their_item_id = my_like["item_id"]
-        # Find the item to get ownerId
-        their_item = dbi.get_item(their_item_id)
-        if not their_item:
-            continue
-        their_user_id = their_item.get("ownerId")
-        if not their_user_id or their_user_id == user_id:
-            continue
-        # Did this user like any of my items?
-        reciprocal = next((l for l in received_likes if l["user_id"] == their_user_id), None)
-        if reciprocal:
-            # Get their user info
-            other_user = dbi.get_user(their_user_id) or {"id": their_user_id}
-            # Get my item they liked
-            your_item = next((i for i in my_items if i["id"] == reciprocal["item_id"]), None)
-            if their_item and your_item:
-                matches.append({
-                    "id": f"{user_id}_{their_user_id}_{their_item_id}_{your_item['id']}",
-                    "otherUser": other_user,
-                    "theirItem": their_item,
-                    "yourItem": your_item
-                })
+    # Group matches by (their_user_id, their_item_id)
+    grouped = {}
+    # For each (their_user_id, their_item_id), collect all your items that liked their item and got a reciprocal like
+    for my_item in my_items:
+        for my_like in [l for l in my_likes if l["item_id"] not in my_item_ids]:
+            their_item_id = my_like["item_id"]
+            their_item = dbi.get_item(their_item_id)
+            if not their_item:
+                continue
+            their_user_id = their_item.get("ownerId")
+            if not their_user_id or their_user_id == user_id:
+                continue
+            # Did this user like my item?
+            reciprocal = next((l for l in received_likes if l["user_id"] == their_user_id and l["item_id"] == my_item["id"]), None)
+            if reciprocal:
+                key = (their_user_id, their_item_id)
+                if key not in grouped:
+                    other_user = dbi.get_user(their_user_id) or {"id": their_user_id}
+                    grouped[key] = {
+                        "id": f"{user_id}_{their_user_id}_{their_item_id}",
+                        "otherUser": other_user,
+                        "theirItem": their_item,
+                        "yourItems": []
+                    }
+                grouped[key]["yourItems"].append(my_item)
+    matches = list(grouped.values())
     return {"matches": matches}
 
 
@@ -255,9 +334,9 @@ class MessageListRequest(BaseModel):
 @app.post("/chat/send")
 def send_message(req: MessageSendRequest):
     if not req.sender or not req.receiver or not req.content:
-        raise HTTPException(status_code=400, detail="Missing sender, receiver, or content")
-    db.add_chat_message(req.sender, req.receiver, req.content, datetime.utcnow().isoformat())
-    return {"message": "Message sent"}
+        raise HTTPException(status_code=400, detail="MISSING_SENDER_RECEIVER_OR_CONTENT")
+    db.add_chat_message(req.sender, req.receiver, req.content, datetime.utcnow().isoformat() + "Z")
+    return {"message_key": "MESSAGE_SENT"}
 
 @app.post("/chat/list")
 def list_messages(req: MessageListRequest):
@@ -270,7 +349,7 @@ def list_messages(req: MessageListRequest):
     except Exception as e:
         import logging
         logging.exception(f"Error fetching chat messages for {req.user1} <-> {req.user2}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch messages: {str(e)}")
+        raise HTTPException(status_code=500, detail="FAILED_TO_FETCH_MESSAGES")
 
 
 

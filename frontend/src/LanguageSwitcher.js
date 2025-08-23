@@ -16,9 +16,25 @@ const LanguageSwitcher = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  const changeLanguage = (lng) => {
+  const changeLanguage = async (lng) => {
     i18n.changeLanguage(lng);
     setOpen(false);
+    // Save language to backend if user is logged in
+    const user = JSON.parse(localStorage.getItem('appUser'));
+    if (user && user.uid) {
+      try {
+        await fetch(`/user/${user.uid}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: lng })
+        });
+        // Optionally update local user
+        user.language = lng;
+        localStorage.setItem('appUser', JSON.stringify(user));
+      } catch (e) {
+        // ignore
+      }
+    }
   };
 
   return (

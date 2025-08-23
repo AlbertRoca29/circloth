@@ -43,5 +43,28 @@
   "other": "Other",
   "no_clothing_items_added_yet": "No clothing items added yet.",
   "size_details": "Size Details",
-  "location_closed": "Enable location to see matches sorted by distance."
+
+  "location_closed": "Enable location to see matches sorted by distance.",
+
+  "enter_name": "Enter your name",
+  "agree_privacy": "I agree to the ",
+  "privacy_policy": "Privacy Policy",
+  "sign_in": "Sign in",
+
+  "login_with_google": "Log in with Google",
+  "no_matches_cool": "🌱 No matches yet! Keep your items updated and check back soon for new connections.",
+  "placeholder_size_details": "e.g. Oversized, fits small, etc.",
+  "placeholder_item_story": "Describe your item, its story, why you love it...",
+  "placeholder_brand": "e.g. Nike, Zara, Uniqlo",
+  "placeholder_material": "e.g. 100% Cotton, Polyester",
+  "placeholder_additional_info": "e.g. Slightly worn, limited edition, etc.",
+  "edit_coming_soon": "Edit functionality coming soon!",
+  "your_item": "Your item",
+  "your_items": "Your items",
+  "show_more": "Show more",
+  "show_more_1": "Show more 1",
+  "show_more_2": "Show more 2",
+  "send": "Send",
+  "back": "Back",
+  "chat_with": "Chat with {{name}}"
 }

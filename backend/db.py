@@ -6,6 +6,26 @@ from typing import List, Optional
 from datetime import datetime
 
 class FirestoreDB:
+    def delete_item_matches(self, item_id: str):
+        """Delete all user actions of type 'like' for a given item_id from all users (removes matches)."""
+        users_ref = self.db.collection("users")
+        for user_doc in users_ref.stream():
+            user_id = user_doc.id
+            actions_ref = users_ref.document(user_id).collection("actions")
+            for doc in actions_ref.where("item_id", "==", item_id).where("action", "==", "like").stream():
+                doc.reference.delete()
+    def delete_item_actions(self, item_id: str):
+        """Delete all user actions (likes, passes) for a given item_id from all users."""
+        users_ref = self.db.collection("users")
+        for user_doc in users_ref.stream():
+            user_id = user_doc.id
+            actions_ref = users_ref.document(user_id).collection("actions")
+            for doc in actions_ref.where("item_id", "==", item_id).stream():
+                doc.reference.delete()
+    def _doc_with_id(self, doc):
+        data = doc.to_dict() or {}
+        data['id'] = doc.id
+        return data
     def __init__(self):
         self.db = firestore.client()
 
@@ -35,7 +55,7 @@ class FirestoreDB:
         query = ref
         if exclude_ids and len(exclude_ids) > 0:
             query = query.where("id", "not-in", exclude_ids)
-        docs = [dict(id=doc.id, **doc.to_dict()) for doc in query.stream()]
+        docs = [self._doc_with_id(doc) for doc in query.stream()]
         if exclude_owner:
             docs = [doc for doc in docs if doc.get("ownerId") != exclude_owner]
         return docs
@@ -56,7 +76,7 @@ class FirestoreDB:
 
     def list_user_items(self, user_id: str) -> List[dict]:
         ref = self.db.collection("items").where("ownerId", "==", user_id)
-        return [dict(id=doc.id, **doc.to_dict()) for doc in ref.stream()]
+        return [self._doc_with_id(doc) for doc in ref.stream()]
 
     # --- User Actions ---
     def delete_user_action(self, user_id: str, item_id: str):

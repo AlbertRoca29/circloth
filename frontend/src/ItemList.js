@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+// import EditItemModal from "./EditItemModal";
 import { useTranslation } from "react-i18next";
 import { showToast } from "./utils/toast";
 import { storage } from "./firebase";
@@ -15,24 +16,7 @@ function ItemList({ user, refreshSignal }) {
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
   // const [errorMsg, setErrorMsg] = useState("");
-
-  // Expose modalOpen to parent via callback if provided
-  useEffect(() => {
-    if (typeof window.onItemListModalOpen === 'function') {
-      window.onItemListModalOpen(modalOpen);
-    }
-  }, [modalOpen]);
-  // Disable body scroll when modal is open
-  useEffect(() => {
-    if (modalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [modalOpen]);
+  // const [editModalItem, setEditModalItem] = useState(null);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/items/${user.uid}`)
@@ -78,7 +62,7 @@ function ItemList({ user, refreshSignal }) {
 
   if (!items.length) {
     return (
-      <p style={{ textAlign: 'center', color: '#9a9a9aff', fontWeight: 150 }}>
+      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150,marginLeft:"9%", width: "400px", fontSize: "18px" }}>
         {t('no_clothing_items_added_yet')}
       </p>
     );
@@ -164,7 +148,7 @@ function ItemList({ user, refreshSignal }) {
 
 
                 <button
-                  onClick={e => { e.stopPropagation(); showToast(t('edit_functionality_coming_soon'), { type: "info" }); }}
+                  onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
                   style={{
                     background: "#fff",
                     color: "#22c55e",
@@ -180,7 +164,7 @@ function ItemList({ user, refreshSignal }) {
                     justifyContent: 'center',
                     transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
-                  title="Edit"
+                  title={t('edit')}
                 >
                   <span role="img" aria-label="edit">✏️</span>
                 </button>
@@ -211,6 +195,8 @@ function ItemList({ user, refreshSignal }) {
           ))}
         </div>
       )}
+
+  {/* Edit Item Modal removed: edit functionality coming soon */}
 
       {/* Modal */}
       {modalOpen && modalItem && (

@@ -1,4 +1,12 @@
 {
+  "your_item": "El teu article",
+  "your_items": "Els teus articles",
+  "show_more": "Mostra més",
+  "show_more_1": "Mostra més 1",
+  "show_more_2": "Mostra més 2",
+  "send": "Envia",
+  "back": "Enrere",
+  "chat_with": "Xateja amb {{name}}",
   "category": "Categoria",
   "category_tops": "Tops",
   "category_jackets_sweaters": "Jaquetes i Jerseis",
@@ -43,5 +51,20 @@
   "other":"Altres",
   "no_clothing_items_added_yet": "No s'han afegit articles de roba encara.",
   "size_details": "Detalls sobre la talla",
-  "location_closed": "Activa la ubicació per veure els encaixos en ordre de distància."
+
+  "location_closed": "Activa la ubicació per veure els encaixos en ordre de distància.",
+
+  "enter_name": "Introdueix el teu nom",
+  "agree_privacy": "Accepto la ",
+  "privacy_policy": "Política de Privacitat",
+  "sign_in": "Inicia sessió",
+
+  "login_with_google": "Inicia sessió amb Google",
+  "no_matches_cool": "🌱 Encara no hi ha encaixos! Mantingues els teus articles actualitzats i torna aviat per a noves connexions.",
+  "placeholder_size_details": "p. ex. Oversize, talla petita, etc.",
+  "placeholder_item_story": "Descriu el teu article, la seva història, per què t'agrada...",
+  "placeholder_brand": "p. ex. Nike, Zara, Uniqlo",
+  "placeholder_material": "p. ex. 100% Cotó, Polièster",
+  "placeholder_additional_info": "p. ex. Lleugerament usat, edició limitada, etc.",
+  "edit_coming_soon": "La funcionalitat d'edició estarà disponible aviat!"
 }
