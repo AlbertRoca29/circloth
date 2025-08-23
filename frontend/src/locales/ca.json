@@ -40,5 +40,8 @@
   "catalan": "Català",
   "size":"Talla",
   "one_size":"Talla única",
-  "other":"Altres"
+  "other":"Altres",
+  "no_clothing_items_added_yet": "No s'han afegit articles de roba encara.",
+  "size_details": "Detalls sobre la talla",
+  "location_closed": "Activa la ubicació per veure els encaixos en ordre de distància."
 }

@@ -8,6 +8,7 @@ import AddItem from "./AddItem";
 import ItemList from "./ItemList";
 import ProfilePage from "./ProfilePage";
 import Tabs from "./Tabs";
+
 import Matching from "./Matching";
 import "./Common.css";
 import BACKEND_URL from "./config";
@@ -22,6 +23,8 @@ function App() {
   const [activeTab, setActiveTab] = useState("clothes");
   const [hasClothes, setHasClothes] = useState(false);
   const [refreshItems, setRefreshItems] = useState(0);
+  // Track location permission for Matching tab
+  const [matchingLocation, setMatchingLocation] = useState(null); // null=unknown, true=open, false=closed
 
   // Listen to Firebase auth state
   useEffect(() => {
@@ -173,7 +176,14 @@ function App() {
             <ItemList user={appUser} refreshSignal={refreshItems} />
           </>
         )}
-        {activeTab === "matching" && <Matching user={appUser} />}
+        {activeTab === "matching" && <>
+          <Matching user={appUser} setHasLocation={setMatchingLocation} />
+          <div style={{textAlign:'center', marginTop:35, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
+            {/* {matchingLocation === true && t('location_open')} */}
+            {matchingLocation === false && t('location_closed')}
+            {matchingLocation === null && ''}
+          </div>
+        </>}
            {activeTab === "chats" && (
              <React.Suspense fallback={<div className="card">Loading chats...</div>}>
                <Chats user={appUser} />

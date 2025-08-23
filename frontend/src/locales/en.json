@@ -40,5 +40,8 @@
   "catalan": "Catalan",
   "size": "Size",
   "one_size": "One Size",
-  "other": "Other"
+  "other": "Other",
+  "no_clothing_items_added_yet": "No clothing items added yet.",
+  "size_details": "Size Details",
+  "location_closed": "Enable location to see matches sorted by distance."
 }
