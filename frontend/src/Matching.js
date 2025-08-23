@@ -1,12 +1,12 @@
-
-
-
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchMatchItem, sendMatchAction } from "./matchingApi";
-import { getCategoryEmoji } from "./utils/general";
 
+import { getCategoryEmoji } from "./utils/general";
+import { CATEGORIES } from "./utils/categories";
 
 function Matching({ user }) {
+  const { t } = useTranslation();
   // Prevent body scroll when Matching is mounted
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -58,21 +58,17 @@ function Matching({ user }) {
     }
   };
 
-
-  if (loading) return <div className="card">Loading item...</div>;
-  if (error) return <div className="card" style={{ color: "#e11d48" }}>Error: {error}</div>;
-  if (!item) return <div className="card">No more items to show. Check back later!</div>;
+  if (loading) return <div className="card">{t('loading_item')}</div>;
+  if (error) return <div className="card" style={{ color: "#e11d48" }}>{t('error')}: {error}</div>;
+  if (!item) return <div className="card">{t('no_more_items')}</div>;
 
   // Only one image at a time, with navigation
   const images = item.photoURLs || [];
-  const categoryNames = {
-    "tops": "Tops",
-    "jackets_sweaters": "Jackets & Sweaters",
-    "pants_shorts": "Pants & Shorts",
-    "dresses_skirts": "Dresses & Skirts",
-    "shoes": "Shoes",
-    "accessories": "Accessories",
-    "other": "Other"
+
+  // Use global CATEGORIES for category label translation
+  const getCategoryLabel = (catKey) => {
+    const cat = CATEGORIES.find(c => c.key === catKey);
+    return cat ? t(cat.labelKey) : catKey;
   };
 
   return (
@@ -152,7 +148,7 @@ function Matching({ user }) {
             textAlign: 'left',
             display: 'inline-block',
           }}>
-            {categoryNames[item.category] || item.category}
+            {getCategoryLabel(item.category)}
           </span>
         </span>
         {item.color && item.color.trim() && (
@@ -176,7 +172,7 @@ function Matching({ user }) {
             borderRadius: 8,
             padding: '2px 10px',
             color: '#444',
-          }}>{item.size}</span>
+          }}>{t(item.size) !== item.size ? t(item.size) : item.size}</span>
         )}
       </div>
       {/* Yellow story box */}
@@ -214,7 +210,7 @@ function Matching({ user }) {
             fontWeight: 100,
           }}
         >
-          {showDetails ? 'Hide details ▲' : 'Show details ▼'}
+          {showDetails ? t('hide_details') + ' ▲' : t('show_details') + ' ▼'}
         </button>
       </div>
       {showDetails && (

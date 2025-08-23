@@ -1,14 +1,17 @@
+
 import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { COLORS, FONT_FAMILY } from "./utils/theme";
 import "./Common.css";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
+  const { t } = useTranslation();
   const messageRef = useRef(null);
 
   const handleMatchingClick = () => {
     if (!hasClothes) {
       if (messageRef.current) {
-        messageRef.current.textContent =
-          "You have to upload at least one item to access Matching.";
+  messageRef.current.textContent = t('tab_alert_upload_item');
         messageRef.current.style.opacity = 1;
         setTimeout(() => {
           if (messageRef.current) messageRef.current.style.opacity = 0;
@@ -33,10 +36,10 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         justifyContent: "center",
         color:
           tab === activeTab
-            ? "#fff"
+            ? COLORS.white
             : disabled
-            ? "#94a3b8"
-            : "var(--primary-dark, #15803d)",
+            ? COLORS.gray
+            : COLORS.appGreenDark,
         borderRadius: 10,
         padding: "4px 0 2px 0",
         fontSize: "0.68rem",
@@ -45,9 +48,9 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.6 : 1,
         background:
-          tab === activeTab ? "var(--primary, #22c55e)" : "transparent",
+          tab === activeTab ? COLORS.appGreen : "transparent",
         minWidth: 0,
-        fontFamily: "'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif",
+        fontFamily: FONT_FAMILY,
         letterSpacing: tab === activeTab ? "0.01em" : "0.02em"
       }}
       onClick={onClick}
@@ -56,7 +59,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 2 }}>
         {icon}
       </div>
-      {label}
+      {t(label)}
     </button>
   );
 
@@ -85,7 +88,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
       >
         <TabButton
           tab="clothes"
-          label="Clothes"
+          label="tab_clothes"
           onClick={() => setActiveTab("clothes")}
           icon={
             <svg
@@ -105,7 +108,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         />
         <TabButton
           tab="matching"
-          label="Matching"
+          label="tab_matching"
           onClick={handleMatchingClick}
           disabled={!hasClothes}
           icon={
@@ -125,7 +128,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         />
         <TabButton
           tab="chats"
-          label="Chats"
+          label="tab_chats"
           onClick={() => setActiveTab("chats")}
           icon={
             <svg
