@@ -40,5 +40,8 @@
   "catalan": "Catalán",
   "size": "Talla",
   "one_size": "Talla única",
-  "other": "Otro"
+  "other": "Otro",
+  "no_clothing_items_added_yet": "No se han añadido artículos de ropa todavía.",
+  "size_details": "Detalles sobre la talla",
+  "location_closed": "Activa la ubicación para ver los matches ordenados por distancia."
 }

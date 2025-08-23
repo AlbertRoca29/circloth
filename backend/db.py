@@ -2,34 +2,30 @@
 from firebase_admin import firestore
 from typing import List, Optional
 
-class FirestoreDB:
-    def delete_user_action(self, user_id: str, item_id: str):
-        """Delete all actions for a user and item (so new action can overwrite)."""
-        actions_ref = self.db.collection("users").document(user_id).collection("actions")
-        for doc in actions_ref.where("item_id", "==", item_id).stream():
-            doc.reference.delete()
 
-    def get_latest_user_actions(self, user_id: str) -> dict:
-        """Return a dict of item_id -> latest action dict for the user."""
-        actions_ref = self.db.collection("users").document(user_id).collection("actions")
-        latest = {}
-        for doc in actions_ref.stream():
-            data = doc.to_dict()
-            item_id = data["item_id"]
-            prev = latest.get(item_id)
-            if not prev or data["timestamp"] > prev["timestamp"]:
-                latest[item_id] = data
-        return latest
+from datetime import datetime
+
+class FirestoreDB:
     def __init__(self):
         self.db = firestore.client()
 
+    # --- User logic ---
     def get_user(self, user_id: str) -> Optional[dict]:
         doc = self.db.collection("users").document(user_id).get()
         return doc.to_dict() if doc.exists else None
 
     def update_user(self, user_id: str, data: dict):
+        # Always update last_active
+        data["last_active"] = datetime.utcnow().isoformat() + "Z"
         self.db.collection("users").document(user_id).set(data, merge=True)
 
+    def create_user(self, user_id: str, data: dict):
+        now = datetime.utcnow().isoformat() + "Z"
+        data["created_at"] = now
+        data["last_active"] = now
+        self.db.collection("users").document(user_id).set(data)
+
+    # --- Item logic ---
     def get_item(self, item_id: str) -> Optional[dict]:
         doc = self.db.collection("items").document(item_id).get()
         return doc.to_dict() if doc.exists else None
@@ -45,10 +41,14 @@ class FirestoreDB:
         return docs
 
     def create_item(self, data: dict) -> str:
+        now = datetime.utcnow().isoformat() + "Z"
+        data["created_at"] = now
+        data["updated_at"] = now
         doc_ref = self.db.collection("items").add(data)[1]
         return doc_ref.id
 
     def update_item(self, item_id: str, data: dict):
+        data["updated_at"] = datetime.utcnow().isoformat() + "Z"
         self.db.collection("items").document(item_id).set(data, merge=True)
 
     def delete_item(self, item_id: str):
@@ -58,10 +58,16 @@ class FirestoreDB:
         ref = self.db.collection("items").where("ownerId", "==", user_id)
         return [dict(id=doc.id, **doc.to_dict()) for doc in ref.stream()]
 
+    # --- User Actions ---
+    def delete_user_action(self, user_id: str, item_id: str):
+        actions_ref = self.db.collection("users").document(user_id).collection("actions")
+        for doc in actions_ref.where("item_id", "==", item_id).stream():
+            doc.reference.delete()
+
     def save_user_action(self, user_id: str, item_id: str, action_type: str, timestamp):
-        # Store only item_id, action, timestamp
         actions_ref = self.db.collection("users").document(user_id).collection("actions")
         actions_ref.add({
+            "user_id": user_id,
             "item_id": item_id,
             "action": action_type,
             "timestamp": timestamp
@@ -71,12 +77,36 @@ class FirestoreDB:
         actions_ref = self.db.collection("users").document(user_id).collection("actions")
         return [doc.to_dict() for doc in actions_ref.stream()]
 
+    def get_latest_user_actions(self, user_id: str) -> dict:
+        actions_ref = self.db.collection("users").document(user_id).collection("actions")
+        latest = {}
+        for doc in actions_ref.stream():
+            data = doc.to_dict()
+            item_id = data["item_id"]
+            prev = latest.get(item_id)
+            if not prev or data["timestamp"] > prev["timestamp"]:
+                latest[item_id] = data
+        return latest
 
-    # --- Chat message logic ---
+    # --- Chat logic ---
+    def _get_conversation_id(self, user1: str, user2: str) -> str:
+        return "_".join(sorted([user1, user2]))
+
+    def _ensure_chat_doc(self, user1: str, user2: str):
+        conv_id = self._get_conversation_id(user1, user2)
+        chat_ref = self.db.collection("chats").document(conv_id)
+        if not chat_ref.get().exists:
+            now = datetime.utcnow().isoformat() + "Z"
+            chat_ref.set({
+                "id": conv_id,
+                "participants": [user1, user2],
+                "created_at": now,
+                "status": "active"
+            })
+
     def add_chat_message(self, sender: str, receiver: str, content: str, timestamp: str):
-        """Add a chat message between sender and receiver."""
-        # Store messages in a collection 'messages', with a conversation id
         conv_id = self._get_conversation_id(sender, receiver)
+        self._ensure_chat_doc(sender, receiver)
         msg_ref = self.db.collection("chats").document(conv_id).collection("messages")
         msg_ref.add({
             "sender": sender,
@@ -86,13 +116,8 @@ class FirestoreDB:
         })
 
     def get_chat_messages(self, user1: str, user2: str, limit: int = 50) -> list:
-        """Get chat messages between user1 and user2, sorted by timestamp ascending."""
         conv_id = self._get_conversation_id(user1, user2)
         msg_ref = self.db.collection("chats").document(conv_id).collection("messages")
         msgs = msg_ref.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit).stream()
         result = [doc.to_dict() for doc in msgs]
         return list(reversed(result))
-
-    def _get_conversation_id(self, user1: str, user2: str) -> str:
-        """Return a unique conversation id for two users (order-independent)."""
-        return "_".join(sorted([user1, user2]))

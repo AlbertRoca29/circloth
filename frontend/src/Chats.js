@@ -4,6 +4,7 @@ import { fetchMessages, sendMessage } from "./chatApi";
 import ChatMatchCard from "./ChatMatchCard";
 import ItemList from "./ItemList";
 import { fetchMatches } from "./matchingApi";
+import { fetchMatchesWithLocation } from "./matchesApi";
 import { CATEGORIES } from "./utils/categories";
 
 
@@ -20,7 +21,21 @@ function Chats({ user }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    fetchMatches(user.uid).then(setMatches);
+      // Try to get geolocation, if allowed, fetch with location, else random
+      if (!user || !user.uid) return;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            fetchMatchesWithLocation(user.uid, pos.coords).then(setMatches);
+          },
+          () => {
+            fetchMatches(user.uid).then(setMatches);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        fetchMatches(user.uid).then(setMatches);
+      }
   }, [user]);
 
   // Chat message polling effect

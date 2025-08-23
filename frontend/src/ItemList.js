@@ -215,9 +215,10 @@ function ItemList({ user, refreshSignal }) {
       {/* Modal */}
       {modalOpen && modalItem && (
         <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          height:600,
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 100,
+          margin: "70px 70px 100px 70px",
+          height: 650,
           background: 'transparent',
           zIndex: 3000,
           display: 'flex',
@@ -230,8 +231,8 @@ function ItemList({ user, refreshSignal }) {
             borderRadius: 24,
             boxShadow: '0 8px 32px rgba(34,197,94,0.13)',
             padding: '2.2rem 1.5rem',
-            minWidth: 380,
-            maxWidth: 45,
+            minWidth: 320,
+            maxWidth: 450,
             width: '100%',
             maxHeight: 'calc(100vh - 80px)',
             overflowY: 'auto',
