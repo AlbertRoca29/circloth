@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import { showToast } from "./utils/toast";
 import { storage } from "./firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 import BACKEND_URL from "./config";
-
-import Box from "@mui/material/Box";
 import { getCategoryEmoji } from "./utils/general";
+import { CATEGORIES, getSizeOptions } from "./utils/categories";
+import { COLORS, COLOR_PALETTE } from "./utils/theme";
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -15,81 +19,19 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
-
-
-
-const categories = [
-  { key: 'tops', label: 'Tops' },
-  { key: 'jackets_sweaters', label: 'Jackets & Sweaters' },
-  { key: 'pants_shorts', label: 'Pants & Shorts' },
-  { key: 'dresses_skirts', label: 'Dresses & Skirts' },
-  { key: 'shoes', label: 'Shoes' },
-  { key: 'accessories', label: 'Accessories' },
-  { key: 'other', label: 'Other' },
-];
-
-
-
-const sizeOptions = {
-  tops: [
-    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Other'
-  ],
-  jackets_sweaters: [
-    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size', 'Other'
-  ],
-  pants_shorts: [
-    '28-30', '32-34', '36-38', '40-42', '44+', 'S', 'M', 'L', 'XL', 'Other'
-  ],
-  dresses_skirts: [
-    'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL','One Size', 'Other'
-  ],
-  shoes: [
-    '35-37', '38-40', '41-43', '44-46', '47+','Other'
-  ],
-  accessories: [
-    'One Size', 'S', 'M', 'L', 'XL'
-  ],
-  other: [
-    'One Size', 'S', 'M', 'L', 'XL'
-  ]
-};
-
-
-// App green color
-const APP_GREEN = '#22c55e';
-// Expanded and grouped color palette for clothing
-const colorPalette = [
-  // Neutrals
-  '#FFFFFF', // White
-  '#F3F4F6', // Light Gray
-  '#BDBDBD', // Gray
-  '#000000', // Black
-  '#A1887F', // Brown
-  '#D7CCC8', // Light Brown
-  '#E0C097', // Beige
-  '#F5E6CA', // Cream
-  // Blues
-  '#1E293B', // Navy
-  '#3B82F6', // Denim Blue
-  '#60A5FA', // Light Blue
-  // Greens
-  '#4B6043', // Olive
-  '#A3B18A', // Sage
-  '#81C784', // Light Green
-  APP_GREEN, // App Green
-  // Reds/Pinks
-  '#E57373', // Soft Red
-  '#B91C1C', // Deep Red
-  '#F472B6', // Pink
-  // Yellows/Oranges
-  '#FFD54F', // Yellow
-  '#F9A825', // Amber
-  '#FF8A65', // Orange
-  // Purples
-  '#BA68C8', // Purple
-];
-
 function AddItem({ user, onItemAdded }) {
+  const { t } = useTranslation();
+  // Use global categories and size options
+  const categories = CATEGORIES.map(cat => ({ key: cat.key, label: t(cat.labelKey) }));
+  const colorPalette = COLOR_PALETTE;
+  const APP_GREEN = COLORS.appGreen;
+  // Build size options as array of { key, label }
+  const sizeOptions = Object.fromEntries(
+    Object.entries(getSizeOptions((x) => x)).map(([cat, opts]) => [
+      cat,
+      opts.map(opt => ({ key: opt, label: getSizeOptions(t)[cat][opts.indexOf(opt)] }))
+    ])
+  );
   const [open, setOpen] = useState(false);
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [category, setCategory] = useState('');
@@ -104,7 +46,7 @@ function AddItem({ user, onItemAdded }) {
   const [thumbnailIdx, setThumbnailIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  // const [errorMsg, setErrorMsg] = useState("");
 
   // Track object URLs for previews
   const [objectURLs, setObjectURLs] = useState([]);
@@ -129,12 +71,12 @@ function AddItem({ user, onItemAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!category || !size || !itemStory.trim()) {
-  setErrorMsg("Please fill all required fields");
-  return;
+  showToast(t('please_fill_required_fields'), { type: "warning" });
+      return;
     }
     if (photoFiles.length < 2) {
-  setErrorMsg("Please add at least 2 photos (max 5)");
-  return;
+  showToast(t('please_add_photos'), { type: "warning" });
+      return;
     }
     setLoading(true);
     try {
@@ -183,17 +125,12 @@ function AddItem({ user, onItemAdded }) {
     } catch (error) {
       console.error("Error adding clothing item: ", error);
     } finally {
-      setLoading(false);
+  setLoading(false);
     }
-  };
-
+  }
   return (
     <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {errorMsg && (
-        <Box sx={{ color: '#e53935', background: '#fff0f0', border: '1px solid #e53935', borderRadius: 2, p: 1.5, mb: 2, textAlign: 'center', fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>
-          {errorMsg}
-        </Box>
-      )}
+      {/* Toast notifications will show errors instead of inline errorMsg */}
       {!open && (
         <Button
           variant="contained"
@@ -214,14 +151,13 @@ function AddItem({ user, onItemAdded }) {
             '&:hover': { background: '#15803d' }
           }}
         >
-          + Add Item
+          + {t('add_item')}
         </Button>
       )}
       <Collapse in={open} sx={{ width: '100%', maxWidth: 500, mt: 0.5 }}>
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>
-
           <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8 }}>×</Button>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Add New Item</Typography>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('add_item')}</Typography>
 
 
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -266,31 +202,31 @@ function AddItem({ user, onItemAdded }) {
                     <Typography
                         sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}
                     >
-                        Size
+                        {t('size')}
                     </Typography>
                     <Grid container spacing={1}>
-                        {(sizeOptions[category] || []).map(opt => (
-                        <Grid item xs={4} key={opt}>
-                            <Button
-                            variant={size === opt ? 'contained' : 'outlined'}
-                            onClick={() => setSize(opt)}
-                            sx={{
-                                width: '100%',
-                                borderRadius: 1.5,
-                                minHeight: 32,
-                                fontSize: 14,
-                                py: 0.5
-                            }}
-                            >
-                            {opt}
-                            </Button>
-                        </Grid>
-                        ))}
+            {(sizeOptions[category] || []).map(opt => (
+            <Grid item xs={4} key={opt.key}>
+              <Button
+              variant={size === opt.key ? 'contained' : 'outlined'}
+              onClick={() => setSize(opt.key)}
+              sx={{
+                width: '100%',
+                borderRadius: 1.5,
+                minHeight: 32,
+                fontSize: 14,
+                py: 0.5
+              }}
+              >
+              {opt.label}
+              </Button>
+            </Grid>
+            ))}
                     </Grid>
                     </Box>
 
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Details of Size</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
                   <TextField
                     value={sizeDetails}
                     onChange={e => setSizeDetails(e.target.value)}
@@ -318,7 +254,7 @@ function AddItem({ user, onItemAdded }) {
             )}
             <Box sx={{ height: 20 }} />
             <FormControl fullWidth sx={{ mb: 1.5 }}>
-              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Item Story 📝</Typography>
+              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')}</Typography>
               <TextField
                 value={itemStory}
                 onChange={e => setItemStory(e.target.value)}
@@ -353,7 +289,7 @@ function AddItem({ user, onItemAdded }) {
 
             {/* Photos */}
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ mb: 1, fontWeight: 100, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Photos (2-5)</Typography>
+              <Typography sx={{ mb: 1, fontWeight: 100, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')}</Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {photoFiles.map((file, idx) => (
                   <Box key={idx} sx={{ position: 'relative' }}>
@@ -394,11 +330,11 @@ function AddItem({ user, onItemAdded }) {
                   color: '#64748b',
                   fontWeight: 200,
                 }}>▶</span>
-                <Typography sx={{ fontWeight: 150, color: '#191919ff', fontSize: 13, letterSpacing: 0.01, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>More details</Typography>
+                <Typography sx={{ fontWeight: 150, color: '#191919ff', fontSize: 13, letterSpacing: 0.01, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ background: '#fff', pt: 1, borderRadius: 2, px: 1.2, boxShadow: 'none', border: 'none' }}>
                 {/* Color picker */}
-                <Typography sx={{ mb: 0.5, fontWeight: 100, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Color</Typography>
+                <Typography sx={{ mb: 0.5, fontWeight: 100, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('color')}</Typography>
                 <Grid container spacing={0.5} sx={{ mb: 1.2 }}>
                   {colorPalette.map((c, idx) => (
                     <Grid item xs={3} key={c}>
@@ -437,7 +373,7 @@ function AddItem({ user, onItemAdded }) {
                   ))}
                 </Grid>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Brand</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
                   <TextField
                     value={brand}
                     onChange={e => setBrand(e.target.value)}
@@ -461,7 +397,7 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Material</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
                   <TextField
                     value={material}
                     onChange={e => setMaterial(e.target.value)}
@@ -485,7 +421,7 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth>
-                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Additional Info</Typography>
+                  <Typography sx={{ mb: 0.2, fontWeight: 100, color: '#222', fontSize: 14, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
                   <TextField
                     value={additionalInfo}
                     onChange={e => setAdditionalInfo(e.target.value)}
@@ -528,5 +464,4 @@ function AddItem({ user, onItemAdded }) {
     </Box>
   );
 }
-
 export default AddItem;

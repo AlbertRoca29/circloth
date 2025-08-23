@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { auth, logOut } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import LoginPage from "./LoginPage";
@@ -12,6 +14,7 @@ import BACKEND_URL from "./config";
 import Chats from "./Chats";
 
 function App() {
+  const { t } = useTranslation();
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
   const [appUser, setAppUser] = useState(null);           // Backend user profile
   const [loading, setLoading] = useState(true);
@@ -70,6 +73,7 @@ function App() {
 
   // If no user or appUser → show login page
   if (!firebaseUser || !appUser) {
+    // useTranslation is already called at the top, so this is safe
     return <LoginPage firebaseUser={firebaseUser} setAppUser={setAppUser} />;
   }
 
@@ -94,7 +98,8 @@ function App() {
             }}>
               Circloth
             </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+            {/* LanguageSwitcher will be a planet icon button next to profile icon */}
+            <div style={{ display: "flex", alignItems: "center", gap: 28, position: 'relative' }}>
               <span style={{
                 fontWeight: 125,
                 color: "var(--gray-text, #495566ff)",
@@ -104,8 +109,10 @@ function App() {
               }}>
                 {/* Hi, {appUser.name || appUser.displayName} */}
               </span>
+              {/* Language planet icon button */}
+              <LanguageSwitcher />
               <button
-                title="Profile"
+                title={t('profile')}
                 onClick={() => setShowProfile(true)}
                 style={{
                   background: "none",
@@ -126,7 +133,7 @@ function App() {
                 </svg>
               </button>
               <button
-                title="Log Out"
+                title={t('logout')}
                 onClick={logOut}
                 style={{
                   background: "none",

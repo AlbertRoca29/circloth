@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { showToast } from "./utils/toast";
 import { storage } from "./firebase";
 import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "./config";
 import { getCategoryEmoji } from "./utils/general";
+import { CATEGORIES, getSizeOptions } from "./utils/categories";
 
 function ItemList({ user, refreshSignal }) {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
-  const [errorMsg, setErrorMsg] = useState("");
+  // const [errorMsg, setErrorMsg] = useState("");
 
   // Expose modalOpen to parent via callback if provided
   useEffect(() => {
@@ -65,7 +69,7 @@ function ItemList({ user, refreshSignal }) {
 
       setItems(items => items.filter(i => i.id !== item.id));
     } catch (err) {
-      setErrorMsg("Error deleting item");
+      showToast("Error deleting item", { type: "error" });
       console.error("Error deleting item", err);
     }
 
@@ -75,25 +79,14 @@ function ItemList({ user, refreshSignal }) {
   if (!items.length) {
     return (
       <p style={{ textAlign: 'center', color: '#9a9a9aff', fontWeight: 150 }}>
-        No clothing items added yet.
+        {t('no_clothing_items_added_yet')}
       </p>
     );
   }
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto' }}>
-      {errorMsg && (
-        <div style={{
-          color: 'var(--danger, #e11d48)',
-          background: '#fff0f0',
-          border: '1px solid var(--danger, #e11d48)',
-          borderRadius: 6,
-          padding: '8px 16px',
-          marginBottom: 12,
-          textAlign: 'center',
-          fontWeight: 200
-        }}>{errorMsg}</div>
-      )}
+  {/* Toast notifications will show errors instead of inline errorMsg */}
 
       {/* Hide all items when modal is open */}
       {!modalOpen && (
@@ -164,14 +157,14 @@ function ItemList({ user, refreshSignal }) {
                     padding: '2px 8px',
                     color: '#444',
                     marginRight: 2
-                  }}>{item.size}</span>
+                  }}>{t(item.size) !== item.size ? t(item.size) : item.size}</span>
                 )}
 
                 <div style={{ flex: 1 }}></div>
 
 
                 <button
-                  onClick={e => { e.stopPropagation(); setErrorMsg("Edit functionality coming soon!"); }}
+                  onClick={e => { e.stopPropagation(); showToast(t('edit_functionality_coming_soon'), { type: "info" }); }}
                   style={{
                     background: "#fff",
                     color: "#22c55e",
@@ -312,45 +305,35 @@ function ItemList({ user, refreshSignal }) {
             )}
 
             <div style={{ marginBottom: 8 }}>
-              <strong>Category:</strong> {getCategoryEmoji(modalItem.category)}
+              <strong>{t('category')}:</strong> {getCategoryEmoji(modalItem.category)}{' '}
+              <span style={{ fontSize: 13, color: '#444', fontWeight: 150 }}>
+                {(() => {
+                  const cat = CATEGORIES.find(c => c.key === modalItem.category);
+                  return cat ? t(cat.labelKey) : modalItem.category;
+                })()}
+              </span>
             </div>
-
-            {modalItem.color && (
-              <div style={{ marginBottom: 8 }}>
-                <strong>Color:</strong>{" "}
-                <span style={{
-                  display: 'inline-block',
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  background: modalItem.color,
-                  border: '1.5px solid #eee',
-                  verticalAlign: 'middle'
-                }}></span>
-              </div>
-            )}
 
             {modalItem.size && (
               <div style={{ marginBottom: 8 }}>
-                <strong>Size:</strong> {modalItem.size}
+                <strong>{t('size')}:</strong> {t(modalItem.size) !== modalItem.size ? t(modalItem.size) : modalItem.size}
               </div>
             )}
-
             {modalItem.material && (
               <div style={{ marginBottom: 8 }}>
-                <strong>Material:</strong> {modalItem.material}
+                <strong>{t('material')}:</strong> {modalItem.material}
               </div>
             )}
 
             {modalItem.sizeDetails && (
               <div style={{ marginBottom: 8 }}>
-                <strong>Size details:</strong> {modalItem.sizeDetails}
+                <strong>{t('details_of_size')}:</strong> {modalItem.sizeDetails}
               </div>
             )}
 
             {modalItem.additionalInfo && (
               <div style={{ marginBottom: 8 }}>
-                <strong>Info:</strong> {modalItem.additionalInfo}
+                <strong>{t('additional_info')}:</strong> {modalItem.additionalInfo}
               </div>
             )}
 
@@ -385,7 +368,7 @@ function ItemList({ user, refreshSignal }) {
                 boxShadow: '0 4px 16px rgba(34, 197, 94, 0.13)',
                 transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
               }}
-              title="Close"
+              title={t('close')}
             >
               <span role="img" aria-label="close">❌</span>
             </button>
