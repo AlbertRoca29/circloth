@@ -313,8 +313,6 @@ function AddItem({ user, onItemAdded }) {
                     }}
                   />
                 </FormControl>
-              <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 15, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>Size</Typography>
-
                 </>
 
             )}
