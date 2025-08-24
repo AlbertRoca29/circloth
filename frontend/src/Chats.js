@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import './ChatAbsolute.css';
 import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage } from "./chatApi";
 import ChatMatchCard from "./ChatMatchCard";
@@ -73,22 +74,41 @@ function Chats({ user }) {
     setMessages(msgs);
   }
 
+
+  // Disable body scroll when chat is open
+  useEffect(() => {
+    if (chattingWith) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [chattingWith]);
+
+  // Disable body scroll when ItemDetailModal is open
+  useEffect(() => {
+    if (showItem) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [showItem]);
+
   if (showItem) {
     return (
-      <ItemDetailModal
-        item={showItem.item}
-        open={true}
-        onClose={() => setShowItem(null)}
-        showNavigation={true}
-      />
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>
+        <ItemDetailModal
+          item={showItem.item}
+          open={true}
+          onClose={() => setShowItem(null)}
+          showNavigation={true}
+        />
+      </div>
     );
   }
 
   if (chattingWith) {
-    // Special chat UI for 1 of your item matched with 2 of their items
     if (chattingWith.theirItems && chattingWith.theirItems.length === 2) {
       return (
-        <div className="card" style={{ maxWidth: 650, margin: '0 auto', marginTop: 30, borderRadius: 24, minHeight: 400, display: 'flex', flexDirection: 'column', height: 650, alignItems: 'center', padding: 32 }}>
+        <div className="chat-absolute-overlay">
+          <div className="chat-absolute-content card" style={{ maxWidth: 650, borderRadius: 24, minHeight: 400, display: 'flex', flexDirection: 'column', height: 650, alignItems: 'center', padding: 32 }}>
           <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 18 }}>
             {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
           </div>
@@ -112,7 +132,7 @@ function Chats({ user }) {
               style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'cover', border: '1.5px solid #e0e0e0' }}
             />
           </div>
-          <div style={{ flex: 1, overflowY: 'auto', background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10, width: '100%' }}>
+          <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10, width: '100%' }}>
             {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
             {messages.map((msg, i) => (
               <div key={i} style={{
@@ -139,16 +159,18 @@ function Chats({ user }) {
             <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
           </form>
           <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
+          </div>
         </div>
       );
     }
-    // Default chat UI
-    return (
-      <div className="card" style={{ maxWidth: 420, margin: '0 auto', marginTop: 30, borderRadius: 18, minHeight: 300, display: 'flex', flexDirection: 'column', height: 500 }}>
+  // Default chat UI
+  return (
+      <div className="chat-absolute-overlay">
+        <div className="chat-absolute-content card" style={{ maxWidth: 420, borderRadius: 18, minHeight: 300, display: 'flex', flexDirection: 'column', height: 500 }}>
         <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10 }}>
           {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
         </div>
-        <div style={{ flex: 1, overflowY: 'auto', background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
+  <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
           {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
           {messages.map((msg, i) => (
             <div key={i} style={{
@@ -175,6 +197,7 @@ function Chats({ user }) {
           <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
         </form>
   <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
+        </div>
       </div>
     );
   }

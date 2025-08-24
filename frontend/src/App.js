@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PWAPrompt from "./PWAPrompt";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { auth, logOut } from "./firebase";
@@ -28,6 +29,38 @@ function App() {
   const [refreshItems, setRefreshItems] = useState(0);
   // Track location permission for Matching tab
   const [matchingLocation, setMatchingLocation] = useState(null); // null=unknown, true=open, false=closed
+
+  // PWA install prompt state
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+
+  // Detect mobile device
+  function isMobile() {
+    return /android|iphone|ipad|ipod|opera mini|iemobile|mobile/i.test(navigator.userAgent);
+  }
+
+  useEffect(() => {
+    const handler = (e) => {
+      // Only show on mobile and if not already installed
+      if (isMobile() && window.matchMedia('(display-mode: standalone)').matches === false) {
+        e.preventDefault();
+        setDeferredPrompt(e);
+        setShowPWAPrompt(true);
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        setShowPWAPrompt(false);
+        setDeferredPrompt(null);
+      });
+    }
+  };
 
   // Scroll to top when switching to Matching or Chats tab
   useEffect(() => {
@@ -102,6 +135,10 @@ function App() {
   // Main logged-in UI
   return (
     <>
+      {/* PWA Install Prompt */}
+      {showPWAPrompt && (
+        <PWAPrompt onInstall={handleInstall} onClose={() => setShowPWAPrompt(false)} />
+      )}
       {/* Header - fixed, outside main-container */}
       {!itemListModalOpen && (
         <div className="header-bubble">
@@ -203,7 +240,7 @@ function App() {
         )}
         {activeTab === "matching" && <>
           <Matching user={appUser} setHasLocation={setMatchingLocation} />
-          <div style={{textAlign:'center', marginTop:0, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
+          <div style={{textAlign:'center', marginTop:-20, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
             {/* {matchingLocation === true && t('location_open')} */}
             {matchingLocation === false && t('location_closed')}
             {matchingLocation === null && ''}

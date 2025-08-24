@@ -19,9 +19,12 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
 
+  // Disable body scroll when ItemDetailModal is open
   useEffect(() => {
     if (modalOpen) {
+      document.body.style.overflow = 'hidden';
       window.scrollTo({ top: 0, behavior: "instant" });
+      return () => { document.body.style.overflow = ''; };
     }
   }, [modalOpen]);
 
@@ -69,7 +72,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
 
   if (!items.length) {
     return (
-      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150,marginLeft:"9%", width: "400px", fontSize: "18px" }}>
+      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150,marginLeft:"15%", width: "70%", fontSize: "16px" }}>
         {t('no_clothing_items_added_yet')}
       </p>
     );
@@ -194,14 +197,18 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
         </div>
       )}
       {/* Modal using ItemDetailModal */}
-      <ItemDetailModal
-        item={modalItem}
-        open={modalOpen && !!modalItem}
-        onClose={() => setModalOpen(false)}
-        currentIdx={modalIdx}
-        setIdx={setModalIdx}
-        showNavigation={true}
-      />
+      {modalOpen && !!modalItem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>
+          <ItemDetailModal
+            item={modalItem}
+            open={true}
+            onClose={() => setModalOpen(false)}
+            currentIdx={modalIdx}
+            setIdx={setModalIdx}
+            showNavigation={true}
+          />
+        </div>
+      )}
     </div>
   );
 }
