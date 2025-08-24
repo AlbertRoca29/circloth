@@ -118,6 +118,9 @@ function App() {
     return () => { window.onItemListModalOpen = undefined; };
   }, []);
 
+  // Track if Chats modal is open
+  const [chatsModalOpen, setChatsModalOpen] = useState(false);
+
   if (loading) return null;
 
   // If no user or appUser → show login page
@@ -140,7 +143,7 @@ function App() {
         <PWAPrompt onInstall={handleInstall} onClose={() => setShowPWAPrompt(false)} />
       )}
       {/* Header - fixed, outside main-container */}
-      {!itemListModalOpen && (
+  {!itemListModalOpen && !chatsModalOpen && (
         <div className="header-bubble">
           <div style={{
             display: "flex",
@@ -246,15 +249,15 @@ function App() {
             {matchingLocation === null && ''}
           </div>
         </>}
-           {activeTab === "chats" && (
-             <React.Suspense fallback={<div className="card">Loading chats...</div>}>
-               <Chats user={appUser} />
-             </React.Suspense>
-           )}
+        {activeTab === "chats" && (
+          <React.Suspense fallback={<div className="card">Loading chats...</div>}>
+            <Chats user={appUser} onModalOpenChange={setChatsModalOpen} />
+          </React.Suspense>
+        )}
       </div>
 
       {/* Floating Tabs - fixed, outside main-container */}
-      {!itemListModalOpen && (
+  {!itemListModalOpen && !chatsModalOpen && (
         <Tabs
           activeTab={activeTab}
           setActiveTab={setActiveTab}

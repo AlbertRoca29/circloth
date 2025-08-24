@@ -107,6 +107,7 @@ function Matching({ user, setHasLocation }) {
     <ItemDetailModal
       item={item}
       open={true}
+      matching={true}
       onClose={() => {}}
       currentIdx={imgIdx}
       setIdx={setImgIdx}

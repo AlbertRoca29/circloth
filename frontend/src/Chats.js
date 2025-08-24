@@ -9,7 +9,7 @@ import { CATEGORIES } from "./utils/categories";
 import ItemDetailModal from "./ItemDetailModal";
 
 
-function Chats({ user }) {
+function Chats({ user, onModalOpenChange }) {
   const { t } = useTranslation();
   const [matches, setMatches] = useState([]);
   const [showItem, setShowItem] = useState(null); // {item, otherUser}
@@ -85,11 +85,12 @@ function Chats({ user }) {
 
   // Disable body scroll when ItemDetailModal is open
   useEffect(() => {
+    if (onModalOpenChange) onModalOpenChange(!!showItem);
     if (showItem) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
     }
-  }, [showItem]);
+  }, [showItem, onModalOpenChange]);
 
   if (showItem) {
     return (
@@ -97,6 +98,7 @@ function Chats({ user }) {
         <ItemDetailModal
           item={showItem.item}
           open={true}
+          matching={false}
           onClose={() => setShowItem(null)}
           showNavigation={true}
         />

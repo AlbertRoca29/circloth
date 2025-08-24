@@ -202,6 +202,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
           <ItemDetailModal
             item={modalItem}
             open={true}
+            matching={false}
             onClose={() => setModalOpen(false)}
             currentIdx={modalIdx}
             setIdx={setModalIdx}

@@ -6,6 +6,7 @@ import { CATEGORIES } from "./utils/categories";
 function ItemDetailModal({
   item,
   open,
+  matching=false,
   onClose,
   currentIdx = 0,
   setIdx,
@@ -26,7 +27,9 @@ function ItemDetailModal({
     return cat ? t(cat.labelKey) : catKey;
   };
   // Dropdown for more details
-  const [detailsOpen, setDetailsOpen] = React.useState(false);
+    const [detailsOpen, setDetailsOpen] = React.useState(false);
+    // Check if there are any more details to show
+    const hasMoreDetails = !!(item.sizeDetails || item.material || item.additionalInfo);
   if (!item || !open) return null;
   // Helper: show size only if not 'other'
   const showSize = item.size && item.size !== 'other';
@@ -47,13 +50,15 @@ function ItemDetailModal({
   return (
     <div style={{
       position: 'fixed',
-      height: '750px',
-      width: '92%',
-      top: 0, left: "4%", right: 0, bottom: 0,
-      background: 'transparent',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.02)',
       zIndex: 3000,
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       justifyContent: 'center',
       overflow: 'auto',
     }}>
@@ -196,63 +201,65 @@ function ItemDetailModal({
         )}
 
         {/* 4) More details: Dropdown with scrollable content */}
-        <div style={{ width: '90%', maxWidth: 350, marginBottom: 10 }}>
-          <button
-            onClick={() => setDetailsOpen((v) => !v)}
-            style={{
-              width: '100%',
-              background: '#f3f4f6',
-              color: '#444',
-              border: 'none',
-              borderRadius: 8,
-              padding: '8px 0',
-              fontWeight: 500,
-              fontSize: 15,
-              cursor: 'pointer',
-              marginBottom: 0,
-              boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'background 0.18s',
-            }}
-            aria-expanded={detailsOpen}
-          >
-            {t('more_details') || 'More details'}
-            <span style={{ fontSize: 18 }}>{detailsOpen ? '▲' : '▼'}</span>
-          </button>
-          {detailsOpen && (
-            <div style={{
-              height: 80,
-              overflowY: 'auto',
-              marginTop: 6,
-              background: '#f9fafb',
-              borderRadius: 8,
-              padding: '10px 14px',
-              fontSize: 15,
-              color: '#444',
-              boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
-            }}>
-              {item.sizeDetails && (
-                <div style={{ marginBottom: 10 }}>
-                  <strong style={{ fontWeight: 170 }}>{t('size_details') || 'Size details'}:</strong> {item.sizeDetails}
-                </div>
-              )}
-              {item.material && (
-                <div style={{ marginBottom: 10 }}>
-                  <strong style={{ fontWeight: 170 }}>{t('material')}:</strong> {item.material}
-                </div>
-              )}
-              {item.additionalInfo && (
-                <div style={{ marginBottom: 10 }}>
-                  <strong style={{ fontWeight: 170 }}>{t('additional_info')}</strong><br />{item.additionalInfo}
-                </div>
-              )}
-              {/* Add more fields here if needed */}
-            </div>
-          )}
-        </div>
+        {hasMoreDetails && (
+          <div style={{ width: '90%', maxWidth: 350, marginBottom: 10 }}>
+            <button
+              onClick={() => setDetailsOpen((v) => !v)}
+              style={{
+                width: '100%',
+                background: '#f3f4f6',
+                color: '#444',
+                border: 'none',
+                borderRadius: 8,
+                padding: '8px 0',
+                fontWeight: 500,
+                fontSize: 15,
+                cursor: 'pointer',
+                marginBottom: 0,
+                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                transition: 'background 0.18s',
+              }}
+              aria-expanded={detailsOpen}
+            >
+              {t('more_details') || 'More details'}
+              <span style={{ fontSize: 18 }}>{detailsOpen ? '▲' : '▼'}</span>
+            </button>
+            {detailsOpen && (
+              <div style={{
+                height: 80,
+                overflowY: 'auto',
+                marginTop: 6,
+                background: '#f9fafb',
+                borderRadius: 8,
+                padding: '10px 14px',
+                fontSize: 15,
+                color: '#444',
+                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+              }}>
+                {item.sizeDetails && (
+                  <div style={{ marginBottom: 10 }}>
+                    <strong style={{ fontWeight: 170 }}>{t('size_details') || 'Size details'}:</strong> {item.sizeDetails}
+                  </div>
+                )}
+                {item.material && (
+                  <div style={{ marginBottom: 10 }}>
+                    <strong style={{ fontWeight: 170 }}>{t('material')}:</strong> {item.material}
+                  </div>
+                )}
+                {item.additionalInfo && (
+                  <div style={{ marginBottom: 10 }}>
+                    <strong style={{ fontWeight: 170 }}>{t('additional_info')}</strong><br />{item.additionalInfo}
+                  </div>
+                )}
+                {/* Add more fields here if needed */}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer (custom actions) */}
         <div style={{ marginTop: 18, width: '100%', display: 'flex', justifyContent: 'center', gap: 16 }}>
