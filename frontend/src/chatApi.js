@@ -1,5 +1,13 @@
 import BACKEND_URL from "./config";
 
+export async function fetchUserChats(userId) {
+  const res = await fetch(`${BACKEND_URL}/chat/list_chats/${userId}`);
+  if (!res.ok) throw new Error('Failed to fetch chats');
+  const data = await res.json();
+  return data.chats;
+}
+
+
 export async function sendMessage(sender, receiver, content) {
   const res = await fetch(`${BACKEND_URL}/chat/send`, {
     method: 'POST',

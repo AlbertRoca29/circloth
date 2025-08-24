@@ -49,6 +49,7 @@ CHAT_FIELDS = {
 	"participants": "list",  # [user_id1, user_id2]
 	"created_at": "str",
 	"status": "str",         # e.g. "active", "archived"
+	"last_access": "dict",   # {user_id: ISO timestamp}
 }
 
 # Message subcollection under chat

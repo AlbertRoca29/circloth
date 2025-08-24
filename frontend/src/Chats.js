@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import './ChatAbsolute.css';
 import { useTranslation } from "react-i18next";
-import { fetchMessages, sendMessage } from "./chatApi";
+import { fetchMessages, sendMessage, fetchUserChats } from "./chatApi";
 import ChatMatchCard from "./ChatMatchCard";
 import ItemList from "./ItemList";
 import { fetchMatches } from "./matchingApi";
@@ -15,16 +15,79 @@ function Chats({ user, onModalOpenChange }) {
   const [showItem, setShowItem] = useState(null); // {item, otherUser}
   const [chattingWith, setChattingWith] = useState(null); // match
 
+
   // Chat UI hooks (always defined, only used if chattingWith is set)
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    // Location-based matching hidden for future release
+
+    // Grouping logic in useMemo so it recalculates every time matches changes
+    const groupedArr = React.useMemo(() => {
+      const grouped = {};
+      matches.forEach(m => {
+        const yourItemId = Array.isArray(m.yourItems) && m.yourItems.length === 1 ? m.yourItems[0].id : m.yourItem?.id;
+        const key = m.otherUser.id + "_" + yourItemId;
+        if (!grouped[key]) {
+          // Always set yourItems as an array
+          let yourItemsArr = Array.isArray(m.yourItems) ? m.yourItems : (m.yourItem ? [m.yourItem] : []);
+          grouped[key] = {
+            otherUser: m.otherUser,
+            yourItems: yourItemsArr,
+            theirItems: [],
+            matchIds: [],
+            originalMatches: [],
+            theirItem: undefined, // will set below
+          };
+        }
+        grouped[key].theirItems.push(m.theirItem);
+        // Always set theirItem to the first in theirItems for default card
+        if (!grouped[key].theirItem && m.theirItem) {
+          grouped[key].theirItem = m.theirItem;
+        }
+        grouped[key].matchIds.push(m.id);
+        grouped[key].originalMatches.push(m);
+      });
+      // After grouping, ensure theirItem is set for all groups (fallback to first in theirItems)
+      Object.values(grouped).forEach(group => {
+        if (!group.theirItem && group.theirItems.length > 0) {
+          group.theirItem = group.theirItems[0];
+        }
+        // Set isUnread true if any originalMatches are unread
+        group.isUnread = group.originalMatches.some(m => m.isUnread);
+      });
+      return Object.values(grouped);
+    }, [matches]);
+  // Function to fetch and update matches with unread status
+  const fetchAndSetMatches = async () => {
     if (!user || !user.uid) return;
-    fetchMatches(user.uid).then(setMatches);
+    const matches = await fetchMatches(user.uid);
+    const chats = await fetchUserChats(user.uid);
+    // Map: otherUserId => chat object
+    const chatMap = {};
+    chats.forEach(chat => {
+      // Find the other participant
+      const otherId = (chat.participants || []).find(id => id !== user.uid);
+      if (otherId) chatMap[otherId] = chat;
+    });
+    // Attach isUnread to each match
+    const matchesWithUnread = matches.map(m => {
+      const chat = chatMap[m.otherUser.id];
+      if (!chat) {
+        return { ...m, isUnread: true };
+      }
+      return { ...m, isUnread: !!chat.is_unread };
+    });
+    setMatches(matchesWithUnread);
+  };
+
+  // Initial fetch and polling for matches/unread status
+  useEffect(() => {
+    if (!user || !user.uid) return;
+    fetchAndSetMatches();
+    const interval = setInterval(fetchAndSetMatches, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
   }, [user]);
 
   // Chat message polling effect
@@ -145,10 +208,29 @@ function Chats({ user, onModalOpenChange }) {
             <div ref={messagesEndRef} />
           </div>
           <form onSubmit={handleSend} style={{ display: 'flex', gap: 8, width: '100%' }}>
-            <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 8, fontSize: 15 }} />
+            <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 8, fontSize: 15, lineHeight: '1.5' }} />
             <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
           </form>
-          <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
+          <button
+            onClick={() => setChattingWith(null)}
+            aria-label="Go back"
+            style={{
+              position: 'absolute',
+              top: 18,
+              left: 18,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              zIndex: 10,
+              padding: 0,
+            }}
+          >
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
+              <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+              <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+            </svg>
+          </button>
           </div>
         </div>
       );
@@ -166,6 +248,7 @@ function Chats({ user, onModalOpenChange }) {
             <div key={i} style={{
               textAlign: msg.sender === user.uid ? 'right' : 'left',
               margin: '6px 0',
+              lineHeight: '1.5',
             }}>
               <span style={{
                 display: 'inline-block',
@@ -182,50 +265,36 @@ function Chats({ user, onModalOpenChange }) {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <form onSubmit={handleSend} style={{ display: 'flex', gap: 8 }}>
-          <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 8, fontSize: 15 }} />
+        <form onSubmit={handleSend} style={{ display: 'flex', gap: 10 }}>
+          <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 11, fontSize: 15.5 }} />
           <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
         </form>
-  <button onClick={() => setChattingWith(null)} style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 14, cursor: 'pointer', marginTop: 10 }}>{t('back')}</button>
+  <button
+    onClick={() => setChattingWith(null)}
+    aria-label="Go back"
+    style={{
+      position: 'absolute',
+      top: 18,
+      left: 18,
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      zIndex: 10,
+      padding: 0,
+    }}
+  >
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
+      <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+      <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+    </svg>
+  </button>
         </div>
       </div>
     );
   }
 
-  // Group matches: key = otherUser.id + yourItem.id, value = {otherUser, yourItem, theirItems: []}
-  const grouped = {};
-  matches.forEach(m => {
-    const yourItemId = Array.isArray(m.yourItems) && m.yourItems.length === 1 ? m.yourItems[0].id : m.yourItem?.id;
-    const key = m.otherUser.id + "_" + yourItemId;
-    if (!grouped[key]) {
-      // Always set yourItems as an array
-      let yourItemsArr = Array.isArray(m.yourItems) ? m.yourItems : (m.yourItem ? [m.yourItem] : []);
-      grouped[key] = {
-        otherUser: m.otherUser,
-        yourItems: yourItemsArr,
-        theirItems: [],
-        matchIds: [],
-        originalMatches: [],
-        theirItem: undefined, // will set below
-      };
-    }
-    grouped[key].theirItems.push(m.theirItem);
-    // Always set theirItem to the first in theirItems for default card
-    if (!grouped[key].theirItem && m.theirItem) {
-      grouped[key].theirItem = m.theirItem;
-    }
-    grouped[key].matchIds.push(m.id);
-    grouped[key].originalMatches.push(m);
-  });
 
-  // After grouping, ensure theirItem is set for all groups (fallback to first in theirItems)
-  Object.values(grouped).forEach(group => {
-    if (!group.theirItem && group.theirItems.length > 0) {
-      group.theirItem = group.theirItems[0];
-    }
-  });
-
-  const groupedArr = Object.values(grouped);
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
@@ -234,14 +303,22 @@ function Chats({ user, onModalOpenChange }) {
           {t('no_matches_cool')}
         </div>
       )}
-      {groupedArr.map((group, idx) => (
-        <ChatMatchCard
-          key={group.matchIds.join('-')}
-          match={group}
-          onShowDetails={itemObj => setShowItem(itemObj)}
-          onChat={chatObj => setChattingWith(chatObj)}
-        />
-      ))}
+      {groupedArr.map((group, idx) => {
+        console.log('Rendering ChatMatchCard:', {
+          idx,
+          group,
+          isUnread: group.isUnread
+        });
+        return (
+          <ChatMatchCard
+            key={group.matchIds.join('-')}
+            match={group}
+            isUnread={group.isUnread}
+            onShowDetails={itemObj => setShowItem(itemObj)}
+            onChat={chatObj => setChattingWith(chatObj)}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "./utils/general";
 
-function ChatMatchCard({ match, onShowDetails, onChat }) {
+function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
   const { t } = useTranslation();
   // Special case: 1 of your item, 2 of their items, same otherUser
   if (match.theirItems && match.theirItems.length === 2) {
@@ -93,6 +93,20 @@ function ChatMatchCard({ match, onShowDetails, onChat }) {
       width: 340,
       minHeight: 100
     }}>
+      {/* Red dot for unread */}
+      {isUnread && (
+        <span style={{
+          position: 'absolute',
+          top: 8,
+          left: 8,
+          width: 14,
+          height: 14,
+          background: 'red',
+          borderRadius: '50%',
+          zIndex: 2,
+          border: '4px solid #fff',
+        }} />
+      )}
       {/* Their item image */}
       <img
         src={match.theirItem?.photoURLs?.[0]}

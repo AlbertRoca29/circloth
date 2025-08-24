@@ -6,6 +6,32 @@ from typing import List, Optional
 from datetime import datetime
 
 class FirestoreDB:
+    def list_user_chats(self, user_id: str):
+        chats_ref = self.db.collection("chats").where("participants", "array_contains", user_id)
+        chats = []
+        for doc in chats_ref.stream():
+            chat = doc.to_dict()
+            chat_id = chat["id"]
+            # Get last message
+            msg_ref = self.db.collection("chats").document(chat_id).collection("messages")
+            last_msg = list(msg_ref.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(1).stream())
+            last_msg_ts = last_msg[0].to_dict()["timestamp"] if last_msg else None
+            # Get last access for this user
+            last_access = chat.get("last_access", {}).get(user_id)
+            is_unread = False
+            if last_msg_ts and last_access:
+                is_unread = last_msg_ts > last_access
+            # elif last_msg_ts and not last_access:
+            #     is_unread = True
+            chat["is_unread"] = is_unread
+            chat["last_message"] = last_msg[0].to_dict() if last_msg else None
+            chats.append(chat)
+        return chats
+    def update_chat_last_access(self, user1: str, user2: str, user_id: str):
+        conv_id = self._get_conversation_id(user1, user2)
+        chat_ref = self.db.collection("chats").document(conv_id)
+        now = datetime.utcnow().isoformat() + "Z"
+        chat_ref.set({"last_access": {user_id: now}}, merge=True)
     def delete_item_matches(self, item_id: str):
         """Delete all user actions of type 'like' for a given item_id from all users (removes matches)."""
         users_ref = self.db.collection("users")
@@ -121,7 +147,8 @@ class FirestoreDB:
                 "id": conv_id,
                 "participants": [user1, user2],
                 "created_at": now,
-                "status": "active"
+                "status": "active",
+                "last_access": {user1: now, user2: now}
             })
 
     def add_chat_message(self, sender: str, receiver: str, content: str, timestamp: str):

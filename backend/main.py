@@ -11,6 +11,7 @@ from db import FirestoreDB
 from matching_service import get_available_items_for_user, handle_user_action
 import logging
 from datetime import datetime
+from fastapi import Query
 
 app = FastAPI()
 
@@ -223,7 +224,6 @@ def delete_match(user_id: str, other_user_id: str, item_id: str, your_item_id: s
     return {"message_key": "MATCH_DELETED"}
 
 
-@app.put("/item/{item_id}")
 
 @app.put("/item/{item_id}")
 def update_item(item_id: str, item: ItemModel):
@@ -264,16 +264,16 @@ def get_user_actions(user_id: str):
 @app.get("/matches/{user_id}")
 def get_matches(user_id: str):
     dbi = FirestoreDB()
-    # 1. Get all actions by this user (likes given)
+
     my_actions = dbi.get_user_actions(user_id)
     my_likes = [a for a in my_actions if a.get("action") == "like"]
-    # 2. Get all items owned by this user
+
     my_items = dbi.list_user_items(user_id)
     my_item_ids = set(i["id"] for i in my_items)
-    # 3. For each of my items, get likes received
+
     received_likes = []
     for item in my_items:
-        # Find all actions where someone else liked this item
+
         actions = []
         users_ref = dbi.db.collection("users")
         for user_doc in users_ref.stream():
@@ -286,10 +286,9 @@ def get_matches(user_id: str):
                     act = dict(act)
                     act["user_id"] = other_user_id
                     received_likes.append(act)
-    # 4. Find reciprocal likes
-    # Group matches by (their_user_id, their_item_id)
+
     grouped = {}
-    # For each (their_user_id, their_item_id), collect all your items that liked their item and got a reciprocal like
+
     for my_item in my_items:
         for my_like in [l for l in my_likes if l["item_id"] not in my_item_ids]:
             their_item_id = my_like["item_id"]
@@ -299,7 +298,7 @@ def get_matches(user_id: str):
             their_user_id = their_item.get("ownerId")
             if not their_user_id or their_user_id == user_id:
                 continue
-            # Did this user like my item?
+
             reciprocal = next((l for l in received_likes if l["user_id"] == their_user_id and l["item_id"] == my_item["id"]), None)
             if reciprocal:
                 key = (their_user_id, their_item_id)
@@ -341,15 +340,35 @@ def send_message(req: MessageSendRequest):
 @app.post("/chat/list")
 def list_messages(req: MessageListRequest):
     try:
+        # Update last_access and last_active for the user (req.user1)
+        db.update_chat_last_access(req.user1, req.user2, req.user1)
+        db.update_user(req.user1, {})
         messages = db.get_chat_messages(req.user1, req.user2, req.limit)
         # If no messages, return empty list (not error)
         if not messages:
             return {"messages": []}
         return {"messages": messages}
     except Exception as e:
-        import logging
         logging.exception(f"Error fetching chat messages for {req.user1} <-> {req.user2}")
         raise HTTPException(status_code=500, detail="FAILED_TO_FETCH_MESSAGES")
+
+
+
+# --- List user chats endpoint ---
+@app.get("/chat/list_chats/{user_id}")
+def list_user_chats(user_id: str):
+    chats = db.list_user_chats(user_id)
+    return {"chats": chats}
+# --- Update chat last access endpoint ---
+class ChatAccessUpdateRequest(BaseModel):
+    user1: str
+    user2: str
+    user_id: str
+
+@app.post("/chat/update_access")
+def update_chat_access(req: ChatAccessUpdateRequest):
+    db.update_chat_last_access(req.user1, req.user2, req.user_id)
+    return {"message_key": "LAST_ACCESS_UPDATED"}
 
 
 

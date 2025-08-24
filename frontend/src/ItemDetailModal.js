@@ -2,6 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "./utils/general";
 import { CATEGORIES } from "./utils/categories";
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 function ItemDetailModal({
   item,
@@ -50,15 +53,15 @@ function ItemDetailModal({
   return (
     <div style={{
       position: 'fixed',
-      top: 0,
+      top: -30,
       left: 0,
       width: '100vw',
-      height: '88vh',
-      background: 'transparent',
+      maxHeight: '680px',
+      minHeight: '680px',
+      background: 'gray',
       zIndex: 3000,
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
       justifyContent: 'center',
       overflow: 'auto',
     }}>
@@ -67,10 +70,10 @@ function ItemDetailModal({
         borderRadius: 24,
         boxShadow: '0 8px 32px rgba(34,197,94,0.13)',
         padding: '2.2rem 1.5rem',
-        minWidth: 320,
-        maxWidth: 450,
         width: '100%',
-        maxHeight: 'calc(100vh - 80px)',
+        // maxHeight: 'calc(100vh - 80px)',
+        minHeight: '500px',
+        maxHeight: '600px',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -108,42 +111,40 @@ function ItemDetailModal({
             />
             {showNavigation && images.length > 1 && (
               <>
-                <button
+                <IconButton
                   onClick={handlePrev}
-                  style={{
+                  sx={{
                     position: 'absolute',
-                    left: 8,
+                    left: -30,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'rgba(255,255,255,0.7)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: 32,
-                    height: 32,
-                    fontSize: 20,
-                    cursor: 'pointer',
+                    background: 'rgba(255,255,255,0.85)',
+                    boxShadow: 2,
+                    '&:hover': { background: 'rgba(34,197,94,0.18)' },
                     zIndex: 2,
                   }}
                   aria-label="Previous image"
-                >&#8592;</button>
-                <button
+                  size="large"
+                >
+                  <ArrowBackIosNewIcon sx={{ color: '#096027a9', fontSize: 28 }} />
+                </IconButton>
+                <IconButton
                   onClick={handleNext}
-                  style={{
+                  sx={{
                     position: 'absolute',
-                    right: 8,
+                    right: -30,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'rgba(255,255,255,0.7)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: 32,
-                    height: 32,
-                    fontSize: 20,
-                    cursor: 'pointer',
+                    background: 'rgba(255,255,255,0.85)',
+                    boxShadow: 2,
+                    '&:hover': { background: 'rgba(34,197,94,0.18)' },
                     zIndex: 2,
                   }}
                   aria-label="Next image"
-                >&#8594;</button>
+                  size="large"
+                >
+                  <ArrowForwardIosIcon sx={{ color: '#096027a9', fontSize: 28 }} />
+                </IconButton>
                 <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '2px 10px', fontSize: 13 }}>
                   {modalIdx + 1} / {images.length}
                 </div>
