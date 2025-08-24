@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage } from "./chatApi";
 import ChatMatchCard from "./ChatMatchCard";
 import ItemList from "./ItemList";
-import { fetchMatches, fetchMatchesWithLocation } from "./matchingApi";
+import { fetchMatches } from "./matchingApi";
 import { CATEGORIES } from "./utils/categories";
 import ItemDetailModal from "./ItemDetailModal";
 
@@ -22,21 +22,9 @@ function Chats({ user, onModalOpenChange }) {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-      // Try to get geolocation, if allowed, fetch with location, else random
-      if (!user || !user.uid) return;
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            fetchMatchesWithLocation(user.uid, pos.coords).then(setMatches);
-          },
-          () => {
-            fetchMatches(user.uid).then(setMatches);
-          },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
-      } else {
-        fetchMatches(user.uid).then(setMatches);
-      }
+    // Location-based matching hidden for future release
+    if (!user || !user.uid) return;
+    fetchMatches(user.uid).then(setMatches);
   }, [user]);
 
   // Chat message polling effect

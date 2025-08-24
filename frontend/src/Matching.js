@@ -10,26 +10,26 @@ import ItemDetailModal from "./ItemDetailModal";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
-  // Track if location is available (must be before any return)
-  const [hasLocation, setHasLocationLocal] = useState(true);
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setHasLocationLocal(false);
-      setHasLocation && setHasLocation(false);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        setHasLocationLocal(true);
-        setHasLocation && setHasLocation(true);
-      },
-      () => {
-        setHasLocationLocal(false);
-        setHasLocation && setHasLocation(false);
-      },
-      { timeout: 5000 }
-    );
-  }, [user, setHasLocation]);
+  // Location logic hidden for future release
+  // const [hasLocation, setHasLocationLocal] = useState(true);
+  // useEffect(() => {
+  //   if (!navigator.geolocation) {
+  //     setHasLocationLocal(false);
+  //     setHasLocation && setHasLocation(false);
+  //     return;
+  //   }
+  //   navigator.geolocation.getCurrentPosition(
+  //     () => {
+  //       setHasLocationLocal(true);
+  //       setHasLocation && setHasLocation(true);
+  //     },
+  //     () => {
+  //       setHasLocationLocal(false);
+  //       setHasLocation && setHasLocation(false);
+  //     },
+  //     { timeout: 5000 }
+  //   );
+  // }, [user, setHasLocation]);
   // Prevent body scroll when Matching is mounted
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -37,20 +37,20 @@ function Matching({ user, setHasLocation }) {
     return () => { document.body.style.overflow = original; };
   }, []);
 
-  // Update user location when Matching tab is entered
-  useEffect(() => {
-    if (!user || !user.uid) return;
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        updateUserLocation(user.uid, pos.coords).catch(() => {});
-      },
-      () => {},
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-    // Only on mount
-    // eslint-disable-next-line
-  }, [user]);
+  // Update user location when Matching tab is entered (hidden for future release)
+  // useEffect(() => {
+  //   if (!user || !user.uid) return;
+  //   if (!navigator.geolocation) return;
+  //   navigator.geolocation.getCurrentPosition(
+  //     (pos) => {
+  //       updateUserLocation(user.uid, pos.coords).catch(() => {});
+  //     },
+  //     () => {},
+  //     { enableHighAccuracy: true, timeout: 10000 }
+  //   );
+  //   // Only on mount
+  //   // eslint-disable-next-line
+  // }, [user]);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

@@ -27,8 +27,8 @@ function App() {
   const [activeTab, setActiveTab] = useState("clothes");
   const [hasClothes, setHasClothes] = useState(false);
   const [refreshItems, setRefreshItems] = useState(0);
-  // Track location permission for Matching tab
-  const [matchingLocation, setMatchingLocation] = useState(null); // null=unknown, true=open, false=closed
+  // Location permission tracking hidden for future release
+  // const [matchingLocation, setMatchingLocation] = useState(null); // null=unknown, true=open, false=closed
 
   // PWA install prompt state
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -242,11 +242,9 @@ function App() {
           </>
         )}
         {activeTab === "matching" && <>
-          <Matching user={appUser} setHasLocation={setMatchingLocation} />
+          <Matching user={appUser} />
           <div style={{textAlign:'center', marginTop:-20, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
-            {/* {matchingLocation === true && t('location_open')} */}
-            {matchingLocation === false && t('location_closed')}
-            {matchingLocation === null && ''}
+            {/* Location status UI hidden for future release */}
           </div>
         </>}
         {activeTab === "chats" && (
