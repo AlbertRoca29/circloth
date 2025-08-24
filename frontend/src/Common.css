@@ -1,3 +1,10 @@
+/* Chat card bottom right button */
+.chat-bottom-btn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+}
 /* Prevent scrollbars in Matching card */
 .matching-card-fixed {
   overflow: hidden !important;

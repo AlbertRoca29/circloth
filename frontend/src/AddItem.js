@@ -10,6 +10,7 @@ import { getCategoryEmoji } from "./utils/general";
 import { CATEGORIES, getSizeOptions } from "./utils/categories";
 import { COLORS, COLOR_PALETTE } from "./utils/theme";
 import Button from "@mui/material/Button";
+import ProgressBarButton from "./ProgressBarButton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
@@ -19,6 +20,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
+
 function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();
   // Use global categories and size options
@@ -46,6 +48,8 @@ function AddItem({ user, onItemAdded }) {
   const [thumbnailIdx, setThumbnailIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  // For demo: fake progress state
+  const [progress, setProgress] = useState(0);
   // const [errorMsg, setErrorMsg] = useState("");
 
   // Track object URLs for previews
@@ -78,10 +82,12 @@ function AddItem({ user, onItemAdded }) {
   showToast(t('please_add_photos'), { type: "warning" });
       return;
     }
-    setLoading(true);
+  setLoading(true);
+  setProgress(0);
     try {
       const photoURLs = [];
       for (let i = 0; i < photoFiles.length; i++) {
+        setProgress(Math.round(((i + 1) / photoFiles.length) * 80)); // Simulate progress
         const file = photoFiles[i];
         const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
         const compressedFile = await imageCompression(file, options);
@@ -125,7 +131,11 @@ function AddItem({ user, onItemAdded }) {
     } catch (error) {
       console.error("Error adding clothing item: ", error);
     } finally {
-  setLoading(false);
+      setProgress(100);
+      setTimeout(() => {
+        setLoading(false);
+        setProgress(0);
+      }, 500);
     }
   }
   return (
@@ -157,7 +167,7 @@ function AddItem({ user, onItemAdded }) {
       <Collapse in={open} sx={{ width: '100%', maxWidth: 500, mt: 0.5 }}>
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>
           <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8 }}>×</Button>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontSize: 22 }}>{t('add_item')}</Typography>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontSize: 16 }}>{t('add_item')}</Typography>
 
 
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -189,7 +199,7 @@ function AddItem({ user, onItemAdded }) {
                     }}
                   >
                     <span style={{ fontSize: 32, lineHeight: 1 }}>{getCategoryEmoji(cat.key)}</span>
-                    <span style={{ fontSize: 9.5, color: '#666', marginTop: 8, lineHeight: 1.2 }}>{cat.label}</span>
+                    <span style={{ fontSize: 10, color: '#666', marginTop: 8, lineHeight: 1.2 }}>{cat.label}</span>
                   </Button>
                 </Grid>
               ))}
@@ -203,21 +213,32 @@ function AddItem({ user, onItemAdded }) {
           <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('size')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
                     <Grid container spacing={1}>
             {(sizeOptions[category] || []).map(opt => (
-            <Grid item xs={4} key={opt.key}>
-              <Button
-              variant={size === opt.key ? 'contained' : 'outlined'}
-              onClick={() => setSize(opt.key)}
-              sx={{
-                width: '100%',
-                borderRadius: 1.5,
-                minHeight: 32,
-                fontSize: 14,
-                py: 0.5
-              }}
-              >
-              {opt.label}
-              </Button>
-            </Grid>
+              <Grid item xs={4} key={opt.key}>
+                <Button
+                  onClick={() => setSize(opt.key)}
+                  sx={{
+                    width: '100%',
+                    borderRadius: 1.5,
+                    minHeight: 32,
+                    fontSize: 13,
+                    fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
+                    fontWeight: 150,
+                    py: 0.5,
+                    background: size === opt.key ? APP_GREEN : '#f3f4f6',
+                    color: size === opt.key ? '#fff' : '#166232',
+                    border: size === opt.key ? `2px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
+                    boxShadow: size === opt.key ? `0 2px 8px rgba(34,197,94,0.10)` : 'none',
+                    '&:hover': {
+                      background: size === opt.key ? '#15803d' : '#e6f7ec',
+                      borderColor: '#15803d',
+                      color: '#15803d',
+                    },
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {opt.label}
+                </Button>
+              </Grid>
             ))}
                     </Grid>
                     </Box>
@@ -452,9 +473,15 @@ function AddItem({ user, onItemAdded }) {
             </Accordion>
 
 
-            <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', mt:2, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }} disabled={loading}>
-              {loading ? "Adding..." : "Submit"}
-            </Button>
+            {loading ? (
+              <Box sx={{ width: '100%', height: 48 }}>
+                <ProgressBarButton progress={progress} />
+              </Box>
+            ) : (
+              <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', mt:2, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }}>
+                Submit
+              </Button>
+            )}
 
           </FormControl>
         </Box>

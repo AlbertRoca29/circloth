@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage } from "./chatApi";
 import ChatMatchCard from "./ChatMatchCard";
 import ItemList from "./ItemList";
-import { fetchMatches } from "./matchingApi";
-import { fetchMatchesWithLocation } from "./matchesApi";
+import { fetchMatches, fetchMatchesWithLocation } from "./matchingApi";
 import { CATEGORIES } from "./utils/categories";
+import ItemDetailModal from "./ItemDetailModal";
 
 
 function Chats({ user }) {
@@ -74,23 +74,13 @@ function Chats({ user }) {
   }
 
   if (showItem) {
-    // Show item details modal (reuse ItemList modal style)
-    const item = showItem.item;
-    const cat = CATEGORIES.find(c => c.key === item.category);
     return (
-      <div style={{ position: 'fixed', top: 300, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.08)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ background: '#fff', borderRadius: 24, boxShadow: '0 8px 32px rgba(34,197,94,0.13)', padding: '2.2rem 1.5rem', minWidth: 380, maxWidth: 450, width: '100%', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', margin: 0 }}>
-          <img src={item.photoURLs?.[0]} alt="item" loading="lazy" style={{ maxWidth: '100%', maxHeight: 340, borderRadius: 12, objectFit: 'contain', background: '#f6f6f6', marginBottom: 16 }} />
-          <div style={{ marginBottom: 8 }}><strong>{t('category')}:</strong> {cat ? t(cat.labelKey) : item.category}</div>
-          {item.color && <div style={{ marginBottom: 8 }}><strong>{t('color')}:</strong> <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: '50%', background: item.color, border: '1.5px solid #eee', verticalAlign: 'middle' }}></span></div>}
-          {item.size && <div style={{ marginBottom: 8 }}><strong>{t('size')}:</strong> {t(item.size) !== item.size ? t(item.size) : item.size}</div>}
-          {item.material && <div style={{ marginBottom: 8 }}><strong>{t('material')}:</strong> {item.material}</div>}
-          {item.sizeDetails && <div style={{ marginBottom: 8 }}><strong>{t('details_of_size')}:</strong> {item.sizeDetails}</div>}
-          {item.additionalInfo && <div style={{ marginBottom: 8 }}><strong>{t('additional_info')}:</strong> {item.additionalInfo}</div>}
-          {item.itemStory && <div style={{ marginBottom: 8, background: '#fffbe6', borderRadius: 8, padding: '8px 12px', color: '#eab308', fontWeight: 100 }}><span style={{ marginRight: 6 }}>📝</span>{item.itemStory}</div>}
-          <button onClick={() => setShowItem(null)} style={{ marginTop: 18, background: '#22c55e', color: '#fff', border: 'none', borderRadius: '50%', padding: 12, fontSize: 26, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(34, 197, 94, 0.13)', transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s' }} title={t('close')}><span role="img" aria-label="close">❌</span></button>
-        </div>
-      </div>
+      <ItemDetailModal
+        item={showItem.item}
+        open={true}
+        onClose={() => setShowItem(null)}
+        showNavigation={true}
+      />
     );
   }
 

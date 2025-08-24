@@ -29,6 +29,12 @@ function App() {
   // Track location permission for Matching tab
   const [matchingLocation, setMatchingLocation] = useState(null); // null=unknown, true=open, false=closed
 
+  // Scroll to top when switching to Matching or Chats tab
+  useEffect(() => {
+    if (activeTab === "matching" || activeTab === "chats") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [activeTab]);
   // Listen to Firebase auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -188,12 +194,16 @@ function App() {
                 onItemAdded={() => setRefreshItems(r => r + 1)}
               />
             )}
-            <ItemList user={appUser} refreshSignal={refreshItems} />
+            <ItemList
+              user={appUser}
+              refreshSignal={refreshItems}
+              onModalOpenChange={setItemListModalOpen}
+            />
           </>
         )}
         {activeTab === "matching" && <>
           <Matching user={appUser} setHasLocation={setMatchingLocation} />
-          <div style={{textAlign:'center', marginTop:35, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
+          <div style={{textAlign:'center', marginTop:0, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
             {/* {matchingLocation === true && t('location_open')} */}
             {matchingLocation === false && t('location_closed')}
             {matchingLocation === null && ''}

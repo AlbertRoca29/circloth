@@ -1,4 +1,7 @@
+
 import BACKEND_URL from "./config";
+
+// Get next item to swipe/match
 export async function fetchMatchItem(userId) {
   const res = await fetch(`${BACKEND_URL}/match`, {
     method: "POST",
@@ -13,6 +16,7 @@ export async function fetchMatchItem(userId) {
   return data.item;
 }
 
+// Record user action on an item
 export async function sendMatchAction(userId, itemId, action, deviceInfo = {}) {
   const res = await fetch(`${BACKEND_URL}/action`, {
     method: "POST",
@@ -26,11 +30,25 @@ export async function sendMatchAction(userId, itemId, action, deviceInfo = {}) {
   return res.json();
 }
 
-
-
-// Fetch all matches for the user (from backend)
+// Get all matches for user (no location)
 export async function fetchMatches(userId) {
   const res = await fetch(`${BACKEND_URL}/matches/${userId}`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.matches || [];
+}
+
+// Get matches for user, filtered by location
+export async function fetchMatchesWithLocation(userId, coords) {
+  // If coords is null, do not send location
+  const body = coords
+    ? { user_id: userId, lat: coords.latitude, lng: coords.longitude }
+    : { user_id: userId };
+  const res = await fetch(`${BACKEND_URL}/matches/${userId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
   if (!res.ok) return [];
   const data = await res.json();
   return data.matches || [];
