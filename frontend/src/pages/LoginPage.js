@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import "../styles/Common.css";
 import BACKEND_URL from "../config";
 
 function LoginPage({ firebaseUser, setAppUser }) {
@@ -74,14 +73,14 @@ function LoginPage({ firebaseUser, setAppUser }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div className="card" style={{ width: "clamp(15rem, 20vw, 55rem)", display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: "1.5rem", position: "relative" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(120deg, #e6faed 0%, #f3f4f6 100%)" }}>
+      <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: "18px", boxShadow: "0 8px 32px rgba(34, 197, 94, 0.13)", padding: "2.5rem 2rem", display: "flex", flexDirection: "column", alignItems: "center", minWidth: "320px", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1.5px solid #e6faed" }}>
         {/* Language Switcher at top right */}
         <div style={{ position: "absolute", top: 18, right: 18 }}>
           <LanguageSwitcher />
         </div>
 
-        <h2 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 250, textAlign: "center", fontSize: "1.6rem", marginBottom: "1.1rem", letterSpacing: "-0.02em", fontFamily: 'Geist' }}>{t("welcome")}</h2>
+        <h2 style={{ marginBottom: "1.5rem", color: "#15803d", fontWeight: 200, fontSize: "2rem", letterSpacing: "0.5px", fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t("welcome")}</h2>
 
         {/* App intro section */}
         <div
@@ -91,7 +90,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
             boxShadow: "0 2px 16px rgba(34,197,94,0.08)",
             padding: "1.1rem 1.2rem 1.1rem 1.2rem",
             marginBottom: "1.7rem",
-            maxWidth: "34rem",
+            maxWidth: "320px",
             fontFamily: 'Geist',
             whiteSpace: "pre-line",
             fontWeight: 100,
@@ -100,7 +99,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
             textAlign: "center",
             lineHeight: 1.25,
             letterSpacing: "-0.02em",
-            border: "1.5px solid var(--primary-light)",
+            border: "1.5px solid #e6faed",
             backdropFilter: "blur(6px)",
             WebkitBackdropFilter: "blur(6px)",
             transition: "box-shadow 0.18s"
@@ -112,29 +111,28 @@ function LoginPage({ firebaseUser, setAppUser }) {
         {needsExtraInfo && (
           <>
             <input
-              className="input"
               type="text"
               placeholder={t("enter_name", "Enter your name")}
               value={localName}
               onChange={e => setLocalName(e.target.value)}
-              style={{ marginBottom: "1.2rem", width: "80%", fontSize: "1rem" }}
+              style={{ fontWeight: 100, width: "100%", padding: "0.85rem 1.1rem", border: "1.5px solid #e6faed", marginBottom: "1.2rem", fontSize: "1.08rem", fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', outline: "none", transition: "border 0.18s, box-shadow 0.18s", background: "#f9fafb", boxShadow: "0 1px 4px rgba(34, 197, 94, 0.04)" }}
             />
-            <label className="label" style={{ marginBottom: "1.2rem", display: "flex", alignItems: "center", gap: 3 }}>
+            <label style={{ fontSize: "0.98rem", color: "#334155", marginBottom: "1.2rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <input
                 type="checkbox"
                 checked={privacyChecked}
                 onChange={e => setPrivacyChecked(e.target.checked)}
-                style={{ marginRight: 6 }}
+                style={{ marginRight: "6px" }}
               />
-              <p style={{ fontSize: "0.9rem" }}>{t("agree_privacy", "I agree to the ")}<a href="/PrivacyPolicy.html" target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary, #22c55e)", textDecoration: "underline" }}>{t("privacy_policy", "Privacy Policy")}</a></p>
+              <p style={{ fontSize: "0.9rem" }}>{t("agree_privacy", "I agree to the ")}<a href="/PrivacyPolicy.html" target="_blank" rel="noopener noreferrer" style={{ color: "#22c55e", textDecoration: "underline" }}>{t("privacy_policy", "Privacy Policy")}</a></p>
             </label>
           </>
         )}
 
         <button
-          className="btn"
           onClick={needsExtraInfo ? handleSignIn : handleGoogleClick}
           disabled={needsExtraInfo && (!localName.trim() || !privacyChecked)}
+          style={{ background: needsExtraInfo && (!localName.trim() || !privacyChecked) ? "#e5e7eb" : "linear-gradient(135deg, #22c55e, #15803d)", color: needsExtraInfo && (!localName.trim() || !privacyChecked) ? "#64748b" : "#fff", border: "none", borderRadius: "999px", padding: "0.9rem 2.2rem", fontSize: "1.15rem", fontWeight: 700, cursor: needsExtraInfo && (!localName.trim() || !privacyChecked) ? "not-allowed" : "pointer", transition: "background 0.18s, box-shadow 0.18s, transform 0.12s", marginTop: "0.5rem", boxShadow: "0 4px 16px rgba(34, 197, 94, 0.13)", letterSpacing: "0.02em" }}
         >
           {needsExtraInfo ? t("sign_in", "Sign in") : t("login_with_google", "Log in with Google")}
         </button>
