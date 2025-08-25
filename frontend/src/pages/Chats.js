@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import './ChatAbsolute.css';
+import '../styles/ChatAbsolute.css';
 import { useTranslation } from "react-i18next";
-import { fetchMessages, sendMessage, fetchUserChats } from "./chatApi";
-import ChatMatchCard from "./ChatMatchCard";
-import ItemList from "./ItemList";
-import { fetchMatches } from "./matchingApi";
-import { CATEGORIES } from "./utils/categories";
-import ItemDetailModal from "./ItemDetailModal";
+import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
+import ChatMatchCard from "../components/ChatMatchCard";
+import ItemList from "../components/ItemList";
+import { fetchMatches } from "../api/matchingApi";
+import { CATEGORIES } from "../constants/categories";
+import ItemDetailModal from "../components/ItemDetailModal";
 
 
 function Chats({ user, onModalOpenChange }) {

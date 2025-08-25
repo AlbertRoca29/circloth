@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { auth, provider } from "./firebase";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import "./Common.css";
-import BACKEND_URL from "./config";
+import "../styles/Common.css";
+import BACKEND_URL from "../config";
 
 function LoginPage({ firebaseUser, setAppUser }) {
   const { t } = useTranslation();
@@ -80,7 +80,34 @@ function LoginPage({ firebaseUser, setAppUser }) {
         <div style={{ position: "absolute", top: 18, right: 18 }}>
           <LanguageSwitcher />
         </div>
-        <h2 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 250, textAlign: "center", fontSize: "1.6rem", marginBottom: "1.5rem", letterSpacing: "-0.02em", fontFamily: 'Geist' }}>{t("welcome")}</h2>
+
+        <h2 style={{ color: "var(--primary-dark, #15803d)", fontWeight: 250, textAlign: "center", fontSize: "1.6rem", marginBottom: "1.1rem", letterSpacing: "-0.02em", fontFamily: 'Geist' }}>{t("welcome")}</h2>
+
+        {/* App intro section */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.82)",
+            borderRadius: "1.1rem",
+            boxShadow: "0 2px 16px rgba(34,197,94,0.08)",
+            padding: "1.1rem 1.2rem 1.1rem 1.2rem",
+            marginBottom: "1.7rem",
+            maxWidth: "34rem",
+            fontFamily: 'Geist',
+            whiteSpace: "pre-line",
+            fontWeight: 100,
+            fontSize: "0.75rem",
+            color: "#222",
+            textAlign: "center",
+            lineHeight: 1.25,
+            letterSpacing: "-0.02em",
+            border: "1.5px solid var(--primary-light)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            transition: "box-shadow 0.18s"
+          }}
+        >
+          {t("login_intro")}
+        </div>
 
         {needsExtraInfo && (
           <>

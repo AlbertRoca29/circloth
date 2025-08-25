@@ -1,4 +1,4 @@
-import BACKEND_URL from "./config";
+import BACKEND_URL from "../config";
 
 export async function fetchUserChats(userId) {
   const res = await fetch(`${BACKEND_URL}/chat/list_chats/${userId}`);

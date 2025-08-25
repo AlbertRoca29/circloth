@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { showToast } from "./utils/toast";
-import { storage } from "./firebase";
+import { showToast } from "../utils/toast";
+import { storage } from "../utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
-import BACKEND_URL from "./config";
-import { getCategoryEmoji } from "./utils/general";
-import { CATEGORIES, getSizeOptions } from "./utils/categories";
-import { COLORS, COLOR_PALETTE } from "./utils/theme";
+import BACKEND_URL from "../config";
+import { getCategoryEmoji } from "../utils/general";
+import { CATEGORIES } from "../constants/categories";
+import { getSizeOptions } from "../utils/general";
+import { COLORS, COLOR_PALETTE } from "../constants/theme";
 import Button from "@mui/material/Button";
 import ProgressBarButton from "./ProgressBarButton";
 import Box from "@mui/material/Box";
@@ -28,10 +29,11 @@ function AddItem({ user, onItemAdded }) {
   const colorPalette = COLOR_PALETTE;
   const APP_GREEN = COLORS.appGreen;
   // Build size options as array of { key, label }
+  const rawSizeOptions = getSizeOptions(t);
   const sizeOptions = Object.fromEntries(
-    Object.entries(getSizeOptions((x) => x)).map(([cat, opts]) => [
+    Object.entries(rawSizeOptions).map(([cat, opts]) => [
       cat,
-      opts.map(opt => ({ key: opt, label: getSizeOptions(t)[cat][opts.indexOf(opt)] }))
+      opts.map(opt => ({ key: opt, label: opt }))
     ])
   );
   const [open, setOpen] = useState(false);

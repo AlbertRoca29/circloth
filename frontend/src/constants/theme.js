@@ -1,4 +1,3 @@
-// src/utils/theme.js
 export const COLORS = {
   appGreen: "#22c55e",
   appGreenDark: "#15803d",

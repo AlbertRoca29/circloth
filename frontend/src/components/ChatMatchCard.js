@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { getCategoryEmoji } from "./utils/general";
+import { getCategoryEmoji } from "../utils/general";
 
 function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
   const { t } = useTranslation();

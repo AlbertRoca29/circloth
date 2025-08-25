@@ -1,5 +1,5 @@
 import React from "react";
-import "./Common.css";
+import "../styles/Common.css";
 
 
 import { useEffect } from "react";

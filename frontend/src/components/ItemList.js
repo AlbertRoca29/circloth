@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { showToast } from "./utils/toast";
-import { storage } from "./firebase";
+import { showToast } from "../utils/toast";
+import { storage } from "../utils/firebase";
 import { ref, deleteObject } from "firebase/storage";
-import BACKEND_URL from "./config";
+import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
-import { getCategoryEmoji } from "./utils/general";
+import { getCategoryEmoji } from "../utils/general";
 
 function ItemList({ user, refreshSignal, onModalOpenChange }) {
   const { t } = useTranslation();

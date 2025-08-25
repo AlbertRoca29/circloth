@@ -1,5 +1,5 @@
 
-import BACKEND_URL from "./config";
+import BACKEND_URL from "../config";
 
 // Get next item to swipe/match
 export async function fetchMatchItem(userId) {

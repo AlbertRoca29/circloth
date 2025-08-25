@@ -1,4 +1,4 @@
-// Utility to show toast notifications across the app
+//  notifications across the app
 import { toast } from 'react-toastify';
 
 export function showToast(message, options = {}) {

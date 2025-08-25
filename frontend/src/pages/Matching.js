@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { fetchMatchItem, sendMatchAction } from "./matchingApi";
+import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
 
-import { updateUserLocation } from "./locationApi";
-
-import { getCategoryEmoji } from "./utils/general";
-import { CATEGORIES } from "./utils/categories";
-import ItemDetailModal from "./ItemDetailModal";
+import ItemDetailModal from "../components/ItemDetailModal";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -113,7 +109,7 @@ function Matching({ user, setHasLocation }) {
       setIdx={setImgIdx}
       showNavigation={true}
       footer={
-        <>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 30 }}>
           <button
             onClick={() => handleAction("pass")}
             disabled={actionLoading}
@@ -158,7 +154,7 @@ function Matching({ user, setHasLocation }) {
           >
             <span role="img" aria-label="like">❤️</span>
           </button>
-        </>
+        </div>
       }
     />
   );

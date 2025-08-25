@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import PWAPrompt from "./PWAPrompt";
+import PWAPrompt from "./components/PWAPrompt";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { auth, logOut } from "./firebase";
+import LanguageSwitcher from "./components/LanguageSwitcher";
+import { auth, logOut } from "./utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import LoginPage from "./LoginPage";
-import PrivacyPolicy from "./PrivacyPolicy";
-import AddItem from "./AddItem";
-import ItemList from "./ItemList";
-import ProfilePage from "./ProfilePage";
-import Tabs from "./Tabs";
 
-import Matching from "./Matching";
-import "./Common.css";
+import LoginPage from "./pages/LoginPage";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import AddItem from "./components/AddItem";
+import ItemList from "./components/ItemList";
+import ProfilePage from "./pages/ProfilePage";
+import Tabs from "./components/Tabs";
+
+import Matching from "./pages/Matching";
+import "./styles/Common.css";
 import BACKEND_URL from "./config";
-import Chats from "./Chats";
+import Chats from "./pages/Chats";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 

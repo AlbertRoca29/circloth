@@ -1,8 +1,8 @@
 
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { COLORS, FONT_FAMILY } from "./utils/theme";
-import "./Common.css";
+import { COLORS, FONT_FAMILY } from "../constants/theme";
+import "../styles/Common.css";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
   const { t } = useTranslation();

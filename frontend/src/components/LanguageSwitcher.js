@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { COLORS, FONT_FAMILY } from "./utils/theme";
+import { COLORS, FONT_FAMILY } from "../constants/theme";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();

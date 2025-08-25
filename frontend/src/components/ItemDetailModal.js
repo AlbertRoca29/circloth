@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { getCategoryEmoji } from "./utils/general";
-import { CATEGORIES } from "./utils/categories";
+import { getCategoryEmoji } from "../utils/general";
+import { CATEGORIES } from "../constants/categories";
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
