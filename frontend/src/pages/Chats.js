@@ -7,6 +7,7 @@ import ItemList from "../components/ItemList";
 import { fetchMatches } from "../api/matchingApi";
 import { CATEGORIES } from "../constants/categories";
 import ItemDetailModal from "../components/ItemDetailModal";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 
 function Chats({ user, onModalOpenChange }) {
@@ -20,6 +21,8 @@ function Chats({ user, onModalOpenChange }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
   const messagesEndRef = useRef(null);
 
 
@@ -142,6 +145,33 @@ function Chats({ user, onModalOpenChange }) {
       return () => { document.body.style.overflow = ''; };
     }
   }, [showItem, onModalOpenChange]);
+
+  const fetchChatData = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChatData();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading && matches.length === 0) {
+      const timer = setTimeout(() => setShowSpinner(true), 200);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSpinner(false);
+    }
+  }, [isLoading, matches]);
+
+  if (showSpinner) {
+    return <LoadingSpinner />;
+  }
 
   if (showItem) {
     return (
@@ -298,7 +328,7 @@ function Chats({ user, onModalOpenChange }) {
 
   return (
     <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
-      {matches.length === 0 && (
+      {matches.length === 0 && !isLoading && (
         <div className="card" style={{ textAlign: 'center', color: '#469061ff', fontSize: '1.2rem', marginTop: 40, fontWeight: 150, lineHeight: "1.45em" }}>
           {t('no_matches_cool')}
         </div>

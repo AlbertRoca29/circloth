@@ -1,8 +1,6 @@
-
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { COLORS, FONT_FAMILY } from "../constants/theme";
-import "../styles/Common.css";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
   const { t } = useTranslation();
@@ -11,7 +9,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
   const handleMatchingClick = () => {
     if (!hasClothes) {
       if (messageRef.current) {
-  messageRef.current.textContent = t('tab_alert_upload_item');
+        messageRef.current.textContent = t('tab_alert_upload_item');
         messageRef.current.style.opacity = 1;
         setTimeout(() => {
           if (messageRef.current) messageRef.current.style.opacity = 0;
@@ -26,32 +24,26 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
     <button
       className={`tab-btn${tab === activeTab ? ' tab-btn-active' : ''}`}
       style={{
+        position: "relative",
         flex: 1,
-        background: "none",
-        border: "none",
-        outline: "none",
-        display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        color:
-          tab === activeTab
-            ? COLORS.white
-            : disabled
-            ? COLORS.gray
-            : COLORS.appGreenDark,
-        borderRadius: 10,
-        padding: "4px 0 2px 0",
-        fontSize: "0.68rem",
+        background: tab === activeTab ? "linear-gradient(135deg, var(--primary), var(--primary-dark))" : "transparent",
+        color: tab === activeTab ? "#fff" : disabled ? "#94a3b8" : "var(--primary-dark, #15803d)",
+        border: "none",
+        borderRadius: "12px",
+        padding: "0.7rem 1.6rem",
+        fontSize: "0.85rem",
         fontWeight: tab === activeTab ? 150 : 100,
-        transition: "all 0.22s",
+        fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif",
         cursor: disabled ? "not-allowed" : "pointer",
+        transition: "background 0.18s, color 0.18s",
+        borderBottom: tab === activeTab ? "3px solid var(--accent, #bbf7d0)" : "3px solid transparent",
+        letterSpacing: tab === activeTab ? "0.01em" : "0.02em",
+        boxShadow: tab === activeTab ? "0 4px 16px rgba(34, 197, 94, 0.13)" : "none",
         opacity: disabled ? 0.6 : 1,
-        background:
-          tab === activeTab ? COLORS.appGreen : "transparent",
         minWidth: 0,
-        fontFamily: FONT_FAMILY,
-        letterSpacing: tab === activeTab ? "0.01em" : "0.02em"
       }}
       onClick={onClick}
       disabled={disabled}
@@ -72,8 +64,8 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
           left: "50%",
           bottom: 16,
           transform: "translateX(-50%)",
-          width: "220px",
-          maxWidth: 440,
+          width: "225px",
+          maxWidth: "225px",
           height: 64,
           display: "flex",
           justifyContent: "space-around",
@@ -83,7 +75,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
           backdropFilter: "blur(12px)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
           zIndex: 200,
-          padding: "0 8px"
+          padding: "0 8px",
         }}
       >
         <TabButton

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
-
 import ItemDetailModal from "../components/ItemDetailModal";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -49,11 +49,21 @@ function Matching({ user, setHasLocation }) {
   // }, [user]);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSpinner, setShowSpinner] = useState(false);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => setShowSpinner(true), 150);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSpinner(false);
+    }
+  }, [loading]);
 
   // Log when matching loads a large number of matches (potential memory usage)
   const loadNextItem = () => {
@@ -93,8 +103,7 @@ function Matching({ user, setHasLocation }) {
     }
   };
 
-
-  if (loading) return <div className="card">{t('loading_item')}</div>;
+  if (showSpinner) return <LoadingSpinner />;
   if (error) return <div className="card" style={{ color: "#e11d48" }}>{t('error')}: {error}</div>;
   if (!item) return <div className="card">{t('no_more_items')}</div>;
 

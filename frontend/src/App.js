@@ -13,7 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import Tabs from "./components/Tabs";
 
 import Matching from "./pages/Matching";
-import "./styles/Common.css";
+import "./styles/App.css";
 import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
 

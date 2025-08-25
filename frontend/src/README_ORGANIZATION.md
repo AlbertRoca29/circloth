@@ -7,9 +7,7 @@
 - `locales/`: i18n translation files
 - `utils/`: Utility/helper functions
 - `styles/`: CSS files
-- `hooks/`: Custom React hooks
 - `constants/`: Constant values and enums
-- `layouts/`: Layout components (if needed)
 - `context/`: React context providers
 
 Entry points and configuration files remain at the root of `src/`.
