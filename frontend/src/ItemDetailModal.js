@@ -58,7 +58,7 @@ function ItemDetailModal({
       width: '100vw',
       maxHeight: '680px',
       minHeight: '680px',
-      background: 'gray',
+      background: 'transparent',
       zIndex: 3000,
       display: 'flex',
       alignItems: 'center',
