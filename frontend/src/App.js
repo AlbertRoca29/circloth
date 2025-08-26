@@ -17,7 +17,7 @@ import "./styles/App.css";
 import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
 
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
 function App() {
   const { i18n, t } = useTranslation();
@@ -34,6 +34,8 @@ function App() {
   // PWA install prompt state
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Detect mobile device
   function isMobile() {
@@ -121,6 +123,19 @@ function App() {
 
   // Track if Chats modal is open
   const [chatsModalOpen, setChatsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleBackButton = (event) => {
+      event.preventDefault();
+      navigate(-1); // Navigate to the previous route
+    };
+
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [navigate]);
 
   if (loading) return null;
 
@@ -242,12 +257,11 @@ function App() {
             />
           </>
         )}
-        {activeTab === "matching" && <>
-          <Matching user={appUser} />
-          <div style={{textAlign:'center', marginTop:-20, fontSize:13, color:  '#1d8242a0', minHeight: 22, width: "40%",marginLeft:"29%"}}>
-            {/* Location status UI hidden for future release */}
-          </div>
-        </>}
+        {activeTab === "matching" && (
+          <>
+            <Matching user={appUser} />
+          </>
+        )}
         {activeTab === "chats" && (
           <React.Suspense fallback={<div className="card">Loading chats...</div>}>
             <Chats user={appUser} onModalOpenChange={setChatsModalOpen} />

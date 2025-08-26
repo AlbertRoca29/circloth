@@ -89,7 +89,7 @@ function ItemDetailModal({
           <div
             style={{
               position: 'relative',
-              width: 380,
+              width: '100%',
               height: showOnlyImage ? 450 : 280,
               marginBottom: 16,
               display: 'flex',

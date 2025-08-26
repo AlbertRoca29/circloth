@@ -91,7 +91,13 @@ function Chats({ user, onModalOpenChange }) {
   // Initial fetch and polling for matches/unread status
   useEffect(() => {
     if (!user || !user.uid) return;
-    fetchAndSetMatches();
+    const fetchData = async () => {
+        setIsLoading(true);
+        await fetchAndSetMatches();
+        setIsLoading(false);
+    };
+
+    fetchData();
     const interval = setInterval(fetchAndSetMatches, 5000); // Poll every 5 seconds
     return () => clearInterval(interval);
   }, [user]);
@@ -149,19 +155,21 @@ function Chats({ user, onModalOpenChange }) {
     }
   }, [showItem, onModalOpenChange]);
 
-  const fetchChatData = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchChatData();
-  }, []);
+
+//   const fetchChatData = async () => {
+//     setIsLoading(true);
+//     try {
+//       // Simulate API call
+//       await new Promise(resolve => setTimeout(resolve, 1000));
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchChatData();
+//   }, []);
 
   useEffect(() => {
     if (isLoading && matches.length === 0) {
@@ -171,6 +179,7 @@ function Chats({ user, onModalOpenChange }) {
       setShowSpinner(false);
     }
   }, [isLoading, matches]);
+
 
   if (showSpinner) {
     return <LoadingSpinner />;
