@@ -9,15 +9,16 @@ import { CATEGORIES } from "../constants/categories";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
+import { CloseIcon, BackIcon } from '../constants/icons';
 
 
 function Chats({ user, onModalOpenChange }) {
   const { t } = useTranslation();
   const [matches, setMatches] = useState([]);
-  const [showItem, setShowItem] = useState(null); // {item, otherUser}
   const [chattingWith, setChattingWith] = useState(null); // match
-  const [viewingProfile, setViewingProfile] = useState(null); // User whose profile is being viewed
-  const [itemListModalOpen, setItemListModalOpen] = useState(false); // Track if ItemList modal is open
+  const [viewingTheirProfile, setviewingTheirProfile] = useState(null);
+  const [viewingYourProfile, setviewingYourProfile] = useState(null);
+  const [itemListModalOpen, setItemListModalOpen] = useState(false);
 
 
   // Chat UI hooks (always defined, only used if chattingWith is set)
@@ -146,31 +147,6 @@ function Chats({ user, onModalOpenChange }) {
     }
   }, [chattingWith]);
 
-  // Disable body scroll when ItemDetailModal is open
-  useEffect(() => {
-    if (onModalOpenChange) onModalOpenChange(!!showItem);
-    if (showItem) {
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
-    }
-  }, [showItem, onModalOpenChange]);
-
-
-
-//   const fetchChatData = async () => {
-//     setIsLoading(true);
-//     try {
-//       // Simulate API call
-//       await new Promise(resolve => setTimeout(resolve, 1000));
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchChatData();
-//   }, []);
-
   useEffect(() => {
     if (isLoading && matches.length === 0) {
       const timer = setTimeout(() => setShowSpinner(true), 200);
@@ -183,19 +159,6 @@ function Chats({ user, onModalOpenChange }) {
 
   if (showSpinner) {
     return <LoadingSpinner />;
-  }
-
-  if (showItem) {
-    return (
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>
-        <ItemDetailModal
-          item={showItem.item}
-          open={true}
-          onClose={() => setShowItem(null)}
-          showNavigation={true}
-        />
-      </div>
-    );
   }
 
   if (chattingWith) {
@@ -256,12 +219,9 @@ function Chats({ user, onModalOpenChange }) {
             onClick={() => setChattingWith(null)}
             aria-label="Go back"
             className="common-button go-back"
+            style={{ top: -20, right: -20 }}
           >
-            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
-              <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
-              <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
-            </svg>
+            <CloseIcon />
           </button>
           </div>
         </div>
@@ -271,7 +231,7 @@ function Chats({ user, onModalOpenChange }) {
   return (
       <div className="chat-absolute-overlay">
         <div className="chat-absolute-content card" style={{ maxWidth: 420, borderRadius: 18, minHeight: 300, display: 'flex', flexDirection: 'column', height: 500 }}>
-        <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10 }}>
+        <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10, marginLeft: 27 }}>
           {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
         </div>
   <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
@@ -305,30 +265,59 @@ function Chats({ user, onModalOpenChange }) {
     onClick={() => setChattingWith(null)}
     aria-label="Go back"
     className="common-button go-back"
+    style={{ top: -18, left: -18 }}
   >
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
-      <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
-      <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
-    </svg>
+    <CloseIcon />
   </button>
         </div>
       </div>
     );
   }
 
-  const handleViewProfile = (user) => {
-    setViewingProfile(user);
+  const handleViewProfile = (user, yours=false) => {
+    if (yours) {
+      setviewingYourProfile(user);
+    }
+    else{
+        setviewingTheirProfile(user);
+    }
   };
 
-  if (viewingProfile) {
+  if (viewingTheirProfile) {
     return (
       <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+        <button
+          onClick={() => setviewingTheirProfile(null)}
+          className="common-button go-back"
+          style={{ top:-30}}
+        >
+            <BackIcon />
+
+        </button>
         <ItemList
-          user={viewingProfile}
+          user={viewingTheirProfile}
           onModalOpenChange={setItemListModalOpen}
           buttons="like_pass"
           from_user_matching={user}
+        />
+      </div>
+    );
+  }
+  if (viewingYourProfile) {
+    return (
+      <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+        <button
+          onClick={() => setviewingYourProfile(null)}
+          className="common-button go-back"
+          style={{ top:-30}}
+        >
+            <BackIcon />
+
+        </button>
+        <ItemList
+          user={user}
+          onModalOpenChange={setItemListModalOpen}
+          buttons="none"
         />
       </div>
     );
@@ -349,7 +338,6 @@ function Chats({ user, onModalOpenChange }) {
             key={group.matchIds.join('-')}
             match={group}
             isUnread={group.isUnread}
-            onShowDetails={itemObj => setShowItem(itemObj)}
             onChat={chatObj => setChattingWith(chatObj)}
             onViewProfile={handleViewProfile}
           />

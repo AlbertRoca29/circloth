@@ -145,7 +145,9 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 18
+          gap: 18,
+          minWidth: "90vw",
+          maxWidth: "95vw"
         }}>
           {items.map(item => (
             <div
@@ -186,34 +188,9 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 <span style={{ fontSize: 28, marginRight: 2, marginLeft: 4 }}>
                   {getCategoryEmoji(item.category)}
                 </span>
-                {/* {item.color && item.color.trim() && (
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      width: 18,
-                      height: 18,
-                      borderRadius: '50%',
-                      background: item.color,
-                      border: '1.5px solid #eee',
-                      marginRight: 2,
-                      marginLeft: 2
-                    }}
-                    title={item.color}
-                  ></span>
-                )} */}
-                {/* {item.size && item.size !== 'other' && (
-                  <span style={{
-                    fontWeight: 200,
-                    fontSize: 15,
-                    background: '#f3f3f3',
-                    borderRadius: 8,
-                    padding: '2px 8px',
-                    color: '#444',
-                    marginRight: 2
-                  }}>{t(item.size) !== item.size ? t(item.size) : item.size}</span>
-                )} */}
+
                 <div style={{ flex: 1 }}></div>
-                {buttons === "like_pass" ? (
+                {buttons && (buttons === "like_pass" ? (
                   <>
                     {!userLiked[item.id] ? (
                       <button
@@ -239,7 +216,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       </button>
                     )}
                   </>
-                ) : (
+                ) : buttons === "edit_delete" ? (
                   <>
                     <button
                       onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
@@ -257,7 +234,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       <span role="img" aria-label="delete">🗑️</span>
                     </button>
                   </>
-                )}
+                ) : null)}
               </div>
             </div>
           ))}

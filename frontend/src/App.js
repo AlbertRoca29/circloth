@@ -142,12 +142,10 @@ function App() {
   // If no user or appUser → show login page
   if (!firebaseUser || !appUser) {
     return (
-      <Router>
-        <Routes>
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="*" element={<LoginPage firebaseUser={firebaseUser} setAppUser={setAppUser} />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="*" element={<LoginPage firebaseUser={firebaseUser} setAppUser={setAppUser} />} />
+      </Routes>
     );
   }
 
