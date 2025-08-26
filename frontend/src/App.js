@@ -153,12 +153,12 @@ function App() {
           }}>
             <h1 style={{
               color: "var(--primary-dark, #15803d)",
-              fontWeight: 800,
-              fontSize: "clamp(1.6rem, 1.5vw, 2.5rem)",
+              fontWeight: 600,
+              fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
               margin: 0,
               marginLeft: "12px",
-              letterSpacing: "0.01em",
-              fontFamily: "Inter, Segoe UI, Arial, sans-serif"
+              letterSpacing: "0.04em",
+              fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif"
             }}>
               Circloth
             </h1>

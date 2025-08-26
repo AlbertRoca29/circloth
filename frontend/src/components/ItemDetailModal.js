@@ -5,11 +5,11 @@ import { CATEGORIES } from "../constants/categories";
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import "../styles/buttonStyles.css";
 
 function ItemDetailModal({
   item,
   open,
-  matching=false,
   onClose,
   currentIdx = 0,
   setIdx,
@@ -72,7 +72,7 @@ function ItemDetailModal({
         background: '#fff',
         borderRadius: 24,
         boxShadow: '0 8px 32px rgba(34,197,94,0.13)',
-        padding: '2.2rem 1.5rem',
+        padding: '2.2rem 0.5rem',
         width: '100%',
         // maxHeight: 'calc(100vh - 80px)',
         minHeight: '500px',
@@ -89,7 +89,7 @@ function ItemDetailModal({
           <div
             style={{
               position: 'relative',
-              width: 410,
+              width: 380,
               height: showOnlyImage ? 450 : 280,
               marginBottom: 16,
               display: 'flex',
@@ -281,20 +281,7 @@ function ItemDetailModal({
           {showOnlyImage ? (
             <button
               onClick={handleImageClick}
-              style={{
-                background: '#e0e7ff',
-                color: '#333',
-                border: 'none',
-                borderRadius: '50%',
-                padding: 14,
-                fontSize: 28,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 16px rgba(34, 197, 94, 0.13)',
-                transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-              }}
+              className="common-button cancel"
               title={t('cancel') || 'Cancel'}
             >
               <span role="img" aria-label="cancel">✖️</span>
@@ -303,23 +290,10 @@ function ItemDetailModal({
             footer ? footer : (
               <button
                 onClick={onClose}
-                style={{
-                  background: '#ffadad4a',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '50%',
-                  padding: 12,
-                  fontSize: 26,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(34, 197, 94, 0.13)',
-                  transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-                }}
+                className="common-button delete"
                 title={t('close')}
               >
-                <span role="img" aria-label="close">❌</span>
+                <span role="img" aria-label="close">✖️</span>
               </button>
             )
           )}

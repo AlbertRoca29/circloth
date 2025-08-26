@@ -95,6 +95,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
           style={{
             visibility: needsExtraInfo ? "hidden" : "visible",
             height: needsExtraInfo ? 0 : "auto",
+            maxHeight: "200px",
             marginTop: needsExtraInfo ? "-55px" : "auto ",
             // color: needsExtraInfo && (!localName.trim() || !privacyChecked) ? "#64748b" : "#fff"
             background: "rgba(255,255,255,0.82)",
@@ -149,7 +150,6 @@ function LoginPage({ firebaseUser, setAppUser }) {
           {isLoading ? t("loading", "Loading...") : (needsExtraInfo ? t("sign_in", "Sign in") : t("login_with_google", "Log in with Google"))}
         </button>
 
-        {isLoading && <LoadingSpinner />}
       </div>
     </div>
   );

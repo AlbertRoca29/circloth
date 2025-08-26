@@ -8,6 +8,7 @@ import { fetchMatches } from "../api/matchingApi";
 import { CATEGORIES } from "../constants/categories";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from '../components/LoadingSpinner';
+import "../styles/buttonStyles.css";
 
 
 function Chats({ user, onModalOpenChange }) {
@@ -15,6 +16,8 @@ function Chats({ user, onModalOpenChange }) {
   const [matches, setMatches] = useState([]);
   const [showItem, setShowItem] = useState(null); // {item, otherUser}
   const [chattingWith, setChattingWith] = useState(null); // match
+  const [viewingProfile, setViewingProfile] = useState(null); // User whose profile is being viewed
+  const [itemListModalOpen, setItemListModalOpen] = useState(false); // Track if ItemList modal is open
 
 
   // Chat UI hooks (always defined, only used if chattingWith is set)
@@ -179,7 +182,6 @@ function Chats({ user, onModalOpenChange }) {
         <ItemDetailModal
           item={showItem.item}
           open={true}
-          matching={false}
           onClose={() => setShowItem(null)}
           showNavigation={true}
         />
@@ -244,16 +246,7 @@ function Chats({ user, onModalOpenChange }) {
           <button
             onClick={() => setChattingWith(null)}
             aria-label="Go back"
-            style={{
-              position: 'absolute',
-              top: 18,
-              left: 18,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              zIndex: 10,
-              padding: 0,
-            }}
+            className="common-button go-back"
           >
             <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
@@ -302,16 +295,7 @@ function Chats({ user, onModalOpenChange }) {
   <button
     onClick={() => setChattingWith(null)}
     aria-label="Go back"
-    style={{
-      position: 'absolute',
-      top: 18,
-      left: 18,
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      zIndex: 10,
-      padding: 0,
-    }}
+    className="common-button go-back"
   >
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
@@ -320,6 +304,23 @@ function Chats({ user, onModalOpenChange }) {
     </svg>
   </button>
         </div>
+      </div>
+    );
+  }
+
+  const handleViewProfile = (user) => {
+    setViewingProfile(user);
+  };
+
+  if (viewingProfile) {
+    return (
+      <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+        <ItemList
+          user={viewingProfile}
+          onModalOpenChange={setItemListModalOpen}
+          buttons="like_pass"
+          from_user_matching={user}
+        />
       </div>
     );
   }
@@ -334,11 +335,6 @@ function Chats({ user, onModalOpenChange }) {
         </div>
       )}
       {groupedArr.map((group, idx) => {
-        console.log('Rendering ChatMatchCard:', {
-          idx,
-          group,
-          isUnread: group.isUnread
-        });
         return (
           <ChatMatchCard
             key={group.matchIds.join('-')}
@@ -346,6 +342,7 @@ function Chats({ user, onModalOpenChange }) {
             isUnread={group.isUnread}
             onShowDetails={itemObj => setShowItem(itemObj)}
             onChat={chatObj => setChattingWith(chatObj)}
+            onViewProfile={handleViewProfile}
           />
         );
       })}

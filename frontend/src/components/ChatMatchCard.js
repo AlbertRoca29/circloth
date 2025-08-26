@@ -1,10 +1,8 @@
-
-
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 
-function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
+function ChatMatchCard({ match, onShowDetails, onChat, isUnread, onViewProfile }) {
   const { t } = useTranslation();
   // Special case: 1 of your item, 2 of their items, same otherUser
   if (match.theirItems && match.theirItems.length === 2) {
@@ -39,15 +37,20 @@ function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
                 style={{ width: 88, height: 88, borderRadius: 18, objectFit: 'cover', border: '2.5px solid #e0e0e0', background: '#f6f6f6', marginBottom: 6 }}
               />
               <button
-                onClick={() => onShowDetails({ item, otherUser: match.otherUser })}
-                className="show-more-btn"
+                onClick={() => onViewProfile(match.otherUser)}
                 style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 10, fontSize: 14, width: '80px', padding: '7px 12px', cursor: 'pointer', marginTop: 4 }}
-              >{t('show_more')}</button>
+              >
+                {t('view_profile')}
+            </button>
+              {/* <button
+                onClick={() => onShowDetails({ item, otherUser: match.otherUser })}
+                style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 10, fontSize: 14, width: '80px', padding: '7px 12px', cursor: 'pointer', marginTop: 4 }}
+              >{t('show_more')}</button> */}
             </div>
           ))}
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginRight: 50, width: '20px' }}>
-            <span style={{ fontSize: 13, color: '#aaa' }}>{t('your_item')}:</span>
+            {/* <span style={{ fontSize: 13, color: '#aaa' }}>{t('your_item')}:</span> */}
             <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginTop: 6 }}>
               {Array.isArray(match.yourItems) && match.yourItems.length > 0 ? (
                 match.yourItems.map((item, idx) => (
@@ -56,7 +59,7 @@ function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
                     src={item.photoURLs?.[0]}
                     alt={`Your item ${idx + 1}`}
                     loading="lazy"
-                    style={{ width: 38, height: 38, borderRadius: 9, objectFit: 'cover', border: '1.5px solid #e0e0e0', marginRight: 4,marginBottom:65 }}
+                    style={{ width: 38, height: 38, borderRadius: 9, objectFit: 'cover', border: '1.5px solid #e0e0e0', marginRight: 4, marginBottom:65 }}
                   />
                 ))
               ) : null}
@@ -119,8 +122,8 @@ function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ fontWeight: 200, fontSize: 17, color: "#15803d", marginBottom: 2 }}>{match.otherUser.name || match.otherUser.displayName}</div>
         <div style={{ fontSize: 22, marginBottom: 6, lineHeight: 1 }}>{getCategoryEmoji(match.theirItem?.category)}</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <span style={{ fontSize: 13, color: "#aaa" }}>{Array.isArray(match.yourItems) && match.yourItems.length > 1 ? t('your_items') : t('your_item')}:</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 0, marginLeft: match.yourItems.length < 3 ? 46*(3-match.yourItems.length) : 0 }}>
+          {/* <span style={{ fontSize: 13, color: "#aaa" }}>{Array.isArray(match.yourItems) && match.yourItems.length > 1 ? t('your_items') : t('your_item')}:</span> */}
           {/* Show all your item images if multiple, fallback to single */}
           {Array.isArray(match.yourItems) && match.yourItems.length > 0 ? (
             match.yourItems.map((item, idx) => (
@@ -129,7 +132,7 @@ function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
                 src={item.photoURLs?.[0]}
                 alt={`Your item ${idx + 1}`}
                 loading="lazy"
-                style={{ width: 38, height: 38, borderRadius: 9, objectFit: "cover", border: "1px solid #e0e0e0" }}
+                style={{ width: 38, height: 38,marginRight:6, borderRadius: 9, objectFit: "cover", border: "1px solid #e0e0e0" }}
               />
             ))
           ) : match.yourItem ? (
@@ -137,27 +140,34 @@ function ChatMatchCard({ match, onShowDetails, onChat, isUnread }) {
               src={match.yourItem.photoURLs?.[0]}
               alt="Your item"
               loading="lazy"
-              style={{ width: 38, height: 38, borderRadius: 9, objectFit: "cover", border: "1px solid #e0e0e0" }}
+              style={{ marginLeft: "340px", width: 38, height: 38, borderRadius: 9, objectFit: "cover", border: "1px solid #e0e0e0" }}
             />
           ) : null}
         </div>
       </div>
       {/* Show more button absolutely at top right */}
       <button
+        onClick={() => onViewProfile(match.otherUser)}
+        className="view-profile-btn"
+        style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 10, fontSize: 14, width: '80px', padding: '7px 12px', cursor: 'pointer', position: 'absolute', right: 16, top: 16 }}
+      >
+        {t('view_profile')}
+      </button>
+      {/* <button
         onClick={() => onShowDetails({ item: match.theirItem, otherUser: match.otherUser })}
-        className="show-more-btn"
         style={{ background: '#f3f3f3', color: '#444', border: 'none', borderRadius: 10, fontSize: 14, width: '80px', padding: '7px 12px', cursor: 'pointer', position: 'absolute', right: 16, top: 16 }}
       >
         {t('show_more')}
-      </button>
+      </button> */}
       {/* Chat button absolutely at bottom right */}
       <button
         onClick={() => onChat(match)}
-        className="chat-bottom-btn"
         style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, width: '80px', padding: '7px 12px', cursor: 'pointer', height: '33px', position: 'absolute', right: 16, bottom: 16 }}
       >
         {t('chat')}
       </button>
+      {/* View Profile button */}
+
     </div>
   );
 }

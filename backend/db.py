@@ -90,8 +90,9 @@ class FirestoreDB:
         now = datetime.utcnow().isoformat() + "Z"
         data["created_at"] = now
         data["updated_at"] = now
-        doc_ref = self.db.collection("items").add(data)[1]
-        return doc_ref.id
+        item_id = data["id"]  # Use the provided ID
+        self.db.collection("items").document(item_id).set(data)  # Save the item with the provided ID
+        return item_id
 
     def update_item(self, item_id: str, data: dict):
         data["updated_at"] = datetime.utcnow().isoformat() + "Z"

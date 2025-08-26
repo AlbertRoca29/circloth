@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { v4 as uuidv4 } from 'uuid';
 
 import { showToast } from "../utils/toast";
 import { storage } from "../utils/firebase";
@@ -105,6 +106,7 @@ function AddItem({ user, onItemAdded }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: uuidv4(), // Generate a unique ID for the item
           ownerId: user.uid,
           category,
           size,

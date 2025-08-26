@@ -68,7 +68,7 @@ def get_available_items_for_user(user_id: str, location: dict = None) -> List[di
         random.shuffle(available_items)
     return available_items
 
-def handle_user_action(user_id: str, item_id: str, action: str, device_info: Optional[dict] = None):
+def handle_user_action(user_id: str, item_id: str, action: str):
     """
     Save or overwrite the user's action for an item.
     """

@@ -3,50 +3,16 @@ import { useTranslation } from "react-i18next";
 import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
+import "../styles/buttonStyles.css";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
-  // Location logic hidden for future release
-  // const [hasLocation, setHasLocationLocal] = useState(true);
-  // useEffect(() => {
-  //   if (!navigator.geolocation) {
-  //     setHasLocationLocal(false);
-  //     setHasLocation && setHasLocation(false);
-  //     return;
-  //   }
-  //   navigator.geolocation.getCurrentPosition(
-  //     () => {
-  //       setHasLocationLocal(true);
-  //       setHasLocation && setHasLocation(true);
-  //     },
-  //     () => {
-  //       setHasLocationLocal(false);
-  //       setHasLocation && setHasLocation(false);
-  //     },
-  //     { timeout: 5000 }
-  //   );
-  // }, [user, setHasLocation]);
-  // Prevent body scroll when Matching is mounted
   useEffect(() => {
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = original; };
   }, []);
 
-  // Update user location when Matching tab is entered (hidden for future release)
-  // useEffect(() => {
-  //   if (!user || !user.uid) return;
-  //   if (!navigator.geolocation) return;
-  //   navigator.geolocation.getCurrentPosition(
-  //     (pos) => {
-  //       updateUserLocation(user.uid, pos.coords).catch(() => {});
-  //     },
-  //     () => {},
-  //     { enableHighAccuracy: true, timeout: 10000 }
-  //   );
-  //   // Only on mount
-  //   // eslint-disable-next-line
-  // }, [user]);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(false);
@@ -87,14 +53,7 @@ function Matching({ user, setHasLocation }) {
     if (!item) return;
     setActionLoading(true);
     try {
-      // Collect device info
-      const deviceInfo = {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        screen: { width: window.screen.width, height: window.screen.height },
-      };
-      await sendMatchAction(user.uid, item.id, action, deviceInfo);
+      await sendMatchAction(user.uid, item.id, action);
       loadNextItem();
     } catch (e) {
       setError(e.message + (e.stack ? "\n" + e.stack : ""));
@@ -112,7 +71,6 @@ function Matching({ user, setHasLocation }) {
     <ItemDetailModal
       item={item}
       open={true}
-      matching={true}
       onClose={() => {}}
       currentIdx={imgIdx}
       setIdx={setImgIdx}
@@ -122,21 +80,7 @@ function Matching({ user, setHasLocation }) {
           <button
             onClick={() => handleAction("pass")}
             disabled={actionLoading}
-            style={{
-              background: '#fff',
-              border: 'none',
-              borderRadius: '50%',
-              width: 56,
-              height: 56,
-              fontSize: 30,
-              color: '#e11d48',
-              boxShadow: '0 2px 8px rgba(225,29,72,0.08)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-            }}
+            className="common-button pass"
             title="Pass"
           >
             <span role="img" aria-label="pass">❌</span>
@@ -144,21 +88,7 @@ function Matching({ user, setHasLocation }) {
           <button
             onClick={() => handleAction("like")}
             disabled={actionLoading}
-            style={{
-              background: '#fff',
-              border: 'none',
-              borderRadius: '50%',
-              width: 56,
-              height: 56,
-              fontSize: 30,
-              color: '#a259e6',
-              boxShadow: '0 2px 8px rgba(162,89,230,0.13)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-            }}
+            className="common-button like"
             title="Like"
           >
             <span role="img" aria-label="like">❤️</span>

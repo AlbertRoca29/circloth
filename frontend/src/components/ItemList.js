@@ -6,8 +6,10 @@ import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
 import { getCategoryEmoji } from "../utils/general";
+import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
+import "../styles/buttonStyles.css";
 
-function ItemList({ user, refreshSignal, onModalOpenChange }) {
+function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_delete", from_user_matching = null }) {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,6 +20,8 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
+  // Simplified userLiked to a boolean for likes only
+  const [userLiked, setUserActions] = useState({});
 
   // Disable body scroll when ItemDetailModal is open
   useEffect(() => {
@@ -29,11 +33,35 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
   }, [modalOpen]);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/items/${user.uid}`)
-      .then(res => res.json())
-      .then(data => setItems(data.items || []))
-      .catch(() => setItems([]));
+    fetch(`${BACKEND_URL}/items/${user.id}`)
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        setItems(data.items || []);
+      })
+      .catch(err => {
+        setItems([]);
+      });
   }, [user, refreshSignal]);
+
+  useEffect(() => {
+    if (buttons === "like_pass") {
+      fetchLikedItems(user.id, from_user_matching.id)
+        .then(likedItems => {
+          const actionsMap = {};
+          likedItems.forEach(item => {
+            console.log(item);
+            actionsMap[item.id] = true;
+          });
+          setUserActions(actionsMap);
+          console.log(actionsMap);
+        })
+        .catch(err => {
+          console.error("Error fetching liked items", err);
+        });
+    }
+  }, [buttons, user.id, from_user_matching === null ? null : from_user_matching.id]);
 
   const handleDelete = async (item) => {
     if (!window.confirm("Delete this item?")) return;
@@ -68,6 +96,39 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
     }
 
     setDeletingId(null);
+  };
+
+  // Update handleAction to include confirmation for already matched/passed items
+  const handleAction = async (item, action) => {
+    if (action === "like" && userLiked[item.id]) {
+      if (!window.confirm("Are you sure you want to remove this like?")) {
+        return;
+      }
+    } else if (action === "pass") {
+      if (!window.confirm("Are you sure you want to pass on this item?")) {
+        return;
+      }
+    }
+
+    try {
+      await sendMatchAction(from_user_matching.id, item.id, action);
+      showToast(
+        action === "like"
+          ? userLiked[item.id]
+            ? t("unliked_item")
+            : t("liked_item")
+          : t("passed_item"),
+        {
+          type: action === "like" && userLiked[item.id] ? "info" : "success",
+        }
+      );
+
+      if (action === "like") {
+        setUserActions((prev) => ({ ...prev, [item.id]: !prev[item.id] }));
+      }
+    } catch (e) {
+      showToast(t("error_handling_action"), { type: "error" });
+    }
   };
 
   if (!items.length) {
@@ -149,48 +210,51 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
                   }}>{t(item.size) !== item.size ? t(item.size) : item.size}</span>
                 )}
                 <div style={{ flex: 1 }}></div>
-                <button
-                  onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
-                  style={{
-                    background: "#fff",
-                    color: "#22c55e",
-                    border: "none",
-                    borderRadius: '50%',
-                    padding: 8,
-                    fontSize: 22,
-                    cursor: "pointer",
-                    marginLeft: 4,
-                    marginRight: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-                  }}
-                  title={t('edit')}
-                >
-                  <span role="img" aria-label="edit">✏️</span>
-                </button>
-                <button
-                  onClick={e => { e.stopPropagation(); handleDelete(item); }}
-                  disabled={deletingId === item.id}
-                  style={{
-                    background: "#fff",
-                    color: "#e11d48",
-                    border: "none",
-                    borderRadius: '50%',
-                    padding: 8,
-                    fontSize: 22,
-                    cursor: "pointer",
-                    marginLeft: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-                  }}
-                  title="Delete"
-                >
-                  <span role="img" aria-label="delete">🗑️</span>
-                </button>
+                {buttons === "like_pass" ? (
+                  <>
+                    {!userLiked[item.id] ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent click event from propagating to parent
+                          handleAction(item, "like");
+                        }}
+                        className={`common-button like active`}
+                        title={t("like")}
+                      >
+                        <span role="img" aria-label="like">❤️</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent click event from propagating to parent
+                          handleAction(item, "pass");
+                        }}
+                        className={`common-button pass`}
+                        title={t("pass")}
+                      >
+                        <span role="img" aria-label="pass">❌</span>
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
+                      className="common-button edit"
+                      title={t('edit')}
+                    >
+                      <span role="img" aria-label="edit">✏️</span>
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(item); }}
+                      disabled={deletingId === item.id}
+                      className="common-button delete"
+                      title="Delete"
+                    >
+                      <span role="img" aria-label="delete">🗑️</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -202,11 +266,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange }) {
           <ItemDetailModal
             item={modalItem}
             open={true}
-            matching={false}
             onClose={() => setModalOpen(false)}
             currentIdx={modalIdx}
             setIdx={setModalIdx}
             showNavigation={true}
+            footer={null}
           />
         </div>
       )}
