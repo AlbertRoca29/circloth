@@ -140,9 +140,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   }
 
   return (
-    <div style={{ maxWidth: 500, margin: '0 auto' }}>
+    <div style={{ width: "100%", margin: '0 auto' }}>
       {!modalOpen && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 19 }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: 18
+        }}>
           {items.map(item => (
             <div
               key={item.id}
@@ -157,7 +161,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 position: "relative",
                 overflow: "hidden",
                 cursor: "pointer",
-                border: "1.5px solid #f0f0f0",
                 transition: "box-shadow .15s"
               }}
               onClick={() => { setModalItem(item); setModalIdx(0); setModalOpen(true); }}
@@ -179,11 +182,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                   />
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '8px 10px' }}>
                 <span style={{ fontSize: 28, marginRight: 2, marginLeft: 4 }}>
                   {getCategoryEmoji(item.category)}
                 </span>
-                {item.color && item.color.trim() && (
+                {/* {item.color && item.color.trim() && (
                   <span
                     style={{
                       display: 'inline-block',
@@ -197,8 +200,8 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                     }}
                     title={item.color}
                   ></span>
-                )}
-                {item.size && item.size !== 'other' && (
+                )} */}
+                {/* {item.size && item.size !== 'other' && (
                   <span style={{
                     fontWeight: 200,
                     fontSize: 15,
@@ -208,7 +211,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                     color: '#444',
                     marginRight: 2
                   }}>{t(item.size) !== item.size ? t(item.size) : item.size}</span>
-                )}
+                )} */}
                 <div style={{ flex: 1 }}></div>
                 {buttons === "like_pass" ? (
                   <>
