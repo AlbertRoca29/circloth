@@ -102,24 +102,32 @@ function AddItem({ user, onItemAdded }) {
         photoURLs.push(photoURL);
       }
       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
+      const newItem = {
+        id: uuidv4(),
+        ownerId: user.uid,
+        category,
+        size,
+        sizeDetails,
+        itemStory,
+        color,
+        brand,
+        material,
+        additionalInfo,
+        photoURLs: orderedPhotoURLs
+      };
+
       const res = await fetch(`${BACKEND_URL}/item`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: uuidv4(), // Generate a unique ID for the item
-          ownerId: user.uid,
-          category,
-          size,
-          sizeDetails,
-          itemStory,
-          color,
-          brand,
-          material,
-          additionalInfo,
-          photoURLs: orderedPhotoURLs
-        })
+        body: JSON.stringify(newItem)
       });
       if (!res.ok) throw new Error("Failed to add item");
+
+      // Update cached items in localStorage
+      const cachedItems = JSON.parse(localStorage.getItem(`items_${user.id}`)) || [];
+      const updatedItems = [...cachedItems, newItem];
+      localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+
       setCategory("");
       setSize("");
       setSizeDetails("");

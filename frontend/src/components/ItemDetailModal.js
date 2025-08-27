@@ -36,6 +36,14 @@ function ItemDetailModal({
   const hasMoreDetails = !!(item.sizeDetails || item.material || item.additionalInfo);
   // Toggle image only view
   const handleImageClick = () => setShowOnlyImage((v) => !v);
+  React.useEffect(() => {
+    if (open && images.length > 0) {
+      images.forEach((url) => {
+        const img = new Image();
+        img.src = url;
+      });
+    }
+  }, [open, images]);
   if (!item || !open) return null;
   // Helper: show size only if not 'other'
   const showSize = item.size && item.size !== 'other';

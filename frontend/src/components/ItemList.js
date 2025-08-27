@@ -9,7 +9,7 @@ import { getCategoryEmoji } from "../utils/general";
 import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
 import "../styles/buttonStyles.css";
 
-function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_delete", from_user_matching = null }) {
+function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_delete", from_user_matching = null, matching = false }) {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,8 +20,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
-  // Simplified userLiked to a boolean for likes only
-  const [userLiked, setUserActions] = useState({});
+  const [userActions, setUserActions] = useState({});
 
   // Disable body scroll when ItemDetailModal is open
   useEffect(() => {
@@ -35,6 +34,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   useEffect(() => {
     const fetchItems = async () => {
         const cachedItems = localStorage.getItem(`items_${user.id}`);
+        // matching ? localStorage.getItem(`items_${user.id}_matching_${from_user_matching.id}`) :
         if (cachedItems) {
             setItems(JSON.parse(cachedItems));
         } else {
@@ -52,9 +52,12 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
 }, [user, refreshSignal]);
 
   useEffect(() => {
-    if (buttons === "like_pass") {
+    if (matching) {
       const cachedActions = localStorage.getItem(`actions_${user.id}`);
-      if (cachedActions) {
+      console.log(cachedActions)
+      console.log("AAA",from_user_matching)
+      console.log("UUU",user)
+      if (false) {
         setUserActions(JSON.parse(cachedActions));
       } else {
         fetchLikedItems(user.id, from_user_matching.id)
@@ -73,6 +76,10 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
     }
   }, [buttons, user.id, from_user_matching === null ? null : from_user_matching.id]);
 
+  const updateCachedActions = (updatedActions) => {
+    localStorage.setItem(`actions_${user.id}`, JSON.stringify(updatedActions));
+  };
+
   const handleDelete = async (item) => {
     if (!window.confirm("Delete this item?")) return;
     setDeletingId(item.id);
@@ -88,10 +95,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
               await deleteObject(ref(storage, path));
             }
           } catch (err) {
-            // Ignore individual image errors
+            console.log(err)
           }
         }
       }
+      console.log(item)
 
       // Delete item from backend
       const res = await fetch(`${BACKEND_URL}/item/${item.id}`, {
@@ -100,6 +108,21 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
       if (!res.ok) throw new Error("Failed to delete item");
 
       setItems(items => items.filter(i => i.id !== item.id));
+
+      // Update cached actions
+      setUserActions((prev) => {
+        const updatedActions = { ...prev };
+        delete updatedActions[item.id];
+        updateCachedActions(updatedActions);
+        return updatedActions;
+      });
+
+      // Update cached items in localStorage
+      setItems((prevItems) => {
+        const updatedItems = prevItems.filter(i => i.id !== item.id);
+        localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+        return updatedItems;
+      });
     } catch (err) {
       showToast("Error deleting item", { type: "error" });
       console.error("Error deleting item", err);
@@ -108,9 +131,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
     setDeletingId(null);
   };
 
+  const userLiked = (itemId) => {
+    return userActions[itemId] === true;
+  };
+
   // Update handleAction to include confirmation for already matched/passed items
   const handleAction = async (item, action) => {
-    if (action === "like" && userLiked[item.id]) {
+    if (action === "like" && userLiked(item.id)) {
       if (!window.confirm("Are you sure you want to remove this like?")) {
         return;
       }
@@ -124,22 +151,32 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
       await sendMatchAction(from_user_matching.id, item.id, action);
       showToast(
         action === "like"
-          ? userLiked[item.id]
+          ? userLiked(item.id)
             ? t("unliked_item")
             : t("liked_item")
           : t("passed_item"),
         {
-          type: action === "like" && userLiked[item.id] ? "info" : "success",
+          type: action === "like" && userLiked(item.id) ? "info" : "success",
         }
       );
 
-      if (action === "like") {
-        setUserActions((prev) => ({ ...prev, [item.id]: !prev[item.id] }));
-      }
+      setUserActions((prev) => {
+        const updatedActions = { ...prev, [item.id]: action === "like" ? !prev[item.id] : false };
+        updateCachedActions(updatedActions);
+        return updatedActions;
+      });
     } catch (e) {
       showToast(t("error_handling_action"), { type: "error" });
     }
   };
+
+  const sortedItems = [...items].sort((a, b) => {
+    const aLiked = userLiked(a.id) ? 1 : 0;
+    const bLiked = userLiked(b.id) ? 1 : 0;
+    return bLiked - aLiked; // Sort liked items first
+  });
+
+  const filteredItems = sortedItems.filter(item => !(matching && buttons!=='like_pass' && !userLiked(item.id)));
 
   if (!items.length) {
     return (
@@ -158,10 +195,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
           gap: 18,
           width: "100%",
         }}>
-          {items.map(item => (
+          {filteredItems.map(item => (
             <div
               key={item.id}
               style={{
+                border: userLiked(item.id) ? "10px solid #ff004cb4" : "none",
                 aspectRatio: 1,
                 background: "#fff",
                 borderRadius: 18,
@@ -178,7 +216,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
               onClick={() => { setModalItem(item); setModalIdx(0); setModalOpen(true); }}
             >
               {/* Main Image */}
-              {item.photoURLs && item.photoURLs[0] && (
+              { item.photoURLs && item.photoURLs[0] && (
                 <div style={{ position: 'relative', width: '100%', height: "90%", background: '#f6f6f6' }}>
                   <img
                     src={item.photoURLs[0]}
@@ -216,7 +254,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 <div style={{ flex: 1 }}></div>
                 {buttons && (buttons === "like_pass" ? (
                   <>
-                    {!userLiked[item.id] ? (
+                    {!userLiked(item.id) ? (
                       <button
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent click event from propagating to parent
