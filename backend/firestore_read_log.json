@@ -1,8 +1,0 @@
-{
-    "list_items": 7,
-    "get_user_actions": 202,
-    "list_user_items": 20,
-    "get_user": 118,
-    "get_chat_messages": 60,
-    "_ensure_chat_doc": 2
-}

@@ -156,13 +156,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: 18,
-          width: "60vh",
+          width: "100%",
         }}>
           {items.map(item => (
             <div
               key={item.id}
               style={{
-                height: "30vh",
+                aspectRatio: 1,
                 background: "#fff",
                 borderRadius: 18,
                 boxShadow: "0 2px 12px 0 rgba(0,0,0,0.06)",
