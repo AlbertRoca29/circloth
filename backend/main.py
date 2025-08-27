@@ -262,58 +262,53 @@ def get_user_actions(user_id: str):
 
 @app.get("/matches/{user_id}")
 def get_matches(user_id: str):
-    dbi = FirestoreDB()
+    # Get current user's actions and items
+    my_actions = db.get_user_actions(user_id)
+    my_likes = {a["item_id"] for a in my_actions if a.get("action") == "like"}
 
-    my_actions = dbi.get_user_actions(user_id)
-    my_likes = [a for a in my_actions if a.get("action") == "like"]
+    my_items = db.list_user_items(user_id)
+    my_item_ids = {item["id"] for item in my_items}
 
-    my_items = dbi.list_user_items(user_id)
-    my_item_ids = set(i["id"] for i in my_items)
+    # Fetch all users except current
+    users_ref = db.db.collection("users").stream()
+    other_users = [u.id for u in users_ref if u.id != user_id]
 
-    received_likes = []
-    for item in my_items:
+    # Fetch all actions for other users once
+    received_likes = {}  # key: (other_user_id, item_id) -> True
+    for other_id in other_users:
+        actions = db.get_user_actions(other_id)
+        for act in actions:
+            if act.get("action") == "like" and act.get("item_id") in my_item_ids:
+                received_likes[(other_id, act["item_id"])] = True
 
-        actions = []
-        users_ref = dbi.db.collection("users")
-        for user_doc in users_ref.stream():
-            other_user_id = user_doc.id
-            if other_user_id == user_id:
-                continue
-            other_actions = dbi.get_user_actions(other_user_id)
-            for act in other_actions:
-                if act.get("action") == "like" and act.get("item_id") == item["id"]:
-                    act = dict(act)
-                    act["user_id"] = other_user_id
-                    received_likes.append(act)
+    # Fetch all items once for lookup
+    all_items = {i.id: i.to_dict() for i in db.db.collection("items").stream()}
 
+    # Build matches
     grouped = {}
-
     for my_item in my_items:
-        for my_like in [l for l in my_likes if l["item_id"] not in my_item_ids]:
-            their_item_id = my_like["item_id"]
-            their_item = dbi.get_item(their_item_id)
+        for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
+            their_item = all_items.get(liked_item_id)
             if not their_item:
                 continue
             their_user_id = their_item.get("ownerId")
             if not their_user_id or their_user_id == user_id:
                 continue
 
-            reciprocal = next((l for l in received_likes if l["user_id"] == their_user_id and l["item_id"] == my_item["id"]), None)
-            if reciprocal:
-                key = (their_user_id, their_item_id)
+            # Check reciprocal like
+            if received_likes.get((their_user_id, my_item["id"])):
+                key = (their_user_id, liked_item_id)
                 if key not in grouped:
-                    other_user = dbi.get_user(their_user_id) or {"id": their_user_id}
+                    other_user = db.get_user(their_user_id) or {"id": their_user_id}
                     grouped[key] = {
-                        "id": f"{user_id}_{their_user_id}_{their_item_id}",
+                        "id": f"{user_id}_{their_user_id}_{liked_item_id}",
                         "otherUser": other_user,
                         "theirItem": their_item,
                         "yourItems": []
                     }
                 grouped[key]["yourItems"].append(my_item)
-    matches = list(grouped.values())
-    return {"matches": matches}
 
-
+    return {"matches": list(grouped.values())}
 
 
 

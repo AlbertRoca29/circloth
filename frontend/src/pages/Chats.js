@@ -66,27 +66,12 @@ function Chats({ user, onModalOpenChange }) {
       });
       return Object.values(grouped);
     }, [matches]);
-  // Function to fetch and update matches with unread status
+
+  // Modify fetchAndSetMatches to only fetch matches without loading chats
   const fetchAndSetMatches = async () => {
     if (!user || !user.uid) return;
     const matches = await fetchMatches(user.uid);
-    const chats = await fetchUserChats(user.uid);
-    // Map: otherUserId => chat object
-    const chatMap = {};
-    chats.forEach(chat => {
-      // Find the other participant
-      const otherId = (chat.participants || []).find(id => id !== user.uid);
-      if (otherId) chatMap[otherId] = chat;
-    });
-    // Attach isUnread to each match
-    const matchesWithUnread = matches.map(m => {
-      const chat = chatMap[m.otherUser.id];
-      if (!chat) {
-        return { ...m, isUnread: true };
-      }
-      return { ...m, isUnread: !!chat.is_unread };
-    });
-    setMatches(matchesWithUnread);
+    setMatches(matches);
   };
 
   // Initial fetch and polling for matches/unread status
@@ -99,29 +84,21 @@ function Chats({ user, onModalOpenChange }) {
     };
 
     fetchData();
-    const interval = setInterval(fetchAndSetMatches, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchAndSetMatches, 5000); // Poll every 5 seconds
+    // return () => clearInterval(interval);
   }, [user]);
 
-  // Chat message polling effect
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      if (!chattingWith) return;
-      setLoading(true);
-      try {
-        const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
-        if (active) setMessages(msgs);
-      } finally {
-        setLoading(false);
-      }
+  // Update the onChat handler to dynamically fetch chat messages
+  const handleChatClick = async (chatObj) => {
+    setChattingWith(chatObj);
+    setLoading(true);
+    try {
+      const msgs = await fetchMessages(user.uid, chatObj.otherUser.id);
+      setMessages(msgs);
+    } finally {
+      setLoading(false);
     }
-    if (chattingWith) {
-      load();
-      const interval = setInterval(load, 3000);
-      return () => { active = false; clearInterval(interval); };
-    }
-  }, [chattingWith, user.uid]);
+  };
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -155,6 +132,18 @@ function Chats({ user, onModalOpenChange }) {
       setShowSpinner(false);
     }
   }, [isLoading, matches]);
+
+  // Update chat messages every 3 seconds when a chat is active
+  useEffect(() => {
+    if (chattingWith) {
+      const interval = setInterval(async () => {
+        const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
+        setMessages(msgs);
+      }, 3000); // Update every 3 seconds
+
+      return () => clearInterval(interval); // Cleanup on unmount or when chattingWith changes
+    }
+  }, [chattingWith, user]);
 
 
   if (showSpinner) {
@@ -338,7 +327,7 @@ function Chats({ user, onModalOpenChange }) {
             key={group.matchIds.join('-')}
             match={group}
             isUnread={group.isUnread}
-            onChat={chatObj => setChattingWith(chatObj)}
+            onChat={handleChatClick} // Use the new handler
             onViewProfile={handleViewProfile}
           />
         );

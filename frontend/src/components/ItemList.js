@@ -33,33 +33,43 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   }, [modalOpen]);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/items/${user.id}`)
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setItems(data.items || []);
-      })
-      .catch(err => {
-        setItems([]);
-      });
-  }, [user, refreshSignal]);
+    const fetchItems = async () => {
+        const cachedItems = localStorage.getItem(`items_${user.id}`);
+        if (cachedItems) {
+            setItems(JSON.parse(cachedItems));
+        } else {
+            try {
+                const response = await fetch(`${BACKEND_URL}/items/${user.id}`);
+                const data = await response.json();
+                setItems(data.items || []);
+                localStorage.setItem(`items_${user.id}`, JSON.stringify(data.items || []));
+            } catch (err) {
+                setItems([]);
+            }
+        }
+    };
+    fetchItems();
+}, [user, refreshSignal]);
 
   useEffect(() => {
     if (buttons === "like_pass") {
-      fetchLikedItems(user.id, from_user_matching.id)
-        .then(likedItems => {
-          const actionsMap = {};
-          likedItems.forEach(item => {
-            console.log(item);
-            actionsMap[item.id] = true;
+      const cachedActions = localStorage.getItem(`actions_${user.id}`);
+      if (cachedActions) {
+        setUserActions(JSON.parse(cachedActions));
+      } else {
+        fetchLikedItems(user.id, from_user_matching.id)
+          .then(likedItems => {
+            const actionsMap = {};
+            likedItems.forEach(item => {
+              actionsMap[item.id] = true;
+            });
+            setUserActions(actionsMap);
+            localStorage.setItem(`actions_${user.id}`, JSON.stringify(actionsMap));
+          })
+          .catch(err => {
+            console.error("Error fetching liked items", err);
           });
-          setUserActions(actionsMap);
-          console.log(actionsMap);
-        })
-        .catch(err => {
-          console.error("Error fetching liked items", err);
-        });
+      }
     }
   }, [buttons, user.id, from_user_matching === null ? null : from_user_matching.id]);
 
@@ -146,13 +156,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: 18,
-          minWidth: "90vw",
-          maxWidth: "95vw"
+          width: "60vh",
         }}>
           {items.map(item => (
             <div
               key={item.id}
               style={{
+                height: "30vh",
                 background: "#fff",
                 borderRadius: 18,
                 boxShadow: "0 2px 12px 0 rgba(0,0,0,0.06)",
@@ -169,7 +179,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
             >
               {/* Main Image */}
               {item.photoURLs && item.photoURLs[0] && (
-                <div style={{ position: 'relative', width: '100%', height: 180, background: '#f6f6f6' }}>
+                <div style={{ position: 'relative', width: '100%', height: "90%", background: '#f6f6f6' }}>
                   <img
                     src={item.photoURLs[0]}
                     alt="main"
@@ -178,14 +188,28 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0
                     }}
                   />
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '8px 10px' }}>
-                <span style={{ fontSize: 28, marginRight: 2, marginLeft: 4 }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 3,
+                position: 'absolute',
+                bottom: 0,
+                width: '87%',
+                padding: "0.5% 6% 4.6% 8%",
+                background: 'linear-gradient(to top, rgba(80, 80, 80, 0), rgba(80, 80, 80, 0))',
+                zIndex: 1,
+                color: 'white',
+                backdropFilter: 'blur(500px)',
+                // WebkitBackdropFilter: 'blur(100px)'
+              }}>
+                <span style={{
+                  fontSize: 30,
+                  textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
+                }}>
                   {getCategoryEmoji(item.category)}
                 </span>
 
@@ -198,7 +222,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                           e.stopPropagation(); // Prevent click event from propagating to parent
                           handleAction(item, "like");
                         }}
-                        className={`common-button like active`}
+                        className={`common-button like active small`}
                         title={t("like")}
                       >
                         <span role="img" aria-label="like">❤️</span>
@@ -209,7 +233,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                           e.stopPropagation(); // Prevent click event from propagating to parent
                           handleAction(item, "pass");
                         }}
-                        className={`common-button pass`}
+                        className={`common-button pass small`}
                         title={t("pass")}
                       >
                         <span role="img" aria-label="pass">❌</span>
@@ -220,7 +244,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                   <>
                     <button
                       onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
-                      className="common-button edit"
+                      className="common-button edit small"
                       title={t('edit')}
                     >
                       <span role="img" aria-label="edit">✏️</span>
@@ -228,7 +252,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                     <button
                       onClick={e => { e.stopPropagation(); handleDelete(item); }}
                       disabled={deletingId === item.id}
-                      className="common-button delete"
+                      className="common-button delete small"
                       title="Delete"
                     >
                       <span role="img" aria-label="delete">🗑️</span>

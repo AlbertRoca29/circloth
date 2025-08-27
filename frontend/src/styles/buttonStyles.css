@@ -1,6 +1,6 @@
 /* Common button styles */
 .common-button {
-  background: #fff;
+  background: #ffffffc9;
   border: none;
   border-radius: 50%;
   width: 56px;
@@ -11,6 +11,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .common-button.pass {
@@ -44,4 +45,11 @@
 
 .common-button:hover {
   transform: scale(1.05);
+}
+
+.small {
+    width: 42px;
+    height: 42px;
+    background-color: transparent;
+    font-size: 29px;
 }
