@@ -37,16 +37,13 @@ if not firebase_admin._apps:
 
 db = FirestoreDB()
 
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://www.circloth.com")
+allowed_origins_list = allowed_origins.split(",")
+
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # "http://localhost:3000",
-        "https://circloth-9014370275.europe-west1.run.app",
-        "https://circloth.com",
-        "https://www.circloth.com",
-        "https://circloth--circl0th.europe-west4.hosted.app/",
-    ],
+    allow_origins=allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -212,6 +209,7 @@ def delete_item(item_id: str):
     # Delete the item itself
     db.delete_item(item_id)
     return {"message_key": "ITEM_DELETED"}
+
 # --- MATCH DELETE ---
 # Delete a match by erasing the like(s) on both or one end
 @app.delete("/match/{user_id}/{other_user_id}/{item_id}/{your_item_id}")

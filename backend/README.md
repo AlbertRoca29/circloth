@@ -1,5 +1,8 @@
 # Circloth FastAPI Backend
 
+EXPLAIN BETTER
+
+
 This is a Python FastAPI backend for the Circloth app. It provides a REST API for matching clothes between users and is ready to connect to Firebase/Firestore for user and item data.
 
 ## Features

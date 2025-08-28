@@ -34,7 +34,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   useEffect(() => {
     const fetchItems = async () => {
         const cachedItems = localStorage.getItem(`items_${user.id}`);
-        // matching ? localStorage.getItem(`items_${user.id}_matching_${from_user_matching.id}`) :
         if (cachedItems && matching) {
             setItems(JSON.parse(cachedItems));
         } else {

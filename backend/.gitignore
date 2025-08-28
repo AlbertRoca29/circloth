@@ -1,40 +1,20 @@
-# Byte-compiled / optimized / DLL files
+# Byte-compiled files
 __pycache__/
 *.py[cod]
-*$py.class
 
 # Virtual environment
 .venv/
-env/
 venv/
 
 # VSCode settings
 .vscode/
 
 # Service account credentials
-service-account.json
 serviceAccountKey.json
-service_accounts/
-*.serviceaccount.json
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
 
 # Environment variables
 .env
-.env.*
-
-# OS files
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
-
-# Test output
-.coverage
-htmlcov/
-.tox/
-.pytest_cache/
+firestore_read_log.json
