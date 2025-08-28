@@ -65,8 +65,8 @@ function ItemDetailModal({
     <div style={{
       position: 'fixed',
       top: -30,
-      left: 0,
-      width: '90vw',
+      left: '7.5vw',
+      width: '85vw',
       maxHeight: '580px',
       minHeight: '580px',
       background: 'transparent',

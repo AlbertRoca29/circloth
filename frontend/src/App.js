@@ -140,9 +140,28 @@ function App() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const menuRef = React.useRef(null);
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
+
+  // Language dropdown state
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+
+  // Close menu or language dropdown when clicking outside
+  useEffect(() => {
+    if (!menuOpen && !langDropdownOpen) return;
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+        setLangDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen, langDropdownOpen]);
 
   if (loading) return null;
 
@@ -200,6 +219,7 @@ function App() {
               </button>
               {menuOpen && (
                 <div
+                  ref={menuRef}
                   style={{
                     position: "absolute",
                     top: 36,
@@ -222,28 +242,107 @@ function App() {
                     <div style={{ fontSize: 14, color: "#666" }}>{appUser?.email || "user@example.com"}</div>
                   </div>
                   <hr style={{ border: "none", borderTop: "1px solid #ddd" }} />
-                  {/* Language Switcher */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {/* Language Switcher - custom dropdown */}
+                  <div style={{ position: 'relative', display: "flex", alignItems: "center", gap: 8 }}>
                     <GlobeIcon />
-                    <select
-                      value={i18n.language}
-                      onChange={(e) => changeLanguage(e.target.value)}
+                    <button
+                      onClick={() => setLangDropdownOpen((open) => !open)}
                       style={{
                         border: "1px solid #ddd",
                         borderRadius: 4,
                         padding: "4px 8px",
                         fontSize: 14,
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        background: '#fff',
+                        minWidth: 90,
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8
                       }}
+                      type="button"
                     >
-                      <option value="en">English</option>
-                      <option value="es">Español</option>
-                      <option value="ca">Català</option>
-                    </select>
+                      {i18n.language === 'en' ? 'English' : i18n.language === 'es' ? 'Español' : 'Català'}
+                      <span style={{ fontSize: 10, marginLeft: 6 }}>▼</span>
+                    </button>
+                    {langDropdownOpen && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 34,
+                          left: 28,
+                          background: '#fff',
+                          border: '1px solid #ddd',
+                          borderRadius: 6,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                          zIndex: 200,
+                          minWidth: 110,
+                          padding: '4px 0',
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <button
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '8px 16px',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            color: i18n.language === 'en' ? '#15803d' : '#333',
+                            fontWeight: i18n.language === 'en' ? 600 : 400,
+                          }}
+                          onClick={() => {
+                            changeLanguage('en');
+                            setLangDropdownOpen(false);
+                            setMenuOpen(false);
+                          }}
+                        >English</button>
+                        <button
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '8px 16px',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            color: i18n.language === 'es' ? '#15803d' : '#333',
+                            fontWeight: i18n.language === 'es' ? 600 : 400,
+                          }}
+                          onClick={() => {
+                            changeLanguage('es');
+                            setLangDropdownOpen(false);
+                            setMenuOpen(false);
+                          }}
+                        >Español</button>
+                        <button
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '8px 16px',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: 14,
+                            color: i18n.language === 'ca' ? '#15803d' : '#333',
+                            fontWeight: i18n.language === 'ca' ? 600 : 400,
+                          }}
+                          onClick={() => {
+                            changeLanguage('ca');
+                            setLangDropdownOpen(false);
+                            setMenuOpen(false);
+                          }}
+                        >Català</button>
+                      </div>
+                    )}
                   </div>
                   {/* Logout Button */}
                   <button
-                    onClick={logOut}
+                    onClick={() => {
+                      logOut();
+                      setMenuOpen(false);
+                    }}
                     style={{
                       background: "var(--danger, #e11d48)",
                       color: "#fff",

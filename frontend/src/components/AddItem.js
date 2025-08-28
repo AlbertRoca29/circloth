@@ -181,7 +181,7 @@ function AddItem({ user, onItemAdded }) {
             fontWeight: 150,
             color: '#15803ca8',
             fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
-            fontSize: 10,
+            fontSize: 11,
             userSelect: 'none',
             pointerEvents: 'none',
           }}>{t('add_item') || 'Add Item'}</span>
