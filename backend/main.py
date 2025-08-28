@@ -37,7 +37,7 @@ if not firebase_admin._apps:
 
 db = FirestoreDB()
 
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://www.circloth.com")
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://www.circloth.com,https://circloth.com")
 allowed_origins_list = allowed_origins.split(",")
 
 # --- CORS ---
