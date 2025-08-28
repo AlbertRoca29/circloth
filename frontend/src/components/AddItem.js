@@ -151,17 +151,6 @@ function AddItem({ user, onItemAdded }) {
     }
   }
 
-  const uploadPhotos = async (photoFiles) => {
-    const uploadedUrls = [];
-    for (const file of photoFiles) {
-        const photoRef = ref(storage, `photos/${uuidv4()}`);
-        await uploadBytes(photoRef, file);
-        const url = await getDownloadURL(photoRef);
-        uploadedUrls.push(url);
-    }
-    return uploadedUrls;
-};
-
   return (
     <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Toast notifications will show errors instead of inline errorMsg */}

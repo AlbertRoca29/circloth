@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { COLORS, FONT_FAMILY } from "../constants/theme";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
   const { t } = useTranslation();
@@ -22,7 +21,6 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
 
   const TabButton = ({ tab, label, icon, onClick, disabled }) => (
     <button
-      className={`tab-btn${tab === activeTab ? ' tab-btn-active' : ''}`}
       style={{
         position: "relative",
         flex: 1,
