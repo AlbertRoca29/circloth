@@ -12,6 +12,7 @@ import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
 import { COLORS, COLOR_PALETTE } from "../constants/theme";
 import Button from "@mui/material/Button";
+import { PlusIcon } from '../utils/svg';
 import ProgressBarButton from "./ProgressBarButton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -151,31 +152,67 @@ function AddItem({ user, onItemAdded }) {
     }
   }
 
+  // Ensure the AddItem button is always fixed and independent of other elements
+  const floatingButtonStyle = {
+    position: "fixed",
+    bottom: "25%",
+    right: "25%",
+    width: "60px",
+    height: "60px",
+    borderRadius: "50%",
+    backgroundColor: "#15803d", // App green color
+    color: "white",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    cursor: "pointer",
+    border: "none",
+    zIndex: 1000,
+  };
+
   return (
-    <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center'  }}>
       {/* Toast notifications will show errors instead of inline errorMsg */}
       {!open && (
-        <Button
-          variant="contained"
-          onClick={() => setOpen(true)}
-          sx={{
-            fontSize: 16,
-            borderRadius: 2.5,
-            px: 3.5,
-            py: 1.4,
-            background: '#22c55e',
-            color: '#fff',
-            boxShadow: '0 2px 8px rgba(34,197,94,0.10)',
-            textTransform: 'none',
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: "fixed",bottom: "20%",right: "20%" }}>
+          <span style={{
+            marginBottom: 8,
             fontWeight: 150,
+            color: '#15803ca8',
             fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
-            minWidth: 140,
-            mb: 2.5,
-            '&:hover': { background: '#15803d' }
-          }}
-        >
-          + {t('add_item')}
-        </Button>
+            fontSize: 10,
+            userSelect: 'none',
+            pointerEvents: 'none',
+          }}>{t('add_item') || 'Add Item'}</span>
+          <button
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #22c55e 60%, #15803d 100%)",
+              color: "white",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              boxShadow: "0 6px 18px 0 rgba(34,197,94,0.25), 0 2px 4px 0 rgba(0,0,0,0.10)",
+              cursor: "pointer",
+              border: "none",
+              zIndex: 1000,
+              transition: "box-shadow 0.2s, transform 0.1s, background 0.2s",
+              outline: 'none',
+            }}
+            onClick={() => setOpen(true)}
+            title={t("add_item")}
+            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            tabIndex={0}
+            aria-label={t('add_item') || 'Add Item'}
+          >
+            <PlusIcon style={{ transform: "scale(1.35)" }} />
+          </button>
+        </div>
       )}
       <Collapse in={open} sx={{ width: '100%', maxWidth: 500, mt: 0.5 }}>
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>

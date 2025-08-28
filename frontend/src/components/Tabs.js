@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { UserIcon, HeartIcon, ChatIcon } from '../utils/svg';
 import { useTranslation } from "react-i18next";
 
 function Tabs({ activeTab, setActiveTab, hasClothes }) {
@@ -31,7 +32,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         color: tab === activeTab ? "#fff" : disabled ? "#94a3b8" : "var(--primary-dark, #15803d)",
         border: "none",
         borderRadius: "12px",
-        padding: "0.7rem 1.6rem",
+        padding: "0.4rem 1rem",
         fontSize: "0.85rem",
         fontWeight: tab === activeTab ? 150 : 100,
         fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif",
@@ -62,8 +63,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
           left: "50%",
           bottom: 16,
           transform: "translateX(-50%)",
-          width: "225px",
-          maxWidth: "225px",
+          width: "220px",
           height: 68,
           display: "flex",
           justifyContent: "space-around",
@@ -80,60 +80,20 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
           tab="clothes"
           label="tab_clothes"
           onClick={() => setActiveTab("clothes")}
-          icon={
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          }
+          icon={<UserIcon />}
         />
         <TabButton
           tab="matching"
           label="tab_matching"
           onClick={handleMatchingClick}
           disabled={!hasClothes}
-          icon={
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0l-.5.5-.5-.5a5.5 5.5 0 0 0-7.8 7.8l.5.5L12 21.3l7.3-7.3.5-.5a5.5 5.5 0 0 0 0-7.8z" />
-            </svg>
-          }
+          icon={<HeartIcon />}
         />
         <TabButton
           tab="chats"
           label="tab_chats"
           onClick={() => setActiveTab("chats")}
-          icon={
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          }
+          icon={<ChatIcon />}
         />
       </div>
 

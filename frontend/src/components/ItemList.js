@@ -53,9 +53,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   useEffect(() => {
     if (matching) {
       const cachedActions = localStorage.getItem(`actions_${user.id}`);
-      console.log(cachedActions)
-      console.log("AAA",from_user_matching)
-      console.log("UUU",user)
       if (false) {
         setUserActions(JSON.parse(cachedActions));
       } else {
@@ -186,7 +183,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   }
 
   return (
-    <div style={{ width: "100%", margin: '0 auto' }}>
+    <div style={{ width: "90%", margin: '0 auto' }}>
       {!modalOpen && (
         <div style={{
           display: "grid",
@@ -216,7 +213,18 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
             >
               {/* Main Image */}
               { item.photoURLs && item.photoURLs[0] && (
-                <div style={{ position: 'relative', width: '100%', height: "90%", background: '#f6f6f6' }}>
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: "90%",
+                  background: '#f6f6f6',
+                  overflow: 'hidden',
+                  transition: 'transform 0.25s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
                   <img
                     src={item.photoURLs[0]}
                     alt="main"

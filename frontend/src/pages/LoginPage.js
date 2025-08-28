@@ -1,13 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../components/LanguageSwitcher";
 import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
 import BACKEND_URL from "../config";
 import LoadingSpinner from '../components/LoadingSpinner';
+import changeLanguage from '../utils/changeLanguage';
+import { GlobeIcon, ChevronDownIcon } from '../utils/svg';
 
 function LoginPage({ firebaseUser, setAppUser }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [langDropdown, setLangDropdown] = useState(false);
+  const langRef = useRef();
+  const languages = [
+    { code: 'ca', label: 'CA' },
+    { code: 'es', label: 'ES' },
+    { code: 'en', label: 'EN' },
+  ];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangDropdown(false);
+      }
+    }
+    if (langDropdown) {
+      document.addEventListener('mousedown', handleClick);
+    } else {
+      document.removeEventListener('mousedown', handleClick);
+    }
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [langDropdown]);
   const [localName, setLocalName] = useState("");
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [needsExtraInfo, setNeedsExtraInfo] = useState(false);
@@ -81,12 +104,33 @@ function LoginPage({ firebaseUser, setAppUser }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh",display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(120deg, #e6faed 0%, #f3f4f6 100%)" }}>
-      <div style={{ background: "rgba(255,255,255,0.7)", width:"275px", borderRadius: "18px", boxShadow: "0 8px 32px rgba(34, 197, 94, 0.13)", padding: "0.8rem 0.8rem", display: "flex", flexDirection: "column", alignItems: "center",  backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1.5px solid #e6faed" }}>
-        {/* Language Switcher at top right */}
-        <div style={{ position: "absolute", top: 18, right: 18 }}>
-          <LanguageSwitcher />
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(120deg, #e6faed 0%, #f3f4f6 100%)", position: "relative" }}>
+      {/* Language Switcher */}
+      <div ref={langRef} style={{ position: "fixed", top: 22, right: 22, zIndex: 1000, userSelect: "none", fontWeight: 100, fontSize: "0.9em", fontFamily: 'Geist, Segoe UI, Arial' }}>
+        <div
+          onClick={() => setLangDropdown(v => !v)}
+          style={{ display: "flex", alignItems: "center", gap: "0.5em", background: "rgba(255,255,255,0.85)", borderRadius: "8px", padding: "0.45em",  border: "1.2px solid #e6faed", cursor: "pointer", color: "#15803d", minWidth: 0, transition: "box-shadow 0.18s, border 0.18s" }}
+        >
+          <GlobeIcon />
+          <span style={{ minWidth: 22, textAlign: "center" }}>{languages.find(l => l.code === i18n.language?.slice(0,2))?.label || 'CA'}</span>
+          <ChevronDownIcon style={{ transform: "scale(1.3)" }} />
         </div>
+        {langDropdown && (
+          <div style={{ position: "absolute",  right: 0, background: "#fff", border: "1.2px solid #e6faed", borderRadius: "8px", boxShadow: "0 4px 16px #22c55e22", minWidth: "100px", padding: "0.3em 0.2em", marginTop: "0.2em", zIndex: 1001 }}>
+            {languages.map(l => (
+              <div
+                   key={l.code}
+                onClick={() => { changeLanguage(l.code); setLangDropdown(false); }}
+                style={{ padding: "0.45em", borderRadius: "8px", color: i18n.language?.slice(0,2) === l.code ? "#cbcbcbff" : "#222", background: "transparent", cursor: "pointer", marginBottom: "0.1em", transition: "background 0.13s" }}
+              >
+                {l.label}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ background: "rgba(255,255,255,0.7)", width: "275px", borderRadius: "18px", boxShadow: "0 8px 32px rgba(34, 197, 94, 0.13)", padding: "0.8rem 0.8rem", display: "flex", flexDirection: "column", alignItems: "center", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1.5px solid #e6faed" }}>
 
         <h2 style={{ marginBottom: "1.4rem", textAlign: "center", color: "#15803d", fontWeight: 300, fontSize: "1.6rem", letterSpacing: "-0.2px", fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t("welcome")}</h2>
 
@@ -97,7 +141,6 @@ function LoginPage({ firebaseUser, setAppUser }) {
             height: needsExtraInfo ? 0 : "auto",
             maxHeight: "200px",
             marginTop: needsExtraInfo ? "-55px" : "auto ",
-            // color: needsExtraInfo && (!localName.trim() || !privacyChecked) ? "#64748b" : "#fff"
             background: "rgba(255,255,255,0.82)",
             borderRadius: "1.1rem",
             boxShadow: "0 2px 16px rgba(34,197,94,0.08)",

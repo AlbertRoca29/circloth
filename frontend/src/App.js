@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PWAPrompt from "./components/PWAPrompt";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./components/LanguageSwitcher";
 import { auth, logOut } from "./utils/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -16,6 +15,8 @@ import Matching from "./pages/Matching";
 import "./styles/App.css";
 import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
+import changeLanguage from "./utils/changeLanguage";
+import { MenuIcon, GlobeIcon } from './utils/svg';
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -137,6 +138,12 @@ function App() {
     };
   }, [navigate]);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   if (loading) return null;
 
   // If no user or appUser → show login page
@@ -175,22 +182,10 @@ function App() {
             }}>
               Circloth
             </h1>
-            {/* LanguageSwitcher will be a planet icon button next to profile icon */}
-            <div style={{ display: "flex", alignItems: "center", gap: 28, position: 'relative' }}>
-              <span style={{
-                fontWeight: 125,
-                color: "var(--gray-text, #495566ff)",
-                marginRight: "0%",
-                fontSize: "1rem",
-                letterSpacing: "0.01em"
-              }}>
-                {/* Hi, {appUser.name || appUser.displayName} */}
-              </span>
-              {/* Language planet icon button */}
-              <LanguageSwitcher />
+            <div style={{ position: "relative" }}>
               <button
-                title={t('profile')}
-                onClick={() => setShowProfile(true)}
+                title="Menu"
+                onClick={toggleMenu}
                 style={{
                   background: "none",
                   border: "none",
@@ -201,37 +196,69 @@ function App() {
                   alignItems: "center"
                 }}
               >
-                <svg width="28" height="28" viewBox="0 0 24 24"
-                  fill="none" stroke="var(--primary-dark, #15803d)"
-                  strokeWidth="2" strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <circle cx="12" cy="8" r="4"/>
-                  <path d="M4 20c0-2.5 3.5-4 8-4s8 1.5 8 4"/>
-                </svg>
+                <MenuIcon />
               </button>
-              <button
-                title={t('logout')}
-                onClick={logOut}
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  margin: 0,
-                  marginRight: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center"
-                }}
-              >
-                <svg width="28" height="28" viewBox="0 0 24 24"
-                  fill="none" stroke="var(--danger, #e11d48)"
-                  strokeWidth="2" strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                  <polyline points="16 17 21 12 16 7"/>
-                  <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
-              </button>
+              {menuOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 36,
+                    right: 0,
+                    background: "#fff",
+                    border: "1.5px solid var(--primary-dark, #15803d)",
+                    borderRadius: 10,
+                    boxShadow: "0 4px 16px rgba(34,197,94,0.13)",
+                    padding: 10,
+                    zIndex: 100,
+                    minWidth: 200,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8
+                  }}
+                >
+                  {/* User Info */}
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{ fontWeight: 600, color: "#333" }}>{appUser?.name || "User"}</div>
+                    <div style={{ fontSize: 14, color: "#666" }}>{appUser?.email || "user@example.com"}</div>
+                  </div>
+                  <hr style={{ border: "none", borderTop: "1px solid #ddd" }} />
+                  {/* Language Switcher */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <GlobeIcon />
+                    <select
+                      value={i18n.language}
+                      onChange={(e) => changeLanguage(e.target.value)}
+                      style={{
+                        border: "1px solid #ddd",
+                        borderRadius: 4,
+                        padding: "4px 8px",
+                        fontSize: 14,
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="en">English</option>
+                      <option value="es">Español</option>
+                      <option value="ca">Català</option>
+                    </select>
+                  </div>
+                  {/* Logout Button */}
+                  <button
+                    onClick={logOut}
+                    style={{
+                      background: "var(--danger, #e11d48)",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      padding: "8px 12px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      marginTop: 8
+                    }}
+                  >
+                    {t('logout')}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -243,16 +270,12 @@ function App() {
         {activeTab === "clothes" && (
           <>
             {!itemListModalOpen && (
-              <AddItem
+              <ItemList
                 user={appUser}
-                onItemAdded={() => setRefreshItems(r => r + 1)}
+                refreshSignal={refreshItems}
+                onModalOpenChange={setItemListModalOpen}
               />
             )}
-            <ItemList
-              user={appUser}
-              refreshSignal={refreshItems}
-              onModalOpenChange={setItemListModalOpen}
-            />
           </>
         )}
         {activeTab === "matching" && (
@@ -266,6 +289,14 @@ function App() {
           </React.Suspense>
         )}
       </div>
+
+      {/* Floating AddItem Button */}
+  {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
+        <AddItem
+          user={appUser}
+          onItemAdded={() => setRefreshItems(r => r + 1)}
+        />
+      )}
 
       {/* Floating Tabs - fixed, outside main-container */}
   {!itemListModalOpen && !chatsModalOpen && (

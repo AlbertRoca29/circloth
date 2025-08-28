@@ -1,0 +1,67 @@
+// Centralized SVG icons for the app
+// Usage: import { ... } from './utils/svg';
+import React from 'react';
+
+export const UserIcon = (props) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M21 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+export const HeartIcon = (props) => (
+  <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+);
+
+export const ChatIcon = (props) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+export const ChevronDownIcon = (props) => (
+  <svg width="13" height="13" viewBox="0 0 20 20" fill="none" style={{ marginLeft: "0.1em" }} {...props}>
+    <path d="M5 8l5 5 5-5" stroke="#15803d" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+export const PlusIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+export const MenuIcon = (props) => (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark, #15803d)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
+export const GlobeIcon = (props) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark, #15803d)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="12" r="10" />
+    <ellipse cx="12" cy="12" rx="10" ry="4" />
+    <ellipse cx="12" cy="12" rx="4" ry="10" />
+  </svg>
+);
+
+// Existing icons from constants/icons.js
+export const CloseIcon = () => (
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
+    <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+    <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+  </svg>
+);
+
+export const BackIcon = () => (
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
+    <path d="M24 14L16 22L24 30" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
