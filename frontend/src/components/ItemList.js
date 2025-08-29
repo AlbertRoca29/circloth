@@ -321,12 +321,12 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: 110
-                  }}>{item.name || t('item_name_placeholder') || 'Item'}</span>
+                  }}>{t(`category_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
                     fontSize: 13,
                     color: '#888',
                     marginTop: 2
-                  }}>Size: {item.size || t('item_size_placeholder') || '-'}</span>
+                  }}>Size: {t(item.size) || item.size || '-'}</span>
                 </div>
                 {/* Right: Actions */}
                 {buttons === "like_pass" ? (

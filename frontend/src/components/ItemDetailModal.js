@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import "../styles/buttonStyles.css";
-import { maxHeight } from "@mui/system";
+import { height, maxHeight } from "@mui/system";
 
 function ItemDetailModal({
   item,
@@ -47,21 +47,21 @@ function ItemDetailModal({
     ? {
         marginTop: "20%",
         marginLeft: "15%",
-        width: '70%',
+        width: '70vw',
+        height: '70vh',
         background: 'white',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
         padding: 0,
-        margin: 0,
       }
     : {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '95vw',
+        height: '70vh',
         background: 'rgba(0,0,0,0.18)',
         zIndex: 3000,
         display: 'flex',
@@ -76,7 +76,7 @@ function ItemDetailModal({
         boxShadow: '0 2px 12px rgba(34,197,94,0.08)',
         padding: 0,
         width: '100%',
-        // maxHeight: '40%',
+        height: '100%',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -90,9 +90,7 @@ function ItemDetailModal({
         boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
         padding: 0,
         width: '95vw',
-        maxWidth: 420,
-        height: '90vh',
-        maxHeight: 600,
+        height: '70%',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -230,8 +228,9 @@ function ItemDetailModal({
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
-          padding: '18px 20px 0 20px',
+          padding: '18px 0px 0 20px',
           gap: 8,
+          margin: "10px 0px 20px 20px"
         }}>
           {/* Category and emoji */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 18, fontWeight: 400, color: '#222' }}>
