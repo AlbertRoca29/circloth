@@ -1,27 +1,3 @@
-/*
-Absolute chat overlay: covers viewport, disables body scroll, allows chat scroll only */
-.chat-absolute-overlay {
-  position: fixed;
-  top: 80px;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1000;
-  background: transparent; /* or transparent if you want */
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chat-absolute-content {
-  width: 100%;
-  max-width: 500px;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
 
 .chat-absolute-scroll {
   flex: 1;

@@ -12,15 +12,15 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
         background: "#fff",
         borderRadius: 20,
         boxShadow: "0 2px 14px rgba(0,0,0,0.09)",
-        padding: 16,
-        marginBottom: 26,
-        width: 340,
-        minHeight: 100,
+        padding: 14,
+        marginBottom: 24,
+        width: "100%",
+        minHeight: "80px",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         position: "relative",
-        gap: 18,
+        gap: 16,
       }}
     >
       {isUnread && (
@@ -42,8 +42,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       <div
         style={{
           position: "relative",
-          width: 88,
-          height: 88 + (match.theirItems.length - 1) * 9,
+          width: 85,
+          height: 85 + (match.theirItems.length - 1) * 9,
           marginRight: (match.theirItems.length - 1) * 16,
         }}
       >
@@ -55,9 +55,9 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
             loading="lazy"
             onClick={() => onViewProfile(match.otherUser, false)}
             style={{
-              width: 88,
-              height: 88,
-              borderRadius: 16,
+              width: 85,
+              height: 85,
+              borderRadius: 15,
               objectFit: "cover",
               border: "2.5px solid #e0e0e0",
               position: "absolute",
@@ -82,7 +82,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
         <div
           style={{
             fontWeight: 200,
-            fontSize: 17,
+            fontSize: 16,
             color: "#15803d",
           }}
         >
@@ -100,8 +100,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
           style={{
             position: "relative",
             marginLeft: -20 + (6 - match.theirItems.length) * 20,
-            width: 38 + (match.yourItems.length - 1) * 10,
-            height: 38,
+            width: 36 + (match.yourItems.length - 1) * 10,
+            height: 36,
           }}
         >
           {Array.isArray(match.yourItems) && match.yourItems.length > 0
@@ -113,9 +113,9 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
                   loading="lazy"
                   onClick={() => onViewProfile(match.otherUser, true)}
                   style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 9,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
                     objectFit: "cover",
                     border: "1px solid #e0e0e0",
                     position: "absolute",
@@ -147,7 +147,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       >
         {t("chat")}
       </button>
-      <button
+      {/* <button
         onClick={() => onViewProfile(match.otherUser)}
         style={{
           background: "#f3f3f3",
@@ -162,7 +162,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
         }}
       >
         {t("view_profile")}
-      </button>
+      </button> */}
     </div>
   );
 }

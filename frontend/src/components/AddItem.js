@@ -175,15 +175,26 @@ function AddItem({ user, onItemAdded }) {
     <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center'  }}>
       {/* Toast notifications will show errors instead of inline errorMsg */}
       {!open && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: "fixed",bottom: "20%",right: "20%" }}>
+        <div style={{
+          display: 'flex',
+          width: '15%',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: "fixed",
+          bottom: "20%",
+          right: "20%",
+          textAlign: 'center',
+        }}>
           <span style={{
             marginBottom: 8,
             fontWeight: 150,
             color: '#15803ca8',
             fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
             fontSize: 11,
-            userSelect: 'none',
-            pointerEvents: 'none',
+            width: '100%',
+            textAlign: 'center',
+            display: 'block',
           }}>{t('add_item') || 'Add Item'}</span>
           <button
             style={{

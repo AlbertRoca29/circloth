@@ -152,13 +152,15 @@ function Chats({ user }) {
 
   if (chattingWith) {
   return (
-      <div className="chat-absolute-overlay">
-        <div className="chat-absolute-content card" style={{ maxWidth: 420, borderRadius: 18, minHeight: 300, display: 'flex', flexDirection: 'column', height: 500 }}>
-        <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10, marginLeft: 27 }}>
-          {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
-        </div>
-  <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
-          {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
+      <div style={{ position: 'fixed', top: '15%', left: '10%', width: '80%', height: '70%', zIndex: 1000, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+
+        <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column',  width: '100%', height:"90%", display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}>
+
+            <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10, marginLeft: 60 }}>
+              {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
+            </div>
+            <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
+              {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
           {messages.map((msg, i) => (
             <div key={i} style={{
               textAlign: msg.sender === user.uid ? 'right' : 'left',
@@ -188,7 +190,7 @@ function Chats({ user }) {
     onClick={() => setChattingWith(null)}
     aria-label="Go back"
     className="common-button go-back"
-    style={{ top: -18, left: -18 }}
+    style={{ top: 0, left: 0 }}
   >
     <CloseIcon />
   </button>
@@ -208,11 +210,11 @@ function Chats({ user }) {
 
   if (viewingTheirProfile) {
     return (
-      <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+      <div style={{ margin: '30% auto' }}>
         <button
           onClick={() => setviewingTheirProfile(null)}
           className="common-button go-back"
-          style={{ top:-30}}
+          style={{ top: 60 }}
         >
             <BackIcon />
 
@@ -230,11 +232,11 @@ function Chats({ user }) {
   if (viewingYourProfile) {
     console.log(chattingWith)
     return (
-      <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+      <div style={{ margin: '30% auto'}}>
         <button
           onClick={() => setviewingYourProfile(null)}
           className="common-button go-back"
-          style={{ top:-30}}
+          style={{ top:60}}
         >
             <BackIcon />
 
@@ -254,7 +256,7 @@ function Chats({ user }) {
 
 
   return (
-    <div style={{ maxWidth: 500, margin: '0 auto', marginTop: 30 }}>
+  <div style={{ width: '80%', margin: '90px 0 0 10%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {matches.length === 0 && !isLoading && (
         <div className="card" style={{ textAlign: 'center', color: '#469061ff', fontSize: '1.2rem', marginTop: 40, fontWeight: 150, lineHeight: "1.45em" }}>
           {t('no_matches_cool')}

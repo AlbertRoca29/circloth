@@ -138,12 +138,10 @@ function App() {
     };
   }, [navigate]);
 
-  const [menuOpen, setMenuOpen] = useState(false);
 
+  const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = React.useRef(null);
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+  const menuButtonRef = React.useRef(null);
 
   // Language dropdown state
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
@@ -152,10 +150,16 @@ function App() {
   useEffect(() => {
     if (!menuOpen && !langDropdownOpen) return;
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpen(false);
-        setLangDropdownOpen(false);
+      // Prevent if already handled by menu button
+      if (event.cancelBubble) return;
+      // Don't close if clicking the menu button
+      if (
+        (menuButtonRef.current && menuButtonRef.current.contains(event.target)) ||
+        (menuRef.current && menuRef.current.contains(event.target))
+      ) {
+        return;
       }
+      setMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -203,8 +207,9 @@ function App() {
             </h1>
             <div style={{ position: "relative" }}>
               <button
+                ref={menuButtonRef}
                 title="Menu"
-                onClick={toggleMenu}
+                onClick={e => { e.stopPropagation(); setMenuOpen(prev => !prev); }}
                 style={{
                   background: "none",
                   border: "none",
@@ -225,21 +230,27 @@ function App() {
                     top: 36,
                     right: 0,
                     background: "#fff",
-                    border: "1.5px solid var(--primary-dark, #15803d)",
-                    borderRadius: 10,
+                    border: "1px solid var(--primary-dark, #15803d)",
+                    borderRadius: 9,
                     boxShadow: "0 4px 16px rgba(34,197,94,0.13)",
                     padding: 10,
                     zIndex: 100,
-                    minWidth: 200,
+                    width: '160px',
                     display: "flex",
                     flexDirection: "column",
                     gap: 8
                   }}
                 >
                   {/* User Info */}
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontWeight: 600, color: "#333" }}>{appUser?.name || "User"}</div>
-                    <div style={{ fontSize: 14, color: "#666" }}>{appUser?.email || "user@example.com"}</div>
+                  <div style={{ marginBottom: 8, fontWeight: 150 }}>
+                    <div style={{ fontSize: 15, color: "#333" }}>{appUser?.name || "User"}</div>
+                    <div style={{ fontSize: 13, color: "#9b9b9bff" }}>
+                      {(() => {
+                        const email = appUser?.email || "user@example.com";
+                        const maxLen = 17;
+                        return email.length > maxLen ? email.slice(0, maxLen) + '...' : email;
+                      })()}
+                    </div>
                   </div>
                   <hr style={{ border: "none", borderTop: "1px solid #ddd" }} />
                   {/* Language Switcher - custom dropdown */}
@@ -363,16 +374,30 @@ function App() {
         </div>
       )}
 
+      {/* Floating AddItem Button */}
+  {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
+        <div style={{ height:"100%",position: "relative", width: "80%", marginLeft:"10%", display: "flex", justifyContent: "center", zIndex: 50, marginTop:"90px" }}>
+          <AddItem
+            user={appUser}
+            onItemAdded={() => setRefreshItems(r => r + 1)}
+          />
+        </div>
+      )}
+
       {/* Main content container, with margin for header and tabs */}
       <div className="main-container">
+
         {/* Scrollable content */}
         {activeTab === "clothes" && (
           <>
-            {!itemListModalOpen && (
+            {true && (
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
-                onModalOpenChange={setItemListModalOpen}
+                onModalOpenChange={(open) => {
+    console.log("App.js: setItemListModalOpen called with", open);
+    setItemListModalOpen(open);
+  }}
               />
             )}
           </>
@@ -389,13 +414,7 @@ function App() {
         )}
       </div>
 
-      {/* Floating AddItem Button */}
-  {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
-        <AddItem
-          user={appUser}
-          onItemAdded={() => setRefreshItems(r => r + 1)}
-        />
-      )}
+
 
       {/* Floating Tabs - fixed, outside main-container */}
   {!itemListModalOpen && !chatsModalOpen && (

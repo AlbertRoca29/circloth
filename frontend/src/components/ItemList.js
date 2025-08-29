@@ -17,6 +17,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   useEffect(() => {
     if (onModalOpenChange) onModalOpenChange(modalOpen);
   }, [modalOpen, onModalOpenChange]);
+
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);

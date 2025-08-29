@@ -64,11 +64,10 @@ function ItemDetailModal({
   return (
     <div style={{
       position: 'fixed',
-      top: -30,
+      top: '15%',
       left: '7.5vw',
       width: '85vw',
-      maxHeight: '580px',
-      minHeight: '580px',
+      height: '70%',
       background: 'transparent',
       zIndex: 3000,
       display: 'flex',
@@ -83,8 +82,7 @@ function ItemDetailModal({
         padding: '2.2rem 0.5rem',
         width: '100%',
         // maxHeight: 'calc(100vh - 80px)',
-        minHeight: '400px',
-        maxHeight: '500px',
+        height: '85%',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -97,14 +95,13 @@ function ItemDetailModal({
           <div
             style={{
               position: 'relative',
-              width: '100%',
-              height: showOnlyImage ? 450 : 280,
+              width: '95%',
+              height: "100%",
               marginBottom: 16,
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               background: 'transparent',
-              borderRadius: 16,
               overflow: 'hidden',
               cursor: 'pointer',
             }}
@@ -155,8 +152,8 @@ function ItemDetailModal({
               alt={`item-${modalIdx}`}
               loading="lazy"
               style={{
-                width: showOnlyImage ? 450 : 280,
-                height: showOnlyImage ? 450 : 280,
+                width: showOnlyImage ? 350 : 200,
+                height: showOnlyImage ? 350 : 200,
                 borderRadius: 16,
                 display: 'block',
                 objectFit: 'contain',
@@ -175,18 +172,18 @@ function ItemDetailModal({
         {/* Only show the rest if not in image-only mode */}
         {!showOnlyImage && <>
           {/* 1) Emoji category + name category */}
-          <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 25, marginRight: 6 }}>
+          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ fontSize: 20 }}>
               {getCategoryEmoji(item.category)}
             </span>
-            <span style={{ fontSize: 16, color: '#1c1c1cff', fontWeight: 200 }}>
+            <span style={{ fontSize: 15, color: '#1c1c1cff', fontWeight: 200 }}>
               {getCategoryLabel(item.category)}
             </span>
           </div>
 
           {/* 2) Size (if not 'other') in box + color in circle (side by side) */}
           {(showSize || item.color) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 8 }}>
               {showSize && (
                 <div style={{
                   background: '#eeeeeeff',
@@ -194,7 +191,7 @@ function ItemDetailModal({
                   borderRadius: 8,
                   padding: '5px 12px',
                   fontWeight: 200,
-                  fontSize: 15,
+                  fontSize: 14,
                   boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
                   display: 'inline-block',
                 }}>
@@ -212,10 +209,12 @@ function ItemDetailModal({
               background: '#fffbe6',
               borderRadius: 8,
               padding: '8px 12px',
-              color: '#ca9a0aff',
+              color: '#c69607ff',
               fontWeight: 100,
-              width: '80%',
+              fontSize: 14,
+              width: '75%',
               maxWidth: 350,
+              textAlign: 'center'
             }}>
               <span style={{ marginRight: 6 }}><strong style={{ fontWeight: 170 }}>{t('item_story')}</strong><br /></span>
               {item.itemStory}
