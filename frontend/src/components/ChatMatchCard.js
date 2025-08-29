@@ -7,14 +7,16 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
 
   return (
     <div
+      onClick={() => onChat(match)}
       className="chat-match-card"
       style={{
+        cursor: "pointer",
         background: "#fff",
         borderRadius: 20,
         boxShadow: "0 2px 14px rgba(0,0,0,0.09)",
         padding: 14,
         marginBottom: 24,
-        width: "100%",
+        width: "90%",
         minHeight: "80px",
         display: "flex",
         flexDirection: "row",
@@ -128,25 +130,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
             : null}
         </div>
       </div>
-      <button
-        onClick={() => onChat(match)}
-        style={{
-          background: "#22c55e",
-          color: "#fff",
-          border: "none",
-          borderRadius: 10,
-          fontSize: 14,
-          width: "80px",
-          padding: "7px 12px",
-          cursor: "pointer",
-          height: "33px",
-          position: "absolute",
-          right: 16,
-          bottom: 16,
-        }}
-      >
-        {t("chat")}
-      </button>
+
+
       {/* <button
         onClick={() => onViewProfile(match.otherUser)}
         style={{

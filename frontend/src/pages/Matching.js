@@ -74,6 +74,7 @@ function Matching({ user, setHasLocation }) {
       onClose={() => {}}
       currentIdx={imgIdx}
       setIdx={setImgIdx}
+      matching={true}
       showNavigation={true}
       footer={
         <div style={{ display: 'flex', justifyContent: 'center', gap: 30 }}>

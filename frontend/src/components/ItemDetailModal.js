@@ -2,10 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import "../styles/buttonStyles.css";
+import { maxHeight } from "@mui/system";
 
 function ItemDetailModal({
   item,
@@ -15,136 +13,196 @@ function ItemDetailModal({
   setIdx,
   showNavigation = true,
   footer,
+  matching = false,
 }) {
   const { t } = useTranslation();
   // Always call hooks at the top
   const images = item ? (item.photoURLs || []) : [];
   const [modalIdx, setModalIdx] = React.useState(currentIdx);
-  const [showOnlyImage, setShowOnlyImage] = React.useState(false);
   React.useEffect(() => {
     setModalIdx(currentIdx);
   }, [currentIdx, item]);
-  const handlePrev = () => setModalIdx((modalIdx - 1 + images.length) % images.length);
-  const handleNext = () => setModalIdx((modalIdx + 1) % images.length);
+  const handlePrev = (e) => {
+    e && e.stopPropagation();
+    setModalIdx((modalIdx - 1 + images.length) % images.length);
+  };
+  const handleNext = (e) => {
+    e && e.stopPropagation();
+    setModalIdx((modalIdx + 1) % images.length);
+  };
   const getCategoryLabel = (catKey) => {
     const cat = CATEGORIES.find((c) => c.key === catKey);
     return cat ? t(cat.labelKey) : catKey;
   };
-  // Dropdown for more details
+  // Minimal details only
+  // More details dropdown
   const [detailsOpen, setDetailsOpen] = React.useState(false);
-  // Check if there are any more details to show
-  const hasMoreDetails = !!(item.sizeDetails || item.material || item.additionalInfo);
-  // Toggle image only view
-  const handleImageClick = () => setShowOnlyImage((v) => !v);
-  React.useEffect(() => {
-    if (open && images.length > 0) {
-      images.forEach((url) => {
-        const img = new Image();
-        img.src = url;
-      });
-    }
-  }, [open, images]);
+  // Always call hooks before any return
   if (!item || !open) return null;
-  // Helper: show size only if not 'other'
   const showSize = item.size && item.size !== 'other';
-  // Helper: color circle
-  const colorCircle = item.color ? (
-    <span style={{
-      display: 'inline-block',
-      width: 24,
-      height: 24,
-      borderRadius: '50%',
-      background: item.color,
-      border: '1.5px solid #ddd',
-      marginLeft: 10,
-      verticalAlign: 'middle',
-    }} title={item.color}></span>
-  ) : null;
+  const hasMoreDetails = !!(item.sizeDetails || item.material || item.additionalInfo);
 
-  return (
-    <div style={{
-      position: 'fixed',
-      top: '15%',
-      left: '7.5vw',
-      width: '85vw',
-      height: '70%',
-      background: 'transparent',
-      zIndex: 3000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'auto',
-    }}>
-      <div style={{
+  // Modal style: absolute (popup) or relative (inline)
+  const modalWrapperStyle = matching
+    ? {
+        marginTop: "20%",
+        marginLeft: "15%",
+        width: '70%',
+        background: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        padding: 0,
+        margin: 0,
+      }
+    : {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(0,0,0,0.18)',
+        zIndex: 3000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+      };
+  const cardStyle = matching
+    ? {
         background: '#fff',
-        borderRadius: 24,
-        boxShadow: '0 8px 32px rgba(34,197,94,0.13)',
-        padding: '2.2rem 0.5rem',
+        borderRadius: 10,
+        boxShadow: '0 2px 12px rgba(34,197,94,0.08)',
+        padding: 0,
         width: '100%',
-        // maxHeight: 'calc(100vh - 80px)',
-        height: '85%',
-        overflowY: 'auto',
+        // maxHeight: '40%',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         position: 'relative',
         margin: 0,
-      }}>
-        {/* 0) Image with navigation */}
+      }
+    : {
+        background: '#fff',
+        borderRadius: 12,
+        boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
+        padding: 0,
+        width: '95vw',
+        maxWidth: 420,
+        height: '90vh',
+        maxHeight: 600,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        margin: 0,
+      };
+  return (
+    <div style={modalWrapperStyle}>
+      <div style={cardStyle}>
+        {/* Image section, takes most of the card */}
         {images.length > 0 && (
           <div
             style={{
               position: 'relative',
-              width: '95%',
-              height: "100%",
-              marginBottom: 16,
+              width: '100%',
+              height: '68%',
+              minHeight: 260,
+              background: '#f7f7f7',
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
-              background: 'transparent',
+              justifyContent: 'center',
+              borderTopLeftRadius: matching ? 10 : 12,
+              borderTopRightRadius: matching ? 10 : 12,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
               overflow: 'hidden',
-              cursor: 'pointer',
+              flexDirection: 'column',
+              padding: 0,
             }}
-            onClick={handleImageClick}
-            title={showOnlyImage ? 'Click to exit image view' : 'Click to enter image view'}
           >
-            {/* Navigation arrows absolutely positioned at image height */}
+            {/* Progress bar for images */}
+            {images.length > 1 && (
+              <div style={{
+                width: '100%',
+                height: 6,
+                background: '#e0e0e0',
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 3,
+              }}>
+                {images.map((_, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      flex: 1,
+                      background: idx === modalIdx ? '#1ecb7b' : 'transparent',
+                      transition: 'background 0.2s',
+                      borderRadius: idx === 0 ? '6px 0 0 6px' : idx === images.length - 1 ? '0 6px 6px 0' : 0,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            {/* Minimalistic triangular SVG arrows */}
             {showNavigation && images.length > 1 && (
               <>
-                <IconButton
-                  onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                  sx={{
+                <button
+                  onClick={handlePrev}
+                  style={{
                     position: 'absolute',
-                    left: 0,
+                    left: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    boxShadow: 2,
-                    '&:hover': { background: 'rgba(139, 233, 173, 0.7)' },
-                    zIndex: 4000,
+                    background: 'none',
+                    border: 'none',
+                    borderRadius: 0,
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 32,
+                    color: '#222',
+                    cursor: 'pointer',
+                    zIndex: 2,
+                    outline: 'none',
                   }}
                   aria-label="Previous image"
-                  size="large"
                 >
-                  <ArrowBackIosNewIcon sx={{ color: '#096027a9', fontSize: 32 }} />
-                </IconButton>
-                <IconButton
-                  onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                  sx={{
+                  <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}}><polyline points="20,8 12,16 20,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+                <button
+                  onClick={handleNext}
+                  style={{
                     position: 'absolute',
-                    right: 0,
+                    right: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'rgba(255, 255, 255, 0.9)',
-                    boxShadow: 2,
-                    '&:hover': { background: 'rgba(139, 233, 173, 0.7)' },
-                    zIndex: 4000,
+                    background: 'none',
+                    border: 'none',
+                    borderRadius: 0,
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 32,
+                    color: '#222',
+                    cursor: 'pointer',
+                    zIndex: 2,
+                    outline: 'none',
                   }}
                   aria-label="Next image"
-                  size="large"
                 >
-                  <ArrowForwardIosIcon sx={{ color: '#096027a9', fontSize: 32 }} />
-                </IconButton>
+                  <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}}><polyline points="12,8 20,16 12,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
               </>
             )}
             <img
@@ -152,78 +210,86 @@ function ItemDetailModal({
               alt={`item-${modalIdx}`}
               loading="lazy"
               style={{
-                width: showOnlyImage ? 350 : 200,
-                height: showOnlyImage ? 350 : 200,
-                borderRadius: 16,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: 0,
                 display: 'block',
-                objectFit: 'contain',
                 background: 'transparent',
                 transition: 'none',
+                userSelect: 'none',
               }}
             />
-            {showNavigation && images.length > 1 && (
-              <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '4px 16px', fontSize: 16, zIndex: 2 }}>
-                {modalIdx + 1} / {images.length}
-              </div>
-            )}
           </div>
         )}
-
-        {/* Only show the rest if not in image-only mode */}
-        {!showOnlyImage && <>
-          {/* 1) Emoji category + name category */}
-          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 20 }}>
-              {getCategoryEmoji(item.category)}
-            </span>
-            <span style={{ fontSize: 15, color: '#1c1c1cff', fontWeight: 200 }}>
-              {getCategoryLabel(item.category)}
-            </span>
+        {/* Minimal details section */}
+        <div style={{
+          width: '100%',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          padding: '18px 20px 0 20px',
+          gap: 8,
+        }}>
+          {/* Category and emoji */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 18, fontWeight: 400, color: '#222' }}>
+            <span>{getCategoryEmoji(item.category)}</span>
+            <span style={{ fontSize: 15, color: '#444', fontWeight: 300 }}>{getCategoryLabel(item.category)}</span>
           </div>
-
-          {/* 2) Size (if not 'other') in box + color in circle (side by side) */}
+          {/* Size and color */}
           {(showSize || item.color) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {showSize && (
-                <div style={{
-                  background: '#eeeeeeff',
-                  color: '#262626ff',
-                  borderRadius: 8,
-                  padding: '5px 12px',
-                  fontWeight: 200,
-                  fontSize: 14,
-                  boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                <span style={{
+                  background: '#f2f2f2',
+                  color: '#222',
+                  borderRadius: 6,
+                  padding: '2px 10px',
+                  fontWeight: 300,
+                  fontSize: 13,
+                  letterSpacing: 0.2,
                   display: 'inline-block',
                 }}>
                   {t(item.size) !== item.size ? t(item.size) : item.size}
-                </div>
+                </span>
               )}
-              {colorCircle}
+              {item.color && (
+                <span style={{
+                  display: 'inline-block',
+                  width: 18,
+                  height: 18,
+                  borderRadius: 6,
+                  background: item.color,
+                  border: '1px solid #e0e0e0',
+                  marginLeft: 2,
+                  verticalAlign: 'middle',
+                }} title={item.color}></span>
+              )}
             </div>
           )}
-
-          {/* 3) Item Story */}
+          {/* Minimal description */}
           {item.itemStory && (
             <div style={{
-              marginBottom: 12,
-              background: '#fffbe6',
-              borderRadius: 8,
-              padding: '8px 12px',
-              color: '#c69607ff',
-              fontWeight: 100,
+              color: '#666',
               fontSize: 14,
-              width: '75%',
-              maxWidth: 350,
-              textAlign: 'center'
+              fontWeight: 300,
+              marginTop: 2,
+              marginBottom: 0,
+              width: '100%',
+              maxWidth: 340,
+              lineHeight: 1.4,
+              textAlign: 'left',
+              background: 'none',
+              padding: 0,
             }}>
-              <span style={{ marginRight: 6 }}><strong style={{ fontWeight: 170 }}>{t('item_story')}</strong><br /></span>
               {item.itemStory}
             </div>
           )}
-
-          {/* 4) More details: Dropdown with scrollable content */}
+          {/* More details + button */}
           {hasMoreDetails && (
-            <div style={{ width: '90%', maxWidth: 350, marginBottom: 10 }}>
+            <div style={{ width: '100%', maxWidth: 350, margin: '8px 0 0 0' }}>
               <button
                 onClick={() => setDetailsOpen((v) => !v)}
                 style={{
@@ -231,8 +297,8 @@ function ItemDetailModal({
                   background: '#f3f4f6',
                   color: '#444',
                   border: 'none',
-                  borderRadius: 8,
-                  padding: '8px 0',
+                  borderRadius: 7,
+                  padding: '7px 0',
                   fontWeight: 500,
                   fontSize: 15,
                   cursor: 'pointer',
@@ -247,15 +313,15 @@ function ItemDetailModal({
                 aria-expanded={detailsOpen}
               >
                 {t('more_details') || 'More details'}
-                <span style={{ fontSize: 18 }}>{detailsOpen ? '▲' : '▼'}</span>
+                <span style={{ fontSize: 18 }}>{detailsOpen ? '▲' : '+'}</span>
               </button>
               {detailsOpen && (
                 <div style={{
-                  height: 80,
+                  maxHeight: 90,
                   overflowY: 'auto',
                   marginTop: 6,
                   background: '#f9fafb',
-                  borderRadius: 8,
+                  borderRadius: 7,
                   padding: '10px 14px',
                   fontSize: 15,
                   color: '#444',
@@ -276,33 +342,40 @@ function ItemDetailModal({
                       <strong style={{ fontWeight: 170 }}>{t('additional_info')}</strong><br />{item.additionalInfo}
                     </div>
                   )}
-                  {/* Add more fields here if needed */}
                 </div>
               )}
             </div>
           )}
-        </>}
-
-        {/* Footer (custom actions) */}
-        <div style={{ marginTop: 18, width: '100%', display: 'flex', justifyContent: 'center', gap: 16 }}>
-          {showOnlyImage ? (
+        </div>
+        {/* Footer (close button) */}
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '10px 0 18px 0',
+          borderTop: '1px solid #f0f0f0',
+          background: '#fff',
+        }}>
+          {footer ? footer : (
             <button
-              onClick={handleImageClick}
-              className="common-button cancel"
-              title={t('cancel') || 'Cancel'}
+              onClick={onClose}
+              style={{
+                background: '#f5f5f5',
+                color: '#222',
+                border: 'none',
+                borderRadius: 8,
+                padding: '7px 18px',
+                fontWeight: 400,
+                fontSize: 15,
+                cursor: 'pointer',
+                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                transition: 'background 0.18s',
+              }}
+              title={t('close')}
             >
-              <span role="img" aria-label="cancel">✖️</span>
+              {t('close') || 'Close'}
             </button>
-          ) : (
-            footer ? footer : (
-              <button
-                onClick={onClose}
-                className="common-button delete"
-                title={t('close')}
-              >
-                <span role="img" aria-label="close">✖️</span>
-              </button>
-            )
           )}
         </div>
       </div>

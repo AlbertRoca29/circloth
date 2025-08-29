@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import '../styles/ChatAbsolute.css';
 import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
 import { fetchMatches } from "../api/matchingApi";
-import { CATEGORIES } from "../constants/categories";
-import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
+// IoSend icon for send button
 
 
 function Chats({ user }) {
@@ -150,55 +148,8 @@ function Chats({ user }) {
     return <LoadingSpinner />;
   }
 
-  if (chattingWith) {
-  return (
-      <div style={{ position: 'fixed', top: '15%', left: '10%', width: '80%', height: '70%', zIndex: 1000, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
-        <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column',  width: '100%', height:"90%", display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}>
-
-            <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', marginBottom: 10, marginLeft: 60 }}>
-              {t('chat_with', { name: chattingWith.otherUser.name || chattingWith.otherUser.displayName })}
-            </div>
-            <div className="chat-absolute-scroll" style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, marginBottom: 10 }}>
-              {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
-          {messages.map((msg, i) => (
-            <div key={i} style={{
-              textAlign: msg.sender === user.uid ? 'right' : 'left',
-              margin: '6px 0',
-              lineHeight: '1.5',
-            }}>
-              <span style={{
-                display: 'inline-block',
-                background: msg.sender === user.uid ? '#bbf7d0' : '#fff',
-                color: '#222',
-                borderRadius: 8,
-                padding: '6px 12px',
-                maxWidth: '70%',
-                wordBreak: 'break-word',
-                fontSize: 15,
-              }}>{msg.content}</span>
-              <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-        <form onSubmit={handleSend} style={{ display: 'flex', gap: 10 }}>
-          <input value={input} onChange={e => setInput(e.target.value)} placeholder="Type a message..." style={{ flex: 1, borderRadius: 8, border: '1px solid #ddd', padding: 11, fontSize: 15.5 }} />
-          <button type="submit" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 15, cursor: 'pointer' }}>{t('send')}</button>
-        </form>
-  <button
-    onClick={() => setChattingWith(null)}
-    aria-label="Go back"
-    className="common-button go-back"
-    style={{ top: 0, left: 0 }}
-  >
-    <CloseIcon />
-  </button>
-        </div>
-      </div>
-    );
-  }
-
+  // Move handleViewProfile above its first usage
   const handleViewProfile = (user, yours=false) => {
     if (yours) {
       setviewingYourProfile(user);
@@ -207,6 +158,87 @@ function Chats({ user }) {
         setviewingTheirProfile(user);
     }
   };
+
+  if (chattingWith && !viewingTheirProfile) {
+    return (
+         <div style={{ position: 'fixed', top: '15%', left: '10%', width: '80%', height: '70%', zIndex: 1000, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
+        <div style={{ position: 'absolute', width: '100%', height: '100%' }}>
+          <button
+            onClick={() => setChattingWith(null)}
+            aria-label="Go back"
+            className="common-button go-back"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', top: 0, left: "85%", position: "absolute" }}
+            >
+              <CloseIcon />
+        </button>
+        </div>
+        <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '100%', height: '90%', background: '#fff', boxShadow: '0 2px 16px #0001', position: 'relative' }}>
+          {/* Name at the top */}
+          <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
+            <div style={{ fontWeight: 500, fontSize: 20, color: '#15803d', flex: 1, textAlign: 'left' }}>
+              {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
+            </div>
+          </div>
+          {/* Button below name */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', borderBottom: '1px solid #e5e5e5' }}>
+            <button
+              onClick={() => handleViewProfile(chattingWith.otherUser)}
+              style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', fontWeight: 150 }}
+            >
+              {t('look_at_their_items', 'Look at their items')}
+            </button>
+          </div>
+          {/* Chat messages */}
+          <div style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
+            {messages.map((msg, i) => (
+              <div key={i} style={{
+                textAlign: msg.sender === user.uid ? 'right' : 'left',
+                margin: '6px 0',
+                lineHeight: '1.5',
+              }}>
+                <span style={{
+                  display: 'inline-block',
+                  background: msg.sender === user.uid ? '#bbf7d0' : '#fff',
+                  color: '#222',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  maxWidth: '70%',
+                  wordBreak: 'break-word',
+                  fontSize: 15,
+                }}>{msg.content}</span>
+                <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          {/* Input area: input and send icon only, no button border/background */}
+          <form onSubmit={handleSend} style={{ display: 'flex', alignItems: 'center', padding: '0 18px 18px 18px', gap: 10 }}>
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              placeholder={t('type_a_message', 'Type a message...')}
+              style={{ flex: 1, borderRadius: 20, border: '1px solid #ddd', padding: '11px 16px', fontSize: 15.5, outline: 'none', background: '#fafafa' }}
+              autoFocus
+            />
+            <button
+              type="submit"
+              style={{ background: 'none', border: 'none', padding: 0, marginLeft: 2, cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center' }}
+              aria-label="Send"
+              disabled={!input.trim()}
+            >
+              {/* WhatsApp-like send icon SVG */}
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill={input.trim() ? '#22c55e' : '#bbb'} />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+
 
   if (viewingTheirProfile) {
     return (

@@ -7,7 +7,62 @@ import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
 import { getCategoryEmoji } from "../utils/general";
 import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
-import "../styles/buttonStyles.css";
+
+import '../styles/buttonStyles.css';
+// Minimal Dropdown Menu component
+import { useRef, useCallback } from "react";
+
+function DropdownMenu({ onEdit, onDelete, onClose }) {
+  const menuRef = useRef(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        onClose();
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [onClose]);
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      zIndex: 99999,
+      pointerEvents: 'none',
+    }}>
+      <div
+        ref={menuRef}
+        style={{
+          position: 'absolute',
+          top: 'var(--dropdown-top, 60px)',
+          left: 'var(--dropdown-left, 60px)',
+          background: '#fff',
+          border: '1px solid #eee',
+          borderRadius: 8,
+          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.12)',
+          minWidth: 90,
+          padding: '4px 0',
+          fontSize: 15,
+          zIndex: 99999,
+          pointerEvents: 'auto',
+        }}
+      >
+        <button onClick={onEdit} style={{
+          background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '8px 16px', cursor: 'pointer', color: '#222'
+        }}>Edit</button>
+        <button onClick={onDelete} style={{
+          background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '8px 16px', cursor: 'pointer', color: '#e00'
+        }}>Delete</button>
+      </div>
+    </div>
+  );
+}
 
 function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_delete", from_user_matching = null, matching = false }) {
   const { t } = useTranslation();
@@ -21,6 +76,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
+  const [menuOpenId, setMenuOpenId] = useState(null); // For dropdown menu
   const [userActions, setUserActions] = useState({});
 
   // Disable body scroll when ItemDetailModal is open
@@ -184,23 +240,23 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   }
 
   return (
-    <div style={{ width: "90%", margin: '0 auto' }}>
+    <div style={{ width: "92%", margin: '0 auto' }}>
       {!modalOpen && (
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 18,
+          gap: 16,
           width: "100%",
         }}>
           {filteredItems.map(item => (
             <div
               key={item.id}
               style={{
-                border: userLiked(item.id) ? "10px solid #ff004cb4" : "none",
+                border: userLiked(item.id) ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
                 aspectRatio: 1,
                 background: "#fff",
-                borderRadius: 18,
-                boxShadow: "0 2px 12px 0 rgba(0,0,0,0.06)",
+                borderRadius: 16,
+                boxShadow: "0 1.5px 8px 0 rgba(0,0,0,0.04)",
                 padding: 0,
                 display: "flex",
                 flexDirection: "column",
@@ -208,23 +264,25 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 position: "relative",
                 overflow: "hidden",
                 cursor: "pointer",
-                transition: "box-shadow .15s"
+                transition: "box-shadow .15s, border .15s"
               }}
               onClick={() => { setModalItem(item); setModalIdx(0); setModalOpen(true); }}
             >
               {/* Main Image */}
-              { item.photoURLs && item.photoURLs[0] && (
+              {item.photoURLs && item.photoURLs[0] && (
                 <div style={{
                   position: 'relative',
                   width: '100%',
-                  height: "90%",
+                  height: "68%",
                   background: '#f6f6f6',
                   overflow: 'hidden',
                   transition: 'transform 0.25s ease-in-out',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   <img
                     src={item.photoURLs[0]}
@@ -234,77 +292,134 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
+                      borderTopLeftRadius: 16,
+                      borderTopRightRadius: 16
                     }}
                   />
                 </div>
               )}
+              {/* Info and actions row */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 3,
-                position: 'absolute',
-                bottom: 0,
-                width: '87%',
-                padding: "0.5% 6% 4.6% 8%",
-                background: 'linear-gradient(to top, rgba(80, 80, 80, 0), rgba(80, 80, 80, 0))',
-                zIndex: 1,
-                color: 'white',
-                backdropFilter: 'blur(500px)',
-                // WebkitBackdropFilter: 'blur(100px)'
+                justifyContent: 'space-between',
+                padding: '10px 12px 8px 12px',
+                minHeight: 44,
+                background: 'rgba(255,255,255,0.98)',
+                borderBottomLeftRadius: 16,
+                borderBottomRightRadius: 16,
+                position: 'relative',
+                zIndex: 2
               }}>
-                <span style={{
-                  fontSize: 30,
-                  textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)'
-                }}>
-                  {getCategoryEmoji(item.category)}
-                </span>
-
-                <div style={{ flex: 1 }}></div>
-                {buttons && (buttons === "like_pass" ? (
-                  <>
+                {/* Left: Name and Size */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    fontWeight: 500,
+                    fontSize: 15,
+                    color: '#232323',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: 110
+                  }}>{item.name || t('item_name_placeholder') || 'Item'}</span>
+                  <span style={{
+                    fontSize: 13,
+                    color: '#888',
+                    marginTop: 2
+                  }}>Size: {item.size || t('item_size_placeholder') || '-'}</span>
+                </div>
+                {/* Right: Actions */}
+                {buttons === "like_pass" ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {!userLiked(item.id) ? (
                       <button
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent click event from propagating to parent
+                          e.stopPropagation();
                           handleAction(item, "like");
                         }}
-                        className={`common-button like active small`}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          fontSize: 22,
+                          color: '#ff004c',
+                          padding: 4,
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          transition: 'background .12s'
+                        }}
                         title={t("like")}
                       >
-                        <span role="img" aria-label="like">❤️</span>
+                        ❤️
                       </button>
                     ) : (
                       <button
                         onClick={(e) => {
-                          e.stopPropagation(); // Prevent click event from propagating to parent
+                          e.stopPropagation();
                           handleAction(item, "pass");
                         }}
-                        className={`common-button pass small`}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          fontSize: 22,
+                          color: '#bbb',
+                          padding: 4,
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          transition: 'background .12s'
+                        }}
                         title={t("pass")}
                       >
-                        <span role="img" aria-label="pass">❌</span>
+                        ❌
                       </button>
                     )}
-                  </>
-                ) : buttons === "edit_delete" ? (
-                  <>
+                  </div>
+                ) : (
+                  <div style={{ position: 'relative', marginLeft: 8 }}>
                     <button
-                      onClick={e => { e.stopPropagation(); showToast(t('edit_coming_soon'), { type: 'info' }); }}
-                      className="common-button edit small"
-                      title={t('edit')}
+                      onClick={e => {
+                        e.stopPropagation();
+                        // Save button position for dropdown
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        document.documentElement.style.setProperty('--dropdown-top', `${rect.bottom + window.scrollY}px`);
+                        document.documentElement.style.setProperty('--dropdown-left', `${rect.right - 120}px`);
+                        setMenuOpenId(menuOpenId === item.id ? null : item.id);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: 22,
+                        color: '#888',
+                        padding: 4,
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        width: 32,
+                        height: 32,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background .12s'
+                      }}
+                      title={t('options')}
                     >
-                      <span role="img" aria-label="edit">✏️</span>
+                      <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>⋮</span>
                     </button>
-                    <button
-                      onClick={e => { e.stopPropagation(); handleDelete(item); }}
-                      disabled={deletingId === item.id}
-                      className="common-button delete small"
-                      title="Delete"
-                    >
-                      <span role="img" aria-label="delete">🗑️</span>
-                    </button>
-                  </>
-                ) : null)}
+                    {menuOpenId === item.id && (
+                      <DropdownMenu
+                        onEdit={e => {
+                          e?.stopPropagation?.();
+                          setMenuOpenId(null);
+                          showToast(t('edit_coming_soon'), { type: 'info' });
+                        }}
+                        onDelete={e => {
+                          e?.stopPropagation?.();
+                          setMenuOpenId(null);
+                          handleDelete(item);
+                        }}
+                        onClose={() => setMenuOpenId(null)}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}

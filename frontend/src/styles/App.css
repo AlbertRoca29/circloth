@@ -37,7 +37,7 @@
   background: var(--primary-light);
   border-radius: 0 0 1.5rem 1.5rem;
   box-shadow: 0 8px 19px var(--shadow);
-  padding: 1.2rem 1rem 1.2rem 1rem;
+  padding: 1.7rem 2rem 1.2rem 2rem;
   z-index: 500; /* above everything */
   margin: 1rem 0;
 }
