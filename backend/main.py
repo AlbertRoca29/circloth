@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, HTTPException,Body
 from pydantic import BaseModel
 from typing import List, Optional
@@ -8,7 +9,8 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from db import FirestoreDB
  # removed local messages import; use FirestoreDB for chat
-from matching_service import get_available_items_for_user, handle_user_action
+from matching_service import get_available_items_for_user, handle_user_action, get_all_matches
+
 import logging
 from datetime import datetime
 from fastapi import Query
@@ -258,55 +260,55 @@ def get_user_actions(user_id: str):
     return {"actions": actions}
 
 
-@app.get("/matches/{user_id}")
-def get_matches(user_id: str):
-    # Get current user's actions and items
-    my_actions = db.get_user_actions(user_id)
-    my_likes = {a["item_id"] for a in my_actions if a.get("action") == "like"}
+# @app.get("/matches/{user_id}")
+# def get_matches(user_id: str):
+#     # Get current user's actions and items
+#     my_actions = db.get_user_actions(user_id)
+#     my_likes = {a["item_id"] for a in my_actions if a.get("action") == "like"}
 
-    my_items = db.list_user_items(user_id)
-    my_item_ids = {item["id"] for item in my_items}
+#     my_items = db.list_user_items(user_id)
+#     my_item_ids = {item["id"] for item in my_items}
 
-    # Fetch all users except current
-    users_ref = db.db.collection("users").stream()
-    other_users = [u.id for u in users_ref if u.id != user_id]
+#     # Fetch all users except current
+#     users_ref = db.db.collection("users").stream()
+#     other_users = [u.id for u in users_ref if u.id != user_id]
 
-    # Fetch all actions for other users once
-    received_likes = {}  # key: (other_user_id, item_id) -> True
-    for other_id in other_users:
-        actions = db.get_user_actions(other_id)
-        for act in actions:
-            if act.get("action") == "like" and act.get("item_id") in my_item_ids:
-                received_likes[(other_id, act["item_id"])] = True
+#     # Fetch all actions for other users once
+#     received_likes = {}  # key: (other_user_id, item_id) -> True
+#     for other_id in other_users:
+#         actions = db.get_user_actions(other_id)
+#         for act in actions:
+#             if act.get("action") == "like" and act.get("item_id") in my_item_ids:
+#                 received_likes[(other_id, act["item_id"])] = True
 
-    # Fetch all items once for lookup
-    all_items = {i.id: i.to_dict() for i in db.db.collection("items").stream()}
+#     # Fetch all items once for lookup
+#     all_items = {i.id: i.to_dict() for i in db.db.collection("items").stream()}
 
-    # Build matches
-    grouped = {}
-    for my_item in my_items:
-        for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
-            their_item = all_items.get(liked_item_id)
-            if not their_item:
-                continue
-            their_user_id = their_item.get("ownerId")
-            if not their_user_id or their_user_id == user_id:
-                continue
+#     # Build matches
+#     grouped = {}
+#     for my_item in my_items:
+#         for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
+#             their_item = all_items.get(liked_item_id)
+#             if not their_item:
+#                 continue
+#             their_user_id = their_item.get("ownerId")
+#             if not their_user_id or their_user_id == user_id:
+#                 continue
 
-            # Check reciprocal like
-            if received_likes.get((their_user_id, my_item["id"])):
-                key = (their_user_id, liked_item_id)
-                if key not in grouped:
-                    other_user = db.get_user(their_user_id) or {"id": their_user_id}
-                    grouped[key] = {
-                        "id": f"{user_id}_{their_user_id}_{liked_item_id}",
-                        "otherUser": other_user,
-                        "theirItem": their_item,
-                        "yourItems": []
-                    }
-                grouped[key]["yourItems"].append(my_item)
+#             # Check reciprocal like
+#             if received_likes.get((their_user_id, my_item["id"])):
+#                 key = (their_user_id, liked_item_id)
+#                 if key not in grouped:
+#                     other_user = db.get_user(their_user_id) or {"id": their_user_id}
+#                     grouped[key] = {
+#                         "id": f"{user_id}_{their_user_id}_{liked_item_id}",
+#                         "otherUser": other_user,
+#                         "theirItem": their_item,
+#                         "yourItems": []
+#                     }
+#                 grouped[key]["yourItems"].append(my_item)
 
-    return {"matches": list(grouped.values())}
+#     return {"matches": list(grouped.values())}
 
 
 
@@ -362,6 +364,20 @@ def update_chat_access(req: ChatAccessUpdateRequest):
     db.update_chat_last_access(req.user1, req.user2, req.user_id)
     return {"message_key": "LAST_ACCESS_UPDATED"}
 
+# --- New endpoint: Get all matches for a user (reciprocal likes)
+@app.get("/matches/{user_id}")
+def get_matches(user_id: str):
+    """
+    Returns all users who have an item liked by user_id and who have also liked one of user_id's items.
+    """
+    matches = get_all_matches(user_id)
+    return {"matches": matches}
+
+# Efficient endpoint: get all items of profileUserId liked by visitorUserId
+@app.get("/user/{visitor_id}/liked_items/{profile_id}")
+def get_liked_items(profile_id: str, visitor_id: str):
+    items = db.get_liked_items_of_profile_by_visitor(profile_id, visitor_id)
+    return {"liked_items": items}
 
 
 # --- Entrypoint ---

@@ -6,6 +6,72 @@ from datetime import datetime
 
 
 class FirestoreDB:
+    def get_liked_items_of_profile_by_visitor(self, profile_user_id: str, visitor_user_id: str):
+        """
+        Returns all items of profile_user_id that were liked by visitor_user_id.
+        """
+        # Get all 'like' actions by visitor_user_id
+        actions_ref = self.db.collection("users").document(visitor_user_id).collection("actions")
+        liked_actions = actions_ref.where("action", "==", "like").stream()
+        liked_item_ids = [a.to_dict()["item_id"] for a in liked_actions]
+        if not liked_item_ids:
+            return []
+        # Get all items owned by profile_user_id that are in liked_item_ids
+        items_ref = self.db.collection("items")
+        items = items_ref.where("ownerId", "==", profile_user_id).where("id", "in", liked_item_ids).stream()
+        return [item.to_dict() for item in items]
+
+    def get_all_matches_for_user(self, user_id: str):
+        """
+        Returns all users who have an item liked by user_id and who have also liked one of user_id's items.
+        Returns a list of dicts with match info, grouped as in the provided logic.
+        Optimized to minimize Firestore calls using collection group query (requires index).
+        """
+        # Get current user's actions and items
+        my_actions = self.get_user_actions(user_id)
+        my_likes = {a["item_id"] for a in my_actions if a.get("action") == "like"}
+
+        my_items = self.list_user_items(user_id)
+        my_item_ids = {item["id"] for item in my_items}
+
+        # Fetch all 'like' actions for all users (except current) in one collection group query
+        received_likes = {}  # key: (other_user_id, item_id) -> True
+        actions_query = self.db.collection_group("actions").where("action", "==", "like")
+        for act_doc in actions_query.stream():
+            act = act_doc.to_dict()
+            other_id = act.get("user_id")
+            item_id = act.get("item_id")
+            if other_id and other_id != user_id and item_id in my_item_ids:
+                received_likes[(other_id, item_id)] = True
+
+        # Fetch all items once for lookup
+        all_items = {i.id: i.to_dict() for i in self.db.collection("items").stream()}
+
+        # Build matches
+        grouped = {}
+        for my_item in my_items:
+            for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
+                their_item = all_items.get(liked_item_id)
+                if not their_item:
+                    continue
+                their_user_id = their_item.get("ownerId")
+                if not their_user_id or their_user_id == user_id:
+                    continue
+
+                # Check reciprocal like
+                if received_likes.get((their_user_id, my_item["id"])):
+                    key = (their_user_id, liked_item_id)
+                    if key not in grouped:
+                        other_user = self.get_user(their_user_id) or {"id": their_user_id}
+                        grouped[key] = {
+                            "id": f"{user_id}_{their_user_id}_{liked_item_id}",
+                            "otherUser": other_user,
+                            "theirItem": their_item,
+                            "yourItems": []
+                        }
+                    grouped[key]["yourItems"].append(my_item)
+
+        return list(grouped.values())
     def __init__(self):
         self.read_counts = {}
         self.log_file = "firestore_read_log.json"

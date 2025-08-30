@@ -6,7 +6,6 @@ import random
 import math
 
 
-# Configurable expiry for pass actions (in seconds for testing, can be set to days)
 PASS_EXPIRY_SECONDS = int(os.getenv("PASS_EXPIRY_SECONDS", 60))  # default 60 seconds for testing
 
 def get_available_items_for_user(user_id: str, location: dict = None) -> List[dict]:
@@ -78,3 +77,8 @@ def handle_user_action(user_id: str, item_id: str, action: str):
     db.delete_user_action(user_id, item_id)
     db.save_user_action(user_id, item_id, action, now)
     # Optionally update user profile (e.g., passed_items) if needed
+
+# New: get all matches for a user (reciprocal likes)
+def get_all_matches(user_id: str):
+    db = FirestoreDB()
+    return db.get_all_matches_for_user(user_id)

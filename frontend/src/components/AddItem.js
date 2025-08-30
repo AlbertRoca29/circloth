@@ -10,7 +10,8 @@ import BACKEND_URL from "../config";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
-import { COLORS, COLOR_PALETTE } from "../constants/theme";
+import { COLORS } from "../constants/theme";
+import { FastAverageColor } from 'fast-average-color';
 import Button from "@mui/material/Button";
 import { PlusIcon } from '../utils/svg';
 import ProgressBarButton from "./ProgressBarButton";
@@ -28,7 +29,6 @@ function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();
   // Use global categories and size options
   const categories = CATEGORIES.map(cat => ({ key: cat.key, label: t(cat.labelKey) }));
-  const colorPalette = COLOR_PALETTE;
   const APP_GREEN = COLORS.appGreen;
   // Build size options as array of { key, label }
   const rawSizeOptions = getSizeOptions(t);
@@ -44,6 +44,7 @@ function AddItem({ user, onItemAdded }) {
   const [size, setSize] = useState('');
   const [sizeDetails, setSizeDetails] = useState('');
   const [itemStory, setItemStory] = useState('');
+  // Color state is computed from main image
   const [color, setColor] = useState('');
   const [brand, setBrand] = useState('');
   const [material, setMaterial] = useState('');
@@ -103,6 +104,26 @@ function AddItem({ user, onItemAdded }) {
         photoURLs.push(photoURL);
       }
       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
+
+      // Compute main color from the main image (thumbnail)
+      let mainColor = '';
+      try {
+        const fac = new FastAverageColor();
+        // Create a temporary image element to read the color
+        const img = document.createElement('img');
+        img.crossOrigin = 'Anonymous';
+        img.src = objectURLs[thumbnailIdx];
+        // Wait for image to load
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        const colorObj = fac.getColor(img);
+        mainColor = colorObj.hex;
+      } catch (err) {
+        mainColor = '#cccccc'; // fallback color
+      }
+
       const newItem = {
         id: uuidv4(),
         ownerId: user.uid,
@@ -110,7 +131,7 @@ function AddItem({ user, onItemAdded }) {
         size,
         sizeDetails,
         itemStory,
-        color,
+        color: mainColor,
         brand,
         material,
         additionalInfo,
@@ -129,17 +150,17 @@ function AddItem({ user, onItemAdded }) {
       const updatedItems = [...cachedItems, newItem];
       localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
 
-      setCategory("");
-      setSize("");
-      setSizeDetails("");
-      setItemStory("");
-      setColor("");
-      setBrand("");
-      setMaterial("");
-      setAdditionalInfo("");
-      setPhotoFiles([]);
-      setThumbnailIdx(0);
-      setOpen(false);
+  setCategory("");
+  setSize("");
+  setSizeDetails("");
+  setItemStory("");
+  setColor("");
+  setBrand("");
+  setMaterial("");
+  setAdditionalInfo("");
+  setPhotoFiles([]);
+  setThumbnailIdx(0);
+  setOpen(false);
       if (onItemAdded) onItemAdded();
     } catch (error) {
       console.error("Error adding clothing item: ", error);
@@ -412,45 +433,7 @@ function AddItem({ user, onItemAdded }) {
                 <Typography sx={{ fontWeight: 150, color: '#545454ff', fontSize: 14, letterSpacing: 0.3, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ background: '#fff', pt: 1, borderRadius: 2, px: 1.2, boxShadow: 'none', border: 'none' }}>
-                {/* Color picker */}
-                <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('color')}</Typography>
-                <Grid container spacing={0.5} sx={{ mb: 1.2 }}>
-                  {colorPalette.map((c, idx) => (
-                    <Grid item xs={3} key={c}>
-                      <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                        <Button
-                          variant="outlined"
-                          onClick={() => setColor(c)}
-                          sx={{
-                            width: 34,
-                            height: 34,
-                            minWidth: 34,
-                            minHeight: 34,
-                            borderRadius: '50%',
-                            background: c,
-                            border: color === c ? `2.5px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
-                            boxShadow: color === c ? `0 0 0 2px ${APP_GREEN}` : 'none',
-                            p: 0,
-                            position: 'relative',
-                            transition: 'border 0.2s, box-shadow 0.2s',
-                          }}
-                        >
-                          {color === c && (
-                            <span style={{
-                              position: 'absolute',
-                              top: 4,
-                              left: 10,
-                              color: APP_GREEN,
-                              fontWeight: 900,
-                              fontSize: 15,
-                              pointerEvents: 'none',
-                            }}>✓</span>
-                          )}
-                        </Button>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
+                {/* Color picker removed */}
                 <FormControl fullWidth sx={{ mb: 1 }}>
                   <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
                   <TextField

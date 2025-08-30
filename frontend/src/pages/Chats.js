@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
+import { fetchMessages, sendMessage } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
 import { fetchMatches } from "../api/matchingApi";

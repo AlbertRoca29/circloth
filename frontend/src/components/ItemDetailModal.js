@@ -45,11 +45,11 @@ function ItemDetailModal({
   // Modal style: absolute (popup) or relative (inline)
   const modalWrapperStyle = matching
     ? {
-        marginTop: "10vh",
-        marginLeft: "5%",
-        width: '90vw',
+        marginTop: "15vh",
+        background: 'transparent',
+        marginLeft: "0%",
+        width: '100vw',
         height: '72.5vh',
-        background: 'white',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -75,7 +75,7 @@ function ItemDetailModal({
         borderRadius: 10,
         boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
         padding: 0,
-        width: '100%',
+        width: '90%',
         height: '100%',
         overflow: 'hidden',
         display: 'flex',
@@ -235,51 +235,44 @@ function ItemDetailModal({
             <span style={{ fontSize: 15, color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
             <span>{getCategoryEmoji(item.category)}</span>
           </div>
-          {/* Size and color */}
-          {(showSize || item.color) && (
+          {/* Size */}
+          {showSize && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {showSize && (
-                <span style={{
-                  color: '#000000ff',
-                  fontWeight: 120,
-                  fontSize: 13,
-                  opacity: 0.65,
-                  letterSpacing: 0.2,
-                  display: 'inline-block',
-                }}>
-                  <strong style={{ fontWeight: 170 }}>Size:</strong> {t(item.size) || item.size}
-                </span>
-              )}
-              {/* {item.color && (
-                <span style={{
-                  display: 'inline-block',
-                  width: 18,
-                  height: 18,
-                  borderRadius: 99,
-                  background: item.color,
-                  border: '1px solid #e0e0e0',
-                  marginLeft: 2,
-                  verticalAlign: 'middle',
-                }} title={item.color}></span>
-              )} */}
+              <span style={{
+                color: '#000000ff',
+                fontWeight: 120,
+                fontSize: 13,
+                opacity: 0.65,
+                letterSpacing: 0.2,
+                display: 'inline-block',
+              }}>
+                <strong style={{ fontWeight: 170 }}>Size:</strong> {t(item.size) || item.size}
+              </span>
             </div>
           )}
-          {/* Minimal description */}
-          {item.itemStory && (
-            <div style={{
-                color: item.color ? item.color + 'cc' : '#555',
-                fontSize: 13.5,
-                letterSpacing: 0.6,
-                fontStyle: 'italic',
-                marginTop: 6,
-                lineHeight: 1.5,
-                borderLeft: '2px solid #eee',
-                paddingLeft: 8,
-                fontFamily: "'Georgia', serif",
-            }}>
-                {item.itemStory}
-            </div>
-            )}
+      {/* Minimal description */}
+      {item.itemStory && (
+      <div style={{
+        color: item.color
+          ? `color-mix(in srgb, ${item.color} 70%, ${(() => {
+              const c = item.color.replace('#','');
+              const a = [...c].reduce((sum, _, i, arr) => i % 2 ? sum + parseInt(arr[i-1]+arr[i], 16) : sum, 0) / (255*3);
+
+              return a < 0.5 ? '#fff' : '#232323ff';
+            })()} 30%)`
+          : '#8e8e8eff',
+        fontSize: 13.5,
+        letterSpacing: 0.6,
+        fontStyle: 'italic',
+        marginTop: 6,
+        lineHeight: 1.5,
+        borderLeft: '2px solid #eee',
+        paddingLeft: 8,
+        fontFamily: "'Georgia', serif",
+      }}>
+        {item.itemStory}
+      </div>
+      )}
           {/* More details + button */}
           {hasMoreDetails && (
             <div style={{ width: '100%', margin: '8px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>

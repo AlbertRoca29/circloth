@@ -7,7 +7,6 @@ export async function fetchUserChats(userId) {
   return data.chats;
 }
 
-
 export async function sendMessage(sender, receiver, content) {
   const res = await fetch(`${BACKEND_URL}/chat/send`, {
     method: 'POST',

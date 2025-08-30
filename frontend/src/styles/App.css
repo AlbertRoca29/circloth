@@ -5,13 +5,6 @@
   bottom: 16px;
   z-index: 2;
 }
-/* Prevent scrollbars in Matching card */
-.matching-card-fixed {
-  overflow: hidden !important;
-  max-height: 480px;
-  min-height: 320px;
-  overscroll-behavior: none;
-}
 /* Tabs bar compact and Geist font */
 .tab-btn {
   font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
@@ -33,21 +26,14 @@
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  max-width: 540px; /* same as your container */
   background: var(--primary-light);
   border-radius: 0 0 1.5rem 1.5rem;
   box-shadow: 0 8px 19px var(--shadow);
-  padding: 1.7rem 2rem 1.2rem 2rem;
+  padding: 2.7rem 2rem 1.2rem 2rem;
   z-index: 500; /* above everything */
-  margin: 1rem 0;
+  margin: 0rem 0;
 }
 
-@media (max-width: 700px) {
-  .header-bubble {
-    max-width: 88vw;
-    border-radius: 1.2rem;
-  }
-}
 /* Main centered container for desktop */
 /* Main centered container for desktop, more spacious */
 /* Main centered container for desktop, more spacious, with margin for all screens */
@@ -57,14 +43,11 @@
   flex-direction: column;
   position: relative;
   font-weight: 100;
-  max-width: 540px;
   width: 100%;
   box-sizing: border-box;
   background: none;
   font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
   transition: transform 0.1s;
-  margin: 20px auto 0px auto; /* Keep fixed top margin on mobile */
-  padding: 0 0.5rem 1.2rem 0.5rem;
 }
 /* Common styles for Circloth app */
 
