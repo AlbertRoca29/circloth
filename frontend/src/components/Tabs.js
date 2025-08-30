@@ -2,23 +2,10 @@ import React, { useRef } from "react";
 import { UserIcon, HeartIcon, ChatIcon } from '../utils/svg';
 import { useTranslation } from "react-i18next";
 
-function Tabs({ activeTab, setActiveTab, hasClothes }) {
+function Tabs({ activeTab, setActiveTab, hasClothes=true }) {
   const { t } = useTranslation();
   const messageRef = useRef(null);
 
-  const handleMatchingClick = () => {
-    if (!hasClothes) {
-      if (messageRef.current) {
-        messageRef.current.textContent = t('tab_alert_upload_item');
-        messageRef.current.style.opacity = 1;
-        setTimeout(() => {
-          if (messageRef.current) messageRef.current.style.opacity = 0;
-        }, 2500);
-      }
-      return;
-    }
-    setActiveTab("matching");
-  };
 
   const TabButton = ({ tab, label, icon, onClick, disabled }) => (
     <button
@@ -85,8 +72,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes }) {
         <TabButton
           tab="matching"
           label="tab_matching"
-          onClick={handleMatchingClick}
-          disabled={!hasClothes}
+          onClick={() => setActiveTab("matching")}
           icon={<HeartIcon />}
         />
         <TabButton

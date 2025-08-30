@@ -4,6 +4,8 @@ import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/buttonStyles.css";
+import BACKEND_URL from "../config";
+import { fontWeight } from "@mui/system";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -18,9 +20,8 @@ function Matching({ user, setHasLocation }) {
   const [showSpinner, setShowSpinner] = useState(false);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [hasClothes, setHasClothes] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -30,6 +31,18 @@ function Matching({ user, setHasLocation }) {
       setShowSpinner(false);
     }
   }, [loading]);
+
+  useEffect(() => {
+    if (!user) {
+      setHasClothes(false);
+      return;
+    }
+    // Fetch items from backend
+    fetch(`${BACKEND_URL}/items/${user.uid}`)
+      .then(res => res.json())
+      .then(data => setHasClothes(data.items && data.items.length > 0))
+      .catch(() => setHasClothes(false));
+  }, [user]);
 
   // Log when matching loads a large number of matches (potential memory usage)
   const loadNextItem = () => {
@@ -63,8 +76,42 @@ function Matching({ user, setHasLocation }) {
   };
 
   if (showSpinner) return <LoadingSpinner />;
-  if (error) return <div className="card" style={{ color: "#e11d48" }}>{t('error')}: {error}</div>;
-  if (!item) return <div className="card">{t('no_more_items')}</div>;
+  const cardStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '65vw',
+    marginTop: '20vh',
+    marginLeft: '12.5vw',
+    height: '35vh',
+    whiteSpace: "pre-line",
+    background: '#fff',
+    borderRadius: 14,
+    boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
+    padding: '32px 28px',
+    fontSize: 16,
+    fontWeight: 400,
+    color: '#00721cff',
+    fontWeight: 150,
+    textAlign: 'center',
+    fontFamily: 'Geist, sans-serif',
+  };
+  if (error) return (
+    <div style={{...cardStyle, color: '#e11d48'}}>
+      {t('error')}: {error}
+    </div>
+  );
+  if (!item && hasClothes) return (
+    <div style={cardStyle}>
+      {t('no_more_items')}
+    </div>
+  );
+  if (item && !hasClothes) return (
+    <div style={cardStyle}>
+      {t('no_clothing_items_added_yet')}
+    </div>
+  );
 
   // Use ItemDetailModal for the detailed view, always open
   return (

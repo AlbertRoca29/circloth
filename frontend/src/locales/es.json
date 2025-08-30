@@ -47,7 +47,7 @@
   "size": "Talla",
   "one_size": "Talla única",
   "other": "Otro",
-  "no_clothing_items_added_yet": "Añade un artículo para empezar a hacer match!",
+  "no_clothing_items_added_yet": "¡Aún no tienes ninguna prenda subida! 👕\n\nSube tu primera prenda y descubre ropa con historias únicas de la comunidad.\n\nDale like a las prendas que te interesen y haz match con quienes quieren intercambiar.\n\n¡Empieza tu aventura en Circloth hoy! ✨",
   "size_details": "Detalles sobre la talla",
   "location_closed": "Activa la ubicación para ver los matches ordenados por distancia.",
 
@@ -65,6 +65,15 @@
   "placeholder_additional_info": "p.ej. Ligeramente usado, edición limitada, etc.",
   "edit_coming_soon": "¡La funcionalidad de edición estará disponible pronto!",
   "login_intro": "👕 Intercambia ropa que antes significaba algo para ti\n\n➡️ por prendas que llevan la historia de otra persona.\n\n♻️ Circloth no es fast fashion, se trata de darle una segunda vida a la ropa.\n\n🌱 Así, reduces residuos y te alejas del ciclo de consumo constante.",
-  "view_profile": "Ver perfil"
-
+  "view_profile": "Ver perfil",
+    "delete_item_title": "Eliminar artículo",
+  "delete_item_confirm": "¿Seguro que quieres eliminar este artículo?",
+  "delete": "Eliminar",
+  "remove_like_title": "Quitar like",
+  "remove_like_confirm": "¿Seguro que quieres quitar el like?",
+  "remove": "Quitar",
+  "pass_item_title": "Pasar artículo",
+  "pass_item_confirm": "¿Seguro que quieres pasar este artículo?",
+  "pass": "Pasar",
+  "cancel": "Cancelar"
 }

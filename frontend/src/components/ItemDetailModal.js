@@ -37,6 +37,15 @@ function ItemDetailModal({
   // Minimal details only
   // More details dropdown
   const [detailsOpen, setDetailsOpen] = React.useState(false);
+  // Preload all images when modal opens
+  React.useEffect(() => {
+    if (open && images.length > 0) {
+      images.forEach((url) => {
+        const img = new window.Image();
+        img.src = url;
+      });
+    }
+  }, [open, images]);
   // Always call hooks before any return
   if (!item || !open) return null;
   const showSize = item.size && item.size !== 'other';
@@ -152,53 +161,53 @@ function ItemDetailModal({
               <>
                 <button
                   onClick={handlePrev}
+                  className="common-button"
                   style={{
                     position: 'absolute',
-                    left: 8,
+                    left: "5%",
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
+                    zIndex: 4,
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+                    background: 'rgba(255, 255, 255, 0.5)',
                     border: 'none',
-                    borderRadius: 0,
-                    width: 44,
-                    height: 44,
+                    width: 42,
+                    height: 42,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 32,
-                    color: '#222',
-                    cursor: 'pointer',
-                    zIndex: 2,
+                    padding: 0,
                     outline: 'none',
+                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
                   aria-label="Previous image"
                 >
-                  <ArrowLeftIcon />
+                  <ArrowLeftIcon style={{ width: 30, height: 30 }} />
                 </button>
                 <button
                   onClick={handleNext}
+                  className="common-button"
                   style={{
                     position: 'absolute',
-                    right: 8,
+                    right: "5%",
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
+                    zIndex: 4,
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+                    background: 'rgba(255,255,255,0.5)',
                     border: 'none',
-                    borderRadius: 0,
-                    width: 44,
-                    height: 44,
+                    width: 42,
+                    height: 42,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 32,
-                    color: '#222',
-                    cursor: 'pointer',
-                    zIndex: 2,
+                    padding: 0,
                     outline: 'none',
+                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
                   aria-label="Next image"
                 >
-                  <ArrowRightIcon />
+                  <ArrowRightIcon style={{ width: 30, height: 30 }} />
                 </button>
               </>
             )}
@@ -254,12 +263,11 @@ function ItemDetailModal({
       {item.itemStory && (
       <div style={{
         color: item.color
-          ? `color-mix(in srgb, ${item.color} 70%, ${(() => {
+          ? `color-mix(in srgb, ${item.color} 75%, ${(() => {
               const c = item.color.replace('#','');
               const a = [...c].reduce((sum, _, i, arr) => i % 2 ? sum + parseInt(arr[i-1]+arr[i], 16) : sum, 0) / (255*3);
-
               return a < 0.5 ? '#fff' : '#232323ff';
-            })()} 30%)`
+            })()} 25%)`
           : '#8e8e8eff',
         fontSize: 13.5,
         letterSpacing: 0.6,

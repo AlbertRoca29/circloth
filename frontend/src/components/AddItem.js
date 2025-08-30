@@ -193,22 +193,22 @@ function AddItem({ user, onItemAdded }) {
   };
 
   return (
-    <Box sx={{ mt: open ? 0.5 : 2, display: 'flex', flexDirection: 'column', alignItems: 'center'  }}>
+    <Box sx={{ mt: open ? 1 : 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 2 }}>
       {/* Toast notifications will show errors instead of inline errorMsg */}
       {!open && (
         <div style={{
           display: 'flex',
-          width: '15%',
+          width: '10%',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           position: "fixed",
-          bottom: "20%",
-          right: "20%",
+          bottom: "13vh",
+          right: "13vh",
           textAlign: 'center',
         }}>
           <span style={{
-            marginBottom: 8,
+            marginBottom: 4,
             fontWeight: 150,
             color: '#15803ca8',
             fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
@@ -219,15 +219,15 @@ function AddItem({ user, onItemAdded }) {
           }}>{t('add_item') || 'Add Item'}</span>
           <button
             style={{
-              width: "56px",
-              height: "56px",
+              width: "60px",
+              height: "60px",
               borderRadius: "50%",
               background: "linear-gradient(135deg, #22c55e 60%, #15803d 100%)",
               color: "white",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              boxShadow: "0 6px 18px 0 rgba(34,197,94,0.25), 0 2px 4px 0 rgba(0,0,0,0.10)",
+              boxShadow: "0 4px 10px 0 rgba(34,197,94,0.18), 0 1px 2px 0 rgba(0,0,0,0.08)",
               cursor: "pointer",
               border: "none",
               zIndex: 1000,
@@ -236,52 +236,48 @@ function AddItem({ user, onItemAdded }) {
             }}
             onClick={() => setOpen(true)}
             title={t("add_item")}
-            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
-            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-            tabIndex={0}
             aria-label={t('add_item') || 'Add Item'}
           >
-            <PlusIcon style={{ transform: "scale(1.35)" }} />
+            <PlusIcon style={{ transform: "scale(1.3)" }} />
           </button>
         </div>
       )}
-      <Collapse in={open} sx={{ width: '100%', maxWidth: 500, mt: 0.5 }}>
-        <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 2.5, borderRadius: 4, boxShadow: 3, position: 'relative', border: '1.5px solid #22c55e' }}>
-          <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8 }}>×</Button>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 200, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontSize: 16 }}>{t('add_item')}</Typography>
+      <Collapse in={open} sx={{ width: '100%' , p:1}}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 1.5, borderRadius: 2, boxShadow: 10, position: 'relative', border: '1px solid #22c55e' }}>
+          <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 4, right: 4, minWidth: 0, fontSize: 28, p: 0, lineHeight: 1, color: '#888' }}>×</Button>
+          <Typography sx={{ mb: 1, fontWeight: 200, fontSize:14, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('add_item')}</Typography>
 
 
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 1 }}>
             {/* <Typography sx={{ mb: 0.5, fontWeight: 600, color: '#222', fontSize: 16 }}>Category</Typography> */}
-            <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('category')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-            <Grid container spacing={1} sx={{ mb: 1, mt: 0.5, justifyContent: 'center', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontWeight: 100 }}>
+            <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('category')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
+            <Grid container spacing={0.7} sx={{ mb: 0.5, mt: 0.2, justifyContent: 'center', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontWeight: 100 }}>
               {categories.map(cat => (
                 <Grid item xs={3} key={cat.key} sx={{ textAlign: 'center' }}>
                   <Button
                     onClick={() => handleCategorySelect(cat.key)}
                     sx={{
                       flexDirection: 'column',
-                      borderRadius: 2,
-                      border: category === cat.key ? `2.5px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
+                      borderRadius: 1.2,
+                      border: category === cat.key ? `2px solid ${APP_GREEN}` : '1px solid #bdbdbd',
                       background: '#fff',
-                      mb: 0.5,
+                      mb: 0.2,
                       minWidth: 0,
                       minHeight: 0,
-                      width: 88,
-                      height: 88,
-                      boxShadow: category === cat.key ? `2px 2px 0px 1px ${APP_GREEN}` : 'none',
-                      p: 0,
+                      width: 68,
+                      height: 68,
+                      boxShadow: category === cat.key ? `1px 1px 0px 1px ${APP_GREEN}` : 'none',
+                      p: 3,
                       transition: 'border 0s, box-shadow 0.4s',
-                      fontSize: 30,
+                      fontSize: 22,
                       color: '#28720dff',
                       fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
                       fontWeight: 100,
-                      '&:hover': { background: '#F3F4F6', borderColor: '#166232ff' },
+                      '&:hover': { background: '#F3F4F6' },
                     }}
                   >
-                    <span style={{ fontSize: 32, lineHeight: 1 }}>{getCategoryEmoji(cat.key)}</span>
-                    <span style={{ fontSize: 10, color: '#666', marginTop: 8, lineHeight: 1.2 }}>{cat.label}</span>
+                    <span style={{ fontSize: 18, lineHeight: 1 }}>{getCategoryEmoji(cat.key)}</span>
+                    <span style={{ fontSize: 8, color: '#666', marginTop: 4, lineHeight: 1.2 }}>{cat.label}</span>
                   </Button>
                 </Grid>
               ))}
@@ -291,30 +287,24 @@ function AddItem({ user, onItemAdded }) {
 
             {category && (
               <>
-        <Box sx={{ mb: 1.7, mt: 1 }}>
-          <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('size')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-                    <Grid container spacing={1}>
+        <Box sx={{ mb: 1, mt: 0.5 }}>
+          <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('size')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
+                    <Grid container spacing={0.6}>
             {(sizeOptions[category] || []).map(opt => (
               <Grid item xs={4} key={opt.key}>
                 <Button
                   onClick={() => setSize(opt.key)}
                   sx={{
                     width: '100%',
-                    borderRadius: 1.5,
-                    minHeight: 32,
-                    fontSize: 13,
+                    borderRadius: 2,
+                    height: 28,
+                    fontSize: 11.5,
                     fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
                     fontWeight: 150,
                     py: 0.5,
-                    background: size === opt.key ? APP_GREEN : '#f3f4f6',
+                    background: size === opt.key ? APP_GREEN : '#f6f6f6ff',
                     color: size === opt.key ? '#fff' : '#166232',
-                    border: size === opt.key ? `2px solid ${APP_GREEN}` : '1.5px solid #bdbdbd',
-                    boxShadow: size === opt.key ? `0 2px 8px rgba(34,197,94,0.10)` : 'none',
-                    '&:hover': {
-                      background: size === opt.key ? '#15803d' : '#e6f7ec',
-                      borderColor: '#15803d',
-                      color: '#15803d',
-                    },
+                    border: size === opt.key ? `1.5px solid ${APP_GREEN}` : '1px solid #bdbdbd',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -325,8 +315,8 @@ function AddItem({ user, onItemAdded }) {
                     </Grid>
                     </Box>
 
-                <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
+                {/* <FormControl fullWidth sx={{ mb: 0.5 }}>
+                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 10, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
                   <TextField
                     value={sizeDetails}
                     onChange={e => setSizeDetails(e.target.value)}
@@ -335,9 +325,9 @@ function AddItem({ user, onItemAdded }) {
                     size="small"
                     InputProps={{
                       sx: {
-                        borderRadius: 2,
-                        fontSize: 14,
-                        py: 0.5,
+                        borderRadius: 1.2,
+                        fontSize: 11,
+                        py: 0.2,
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderWidth: '1px',
                         },
@@ -348,13 +338,13 @@ function AddItem({ user, onItemAdded }) {
                       }
                     }}
                   />
-                </FormControl>
+                </FormControl> */}
                 </>
 
             )}
-            <Box sx={{ height: 20 }} />
-            <FormControl fullWidth sx={{ mb: 1.5 }}>
-              <Typography sx={{ mb: 0.4, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
+            <Box sx={{ height: 10 }} />
+            <FormControl fullWidth sx={{ mb: 1 }}>
+              <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
               <TextField
                 value={itemStory}
                 onChange={e => setItemStory(e.target.value)}
@@ -364,23 +354,23 @@ function AddItem({ user, onItemAdded }) {
                 minRows={2}
                 sx={{
                     "& .MuiInputBase-inputMultiline": {
-                    padding: "6px 0px"  // top/bottom, left/right
+                    padding: "3px 0px"  // top/bottom, left/right
                     }
                 }}
                 required
                 size="small"
                 InputProps={{
                   sx: {
-                    borderRadius: 2,
-                    fontSize: 14,
+                    borderRadius: 1.2,
+                    fontSize: 12,
                     py: 0.5,
-                    background: '#FFFBEA',
+                    background: '#e5fbe4ff',
                     '& .MuiOutlinedInput-notchedOutline': {
                       borderWidth: '1px',
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#dede33ff',
-                      borderWidth: '3px',
+                      borderColor: '#13c70dff',
+                      borderWidth: '2px',
                     },
                   }
                 }}
@@ -388,23 +378,23 @@ function AddItem({ user, onItemAdded }) {
             </FormControl>
 
             {/* Photos */}
-            <Box sx={{ mb: 2 }}>
-              <Typography sx={{ mb: 1, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ mb: 1 }}>
+              <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
+              <Box sx={{ display: 'flex', gap: 1.75, flexWrap: 'wrap' }}>
                 {photoFiles.map((file, idx) => (
                   <Box key={idx} sx={{ position: 'relative' }}>
-                    <img src={objectURLs[idx]} alt={`preview-${idx}`} loading="lazy" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 12, border: idx === thumbnailIdx ? "2.5px solid #22c55e" : "2px solid #222", cursor: "pointer" }} onClick={() => setThumbnailIdx(idx)} />
+                    <img src={objectURLs[idx]} alt={`preview-${idx}`} loading="lazy" style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 7, border: idx === thumbnailIdx ? "3px solid #22c55e" : "1.2px solid #222", cursor: "pointer" }} onClick={() => setThumbnailIdx(idx)} />
                     <Button size="small" onClick={() => {
                       const newFiles = photoFiles.filter((_, i) => i !== idx);
                       setPhotoFiles(newFiles);
                       if (thumbnailIdx === idx) setThumbnailIdx(0);
                       else if (thumbnailIdx > idx) setThumbnailIdx(thumbnailIdx - 1);
-                    }} sx={{ position: "absolute", top: -8, right: -8, minWidth: 0, padding: 0, fontSize: 12 }}>×</Button>
+                    }} sx={{ position: "absolute", top: -10, right: -9, minWidth: 0, padding: 0, fontSize: 15, color: '#888' }}>×</Button>
                   </Box>
                 ))}
                 {photoFiles.length < 5 && (
                   <label style={{ display: "inline-block", cursor: "pointer" }}>
-                    <span style={{ display: "inline-block", width: 60, height: 60, borderRadius: 8, background: "#f5f5f5", color: "#22c55e", fontSize: 32, textAlign: "center", lineHeight: "60px", border: "2px dashed #22c55e" }}>+</span>
+                    <span style={{ display: "inline-block", width: 50, height: 50, borderRadius: 5, background: "#f5f5f5", color: "#22c55e", fontSize: 28, fontWeight: 200, textAlign: "center", lineHeight: "48px", border: "1.7px dashed #22c55e" }}>+</span>
                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { if (!e.target.files[0]) return; setPhotoFiles([...photoFiles, e.target.files[0]]); }} />
                   </label>
                 )}
@@ -416,26 +406,25 @@ function AddItem({ user, onItemAdded }) {
             <Accordion
               expanded={showAdvanced}
               onChange={() => setShowAdvanced(!showAdvanced)}
-              sx={{ mb: 1.5,  borderRadius: 2, boxShadow: 1, background: '#fff', border: 'none', overflow: 'hidden' }}
+              sx={{ mb: 0,  borderRadius: 1.2, boxShadow: 0, background: '#fff', border: 'none', overflow: 'hidden' }}
             >
               <AccordionSummary
-                sx={{ cursor: 'pointer', px: 1, py: 0.5, background: 'transparent', borderBottom: showAdvanced ? `1.5px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center', minHeight: 28 }}
+                sx={{ cursor: 'pointer', px: 0.5, py: 0, background: 'transparent', borderBottom: showAdvanced ? `1px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center' }}
               >
                 <span style={{
                   display: 'inline-block',
                   transition: 'transform 0.2s',
                   transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
-                  fontSize: 13,
-                  marginRight: 6,
+                  fontSize: 11,
+                  marginRight: 9,
                   color: '#64748b',
                   fontWeight: 200,
                 }}>▶</span>
-                <Typography sx={{ fontWeight: 150, color: '#545454ff', fontSize: 14, letterSpacing: 0.3, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
+                <Typography sx={{ fontWeight: 150, color: '#545454ff', fontSize: 12, letterSpacing: 0.2, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ background: '#fff', pt: 1, borderRadius: 2, px: 1.2, boxShadow: 'none', border: 'none' }}>
-                {/* Color picker removed */}
+              <AccordionDetails sx={{ background: '#fff', pt: 0.7, px: 0.7, boxShadow: 'none', border: 'none' }}>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
+                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
                   <TextField
                     value={brand}
                     onChange={e => setBrand(e.target.value)}
@@ -444,9 +433,9 @@ function AddItem({ user, onItemAdded }) {
                     size="small"
                     InputProps={{
                       sx: {
-                        borderRadius: 2,
-                        fontSize: 14,
-                        py: 0.5,
+                        borderRadius: 1.2,
+                        fontSize: 11,
+                        py: 0.2,
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderWidth: '1px',
                         },
@@ -459,7 +448,7 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
+                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
                   <TextField
                     value={material}
                     onChange={e => setMaterial(e.target.value)}
@@ -468,9 +457,9 @@ function AddItem({ user, onItemAdded }) {
                     size="small"
                     InputProps={{
                       sx: {
-                        borderRadius: 2,
-                        fontSize: 14,
-                        py: 0.5,
+                        borderRadius: 1.2,
+                        fontSize: 11,
+                        py: 0.2,
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderWidth: '1px',
                         },
@@ -483,7 +472,7 @@ function AddItem({ user, onItemAdded }) {
                   />
                 </FormControl>
                 <FormControl fullWidth>
-                  <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 13, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
+                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
                   <TextField
                     value={additionalInfo}
                     onChange={e => setAdditionalInfo(e.target.value)}
@@ -492,16 +481,16 @@ function AddItem({ user, onItemAdded }) {
                     multiline
                     sx={{
                             "& .MuiInputBase-inputMultiline": {
-                            padding: "6px 0px"  // top/bottom, left/right
+                            padding: "3px 0px"  // top/bottom, left/right
                             }
                         }}
                     minRows={2}
                     size="small"
                     InputProps={{
                       sx: {
-                        borderRadius: 2,
-                        fontSize: 14,
-                        py: 0.5,
+                        borderRadius: 1.2,
+                        fontSize: 11,
+                        py: 0.2,
                         '& .MuiOutlinedInput-notchedOutline': {
                           borderWidth: '1px',
                         },
@@ -518,12 +507,12 @@ function AddItem({ user, onItemAdded }) {
 
 
             {loading ? (
-              <Box sx={{ width: '100%', height: 48 }}>
+              <Box sx={{ width: '100%', height: 32 }}>
                 <ProgressBarButton progress={progress} />
               </Box>
             ) : (
-              <Button type="submit" variant="contained" fullWidth sx={{ py: 1.5, fontSize: 18, borderRadius: 3, background: '#22c55e', color: '#fff', mt:2, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }}>
-                Submit
+              <Button type="submit" variant="contained" fullWidth sx={{ py: 0.7, fontSize: 12, borderRadius: 2, background: '#22c55e', color: '#fff', mt:1, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }}>
+                {t('submit') || 'Submit'}
               </Button>
             )}
 

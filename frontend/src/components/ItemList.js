@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { showToast } from "../utils/toast";
+
 import { storage } from "../utils/firebase";
 import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "../config";
@@ -11,6 +11,48 @@ import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
 import '../styles/buttonStyles.css';
 // Minimal Dropdown Menu component
 import { useRef, useCallback } from "react";
+
+// Simple ConfirmDialog component
+function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText = "OK", cancelText = "Cancel" }) {
+  if (!open) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.18)',
+      zIndex: 100000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: 16,
+        boxShadow: '0 2px 16px 0 rgba(0,0,0,0.13)',
+        minWidth: 280,
+        maxWidth: 340,
+        padding: '28px 20px 18px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10, color: '#232323', textAlign: 'center' }}>{title}</div>
+        <div style={{ fontSize: 15, color: '#444', marginBottom: 22, textAlign: 'center' }}>{message}</div>
+        <div style={{ display: 'flex', gap: 12, width: '100%', justifyContent: 'center' }}>
+          <button onClick={onCancel} style={{
+            background: '#eee', color: '#333', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
+          }}>{cancelText}</button>
+          <button onClick={onConfirm} style={{
+            background: '#ff004c', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
+          }}>{confirmText}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DropdownMenu({ onEdit, onDelete, onClose }) {
   const menuRef = useRef(null);
@@ -76,6 +118,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   const [modalItem, setModalItem] = useState(null);
   const [modalIdx, setModalIdx] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ open: false });
   const [menuOpenId, setMenuOpenId] = useState(null); // For dropdown menu
   const [userActions, setUserActions] = useState({});
 
@@ -134,92 +177,110 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm("Delete this item?")) return;
-    setDeletingId(item.id);
-
-    try {
-      // Delete images from Firebase Storage
-      if (item.photoURLs && Array.isArray(item.photoURLs)) {
-        for (let url of item.photoURLs) {
-          try {
-            const pathMatch = url.match(/\/o\/(.+)\?/);
-            if (pathMatch && pathMatch[1]) {
-              const path = decodeURIComponent(pathMatch[1]);
-              await deleteObject(ref(storage, path));
+    setConfirmDialog({
+      open: true,
+      title: t('delete_item_title') || 'Delete Item',
+      message: t('delete_item_confirm') || 'Are you sure you want to delete this item?',
+      confirmText: t('delete') || 'Delete',
+      cancelText: t('cancel') || 'Cancel',
+      onConfirm: async () => {
+        setConfirmDialog({ open: false });
+        setDeletingId(item.id);
+        try {
+          // Delete images from Firebase Storage
+          if (item.photoURLs && Array.isArray(item.photoURLs)) {
+            for (let url of item.photoURLs) {
+              try {
+                const pathMatch = url.match(/\/o\/(.+)\?/);
+                if (pathMatch && pathMatch[1]) {
+                  const path = decodeURIComponent(pathMatch[1]);
+                  await deleteObject(ref(storage, path));
+                }
+              } catch (err) {
+                console.log(err)
+              }
             }
-          } catch (err) {
-            console.log(err)
           }
+          // Delete item from backend
+          const res = await fetch(`${BACKEND_URL}/item/${item.id}`, {
+            method: "DELETE"
+          });
+          if (!res.ok) throw new Error("Failed to delete item");
+          setItems(items => items.filter(i => i.id !== item.id));
+          // Update cached actions
+          setUserActions((prev) => {
+            const updatedActions = { ...prev };
+            delete updatedActions[item.id];
+            updateCachedActions(updatedActions);
+            return updatedActions;
+          });
+          // Update cached items in localStorage
+          setItems((prevItems) => {
+            const updatedItems = prevItems.filter(i => i.id !== item.id);
+            localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+            return updatedItems;
+          });
+          // Item deleted successfully
+        } catch (err) {
+          // Error deleting item
+          console.error("Error deleting item", err);
         }
-      }
-      console.log(item)
-
-      // Delete item from backend
-      const res = await fetch(`${BACKEND_URL}/item/${item.id}`, {
-        method: "DELETE"
-      });
-      if (!res.ok) throw new Error("Failed to delete item");
-
-      setItems(items => items.filter(i => i.id !== item.id));
-
-      // Update cached actions
-      setUserActions((prev) => {
-        const updatedActions = { ...prev };
-        delete updatedActions[item.id];
-        updateCachedActions(updatedActions);
-        return updatedActions;
-      });
-
-      // Update cached items in localStorage
-      setItems((prevItems) => {
-        const updatedItems = prevItems.filter(i => i.id !== item.id);
-        localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
-        return updatedItems;
-      });
-    } catch (err) {
-      showToast("Error deleting item", { type: "error" });
-      console.error("Error deleting item", err);
-    }
-
-    setDeletingId(null);
+        setDeletingId(null);
+      },
+      onCancel: () => setConfirmDialog({ open: false })
+    });
   };
 
   const userLiked = (itemId) => {
     return userActions[itemId] === true;
   };
 
-  // Update handleAction to include confirmation for already matched/passed items
+  // Update handleAction to use custom confirmation dialog
   const handleAction = async (item, action) => {
     if (action === "like" && userLiked(item.id)) {
-      if (!window.confirm("Are you sure you want to remove this like?")) {
-        return;
-      }
+      setConfirmDialog({
+        open: true,
+        title: t('remove_like_title') || 'Remove Like',
+        message: t('remove_like_confirm') || 'Are you sure you want to remove this like?',
+        confirmText: t('remove') || 'Remove',
+        cancelText: t('cancel') || 'Cancel',
+        onConfirm: async () => {
+          setConfirmDialog({ open: false });
+          await doAction(item, action);
+        },
+        onCancel: () => setConfirmDialog({ open: false })
+      });
+      return;
     } else if (action === "pass") {
-      if (!window.confirm("Are you sure you want to pass on this item?")) {
-        return;
-      }
+      setConfirmDialog({
+        open: true,
+        title: t('pass_item_title') || 'Pass Item',
+        message: t('pass_item_confirm') || 'Are you sure you want to pass on this item?',
+        confirmText: t('pass') || 'Pass',
+        cancelText: t('cancel') || 'Cancel',
+        onConfirm: async () => {
+          setConfirmDialog({ open: false });
+          await doAction(item, action);
+        },
+        onCancel: () => setConfirmDialog({ open: false })
+      });
+      return;
     }
+    await doAction(item, action);
+  };
 
+  // Helper for like/pass actions
+  const doAction = async (item, action) => {
     try {
       await sendMatchAction(from_user_matching.id, item.id, action);
-      showToast(
-        action === "like"
-          ? userLiked(item.id)
-            ? t("unliked_item")
-            : t("liked_item")
-          : t("passed_item"),
-        {
-          type: action === "like" && userLiked(item.id) ? "info" : "success",
-        }
-      );
-
+  // Action performed (like/pass)
       setUserActions((prev) => {
         const updatedActions = { ...prev, [item.id]: action === "like" ? !prev[item.id] : false };
         updateCachedActions(updatedActions);
         return updatedActions;
       });
     } catch (e) {
-      showToast(t("error_handling_action"), { type: "error" });
+  // Error handling action
     }
   };
 
@@ -234,13 +295,22 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   if (!items.length) {
     return (
       <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150,marginLeft:"15%", width: "70%", fontSize: "16px" }}>
-        {t('no_clothing_items_added_yet')}
+        {/* {t('no_clothing_items_added_yet')} */}
       </p>
     );
   }
 
   return (
     <div style={{ width: "92%", margin: '0 auto' }}>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={confirmDialog.onCancel}
+      />
       {!modalOpen && (
         <div style={{
           display: "grid",
@@ -408,7 +478,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                         onEdit={e => {
                           e?.stopPropagation?.();
                           setMenuOpenId(null);
-                          showToast(t('edit_coming_soon'), { type: 'info' });
+                          // Edit coming soon
                         }}
                         onDelete={e => {
                           e?.stopPropagation?.();

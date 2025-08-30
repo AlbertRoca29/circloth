@@ -41,7 +41,7 @@
   "size": "Size",
   "one_size": "One Size",
   "other": "Other",
-  "no_clothing_items_added_yet": "Add an item to start matching!",
+  "no_clothing_items_added_yet": "You haven't added any items yet! 👕\n\nUpload your first piece and discover clothing with unique stories from the community.\n\nLike the items you like and match with people who want to swap.\n\nStart your Circloth adventure today! ✨",
   "size_details": "Size Details",
 
   "location_closed": "Enable location to see matches sorted by distance.",
@@ -66,5 +66,16 @@
   "back": "Back",
   "chat_with": "Chat with {{name}}",
   "login_intro": "👕 Give away clothes that once meant something to you\n\n➡️ and receive items that carry someone else’s story.\n\n♻️ Circloth is not about fast fashion, it’s about giving clothes a second life.\n\n🌱 By using it, you reduce waste and step outside the cycle of constant consumption.",
-  "view_profile": "View Profile"
+  "view_profile": "View Profile",
+
+  "delete_item_title": "Delete Item",
+  "delete_item_confirm": "Are you sure you want to delete this item?",
+  "delete": "Delete",
+  "remove_like_title": "Remove Like",
+  "remove_like_confirm": "Are you sure you want to remove this like?",
+  "remove": "Remove",
+  "pass_item_title": "Pass Item",
+  "pass_item_confirm": "Are you sure you want to pass on this item?",
+  "pass": "Pass",
+  "cancel": "Cancel"
 }

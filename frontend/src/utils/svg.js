@@ -1,11 +1,13 @@
 export const ArrowLeftIcon = (props) => (
   <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}} {...props}>
+    {/* Main arrow */}
     <polyline points="20,8 12,16 20,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 export const ArrowRightIcon = (props) => (
   <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}} {...props}>
+    {/* Main arrow */}
     <polyline points="12,8 20,16 12,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );

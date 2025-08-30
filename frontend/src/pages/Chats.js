@@ -7,6 +7,7 @@ import { fetchMatches } from "../api/matchingApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
+import { HeartIcon } from '../utils/svg';
 // IoSend icon for send button
 
 
@@ -161,7 +162,7 @@ function Chats({ user }) {
 
   if (chattingWith && !viewingTheirProfile) {
     return (
-         <div style={{ position: 'fixed', top: '15%', left: '10%', width: '80%', height: '70%', zIndex: 1000, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
+         <div style={{ position: 'fixed', top: '12.5%', left: '5%', width: '90%', height: '75%', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
         <div style={{ position: 'absolute', width: '100%', height: '100%' }}>
           <button
             onClick={() => setChattingWith(null)}
@@ -175,18 +176,19 @@ function Chats({ user }) {
         <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '100%', height: '90%', background: '#fff', boxShadow: '0 2px 16px #0001', position: 'relative' }}>
           {/* Name at the top */}
           <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
-            <div style={{ fontWeight: 500, fontSize: 20, color: '#15803d', flex: 1, textAlign: 'left' }}>
+            <div style={{ fontWeight: 500, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'left' }}>
               {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
             </div>
           </div>
           {/* Button below name */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', borderBottom: '1px solid #e5e5e5' }}>
-            <button
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5' }}>
+            <div
               onClick={() => handleViewProfile(chattingWith.otherUser)}
-              style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', fontWeight: 150 }}
+              style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
             >
-              {t('look_at_their_items', 'Look at their items')}
-            </button>
+              <HeartIcon style={{ marginRight: 6, verticalAlign: 'middle' }} />
+              {t('look_at_their_items', `Look at ${chattingWith.otherUser.name || chattingWith.otherUser.displayName || 'their'} Items`)}
+            </div>
           </div>
           {/* Chat messages */}
           <div style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -242,11 +244,11 @@ function Chats({ user }) {
 
   if (viewingTheirProfile) {
     return (
-      <div style={{ margin: '30% auto' }}>
+      <div style={{ margin: '32% auto' }}>
         <button
           onClick={() => setviewingTheirProfile(null)}
           className="common-button go-back"
-          style={{ top: 60 }}
+          style={{ top: "13.5vh", left: "6vw" }}
         >
             <BackIcon />
 
