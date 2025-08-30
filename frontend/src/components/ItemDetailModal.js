@@ -1,9 +1,9 @@
 import React from "react";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon } from "../utils/svg";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import "../styles/buttonStyles.css";
-import { height, maxHeight } from "@mui/system";
 
 function ItemDetailModal({
   item,
@@ -45,10 +45,10 @@ function ItemDetailModal({
   // Modal style: absolute (popup) or relative (inline)
   const modalWrapperStyle = matching
     ? {
-        marginTop: "20%",
-        marginLeft: "15%",
-        width: '70vw',
-        height: '70vh',
+        marginTop: "10vh",
+        marginLeft: "5%",
+        width: '90vw',
+        height: '72.5vh',
         background: 'white',
         display: 'flex',
         alignItems: 'center',
@@ -60,8 +60,8 @@ function ItemDetailModal({
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '95vw',
-        height: '70vh',
+        width: '100vw',
+        height: '100vh',
         background: 'rgba(0,0,0,0.18)',
         zIndex: 3000,
         display: 'flex',
@@ -73,7 +73,7 @@ function ItemDetailModal({
     ? {
         background: '#fff',
         borderRadius: 10,
-        boxShadow: '0 2px 12px rgba(34,197,94,0.08)',
+        boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
         padding: 0,
         width: '100%',
         height: '100%',
@@ -89,8 +89,8 @@ function ItemDetailModal({
         borderRadius: 12,
         boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
         padding: 0,
-        width: '95vw',
-        height: '70%',
+        width: '85vw',
+        height: '75vh',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -99,7 +99,7 @@ function ItemDetailModal({
         margin: 0,
       };
   return (
-    <div style={modalWrapperStyle}>
+    <div style={{ ...modalWrapperStyle, fontFamily: 'Geist' }}>
       <div style={cardStyle}>
         {/* Image section, takes most of the card */}
         {images.length > 0 && (
@@ -107,8 +107,7 @@ function ItemDetailModal({
             style={{
               position: 'relative',
               width: '100%',
-              height: '68%',
-              minHeight: 260,
+              height: '69%',
               background: '#f7f7f7',
               display: 'flex',
               alignItems: 'center',
@@ -174,7 +173,7 @@ function ItemDetailModal({
                   }}
                   aria-label="Previous image"
                 >
-                  <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}}><polyline points="20,8 12,16 20,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <ArrowLeftIcon />
                 </button>
                 <button
                   onClick={handleNext}
@@ -199,7 +198,7 @@ function ItemDetailModal({
                   }}
                   aria-label="Next image"
                 >
-                  <svg width="32" height="32" viewBox="0 0 32 32" style={{display:'block'}}><polyline points="12,8 20,16 12,24" fill="none" stroke="#222" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <ArrowRightIcon />
                 </button>
               </>
             )}
@@ -222,125 +221,149 @@ function ItemDetailModal({
         )}
         {/* Minimal details section */}
         <div style={{
-          width: '100%',
+          width: '90%',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
-          padding: '18px 0px 0 20px',
           gap: 8,
-          margin: "10px 0px 20px 20px"
+          margin: "20px 0px 20px 0px"
         }}>
           {/* Category and emoji */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 18, fontWeight: 400, color: '#222' }}>
+            <span style={{ fontSize: 15, color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
             <span>{getCategoryEmoji(item.category)}</span>
-            <span style={{ fontSize: 15, color: '#444', fontWeight: 300 }}>{getCategoryLabel(item.category)}</span>
           </div>
           {/* Size and color */}
           {(showSize || item.color) && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {showSize && (
                 <span style={{
-                  background: '#f2f2f2',
-                  color: '#222',
-                  borderRadius: 6,
-                  padding: '2px 10px',
-                  fontWeight: 300,
+                  color: '#000000ff',
+                  fontWeight: 120,
                   fontSize: 13,
+                  opacity: 0.65,
                   letterSpacing: 0.2,
                   display: 'inline-block',
                 }}>
-                  {t(item.size) !== item.size ? t(item.size) : item.size}
+                  <strong style={{ fontWeight: 170 }}>Size:</strong> {t(item.size) || item.size}
                 </span>
               )}
-              {item.color && (
+              {/* {item.color && (
                 <span style={{
                   display: 'inline-block',
                   width: 18,
                   height: 18,
-                  borderRadius: 6,
+                  borderRadius: 99,
                   background: item.color,
                   border: '1px solid #e0e0e0',
                   marginLeft: 2,
                   verticalAlign: 'middle',
                 }} title={item.color}></span>
-              )}
+              )} */}
             </div>
           )}
           {/* Minimal description */}
           {item.itemStory && (
             <div style={{
-              color: '#666',
-              fontSize: 14,
-              fontWeight: 300,
-              marginTop: 2,
-              marginBottom: 0,
-              width: '100%',
-              maxWidth: 340,
-              lineHeight: 1.4,
-              textAlign: 'left',
-              background: 'none',
-              padding: 0,
+                color: item.color ? item.color + 'cc' : '#555',
+                fontSize: 13.5,
+                letterSpacing: 0.6,
+                fontStyle: 'italic',
+                marginTop: 6,
+                lineHeight: 1.5,
+                borderLeft: '2px solid #eee',
+                paddingLeft: 8,
+                fontFamily: "'Georgia', serif",
             }}>
-              {item.itemStory}
+                {item.itemStory}
             </div>
-          )}
+            )}
           {/* More details + button */}
           {hasMoreDetails && (
-            <div style={{ width: '100%', maxWidth: 350, margin: '8px 0 0 0' }}>
-              <button
+            <div style={{ width: '100%', margin: '8px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <div
                 onClick={() => setDetailsOpen((v) => !v)}
                 style={{
-                  width: '100%',
-                  background: '#f3f4f6',
-                  color: '#444',
-                  border: 'none',
-                  borderRadius: 7,
-                  padding: '7px 0',
-                  fontWeight: 500,
-                  fontSize: 15,
+                  width: 'fit-content',
+                  color: '#222',
+                  fontWeight: 120,
+                  fontSize: 14,
                   cursor: 'pointer',
-                  marginBottom: 0,
-                  boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
                   gap: 8,
-                  transition: 'background 0.18s',
+                  userSelect: 'none',
+                  padding: 0,
+                  marginBottom: 4,
+                  border: 'none',
+                  background: 'none',
+                  fontFamily: 'inherit',
+                  letterSpacing: 0.1,
+                  outline: 'none',
+                  marginLeft: 8,
                 }}
                 aria-expanded={detailsOpen}
+                tabIndex={0}
+                role="button"
               >
                 {t('more_details') || 'More details'}
-                <span style={{ fontSize: 18 }}>{detailsOpen ? '▲' : '+'}</span>
-              </button>
-              {detailsOpen && (
-                <div style={{
-                  maxHeight: 90,
-                  overflowY: 'auto',
-                  marginTop: 6,
-                  background: '#f9fafb',
-                  borderRadius: 7,
-                  padding: '10px 14px',
-                  fontSize: 15,
-                  color: '#444',
-                  boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                <span style={{
+                  display: 'inline-block',
+                  transition: 'transform 0.2s',
+                  transform: detailsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                  marginLeft: 6,
+                  marginBottom: 0,
                 }}>
-                  {item.sizeDetails && (
-                    <div style={{ marginBottom: 10 }}>
-                      <strong style={{ fontWeight: 170 }}>{t('size_details') || 'Size details'}:</strong> {item.sizeDetails}
-                    </div>
-                  )}
-                  {item.material && (
-                    <div style={{ marginBottom: 10 }}>
-                      <strong style={{ fontWeight: 170 }}>{t('material')}:</strong> {item.material}
-                    </div>
-                  )}
-                  {item.additionalInfo && (
-                    <div style={{ marginBottom: 10 }}>
-                      <strong style={{ fontWeight: 170 }}>{t('additional_info')}</strong><br />{item.additionalInfo}
-                    </div>
-                  )}
+                  <ChevronRightIcon />
+                </span>
+              </div>
+              {detailsOpen && (
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%', gap: 10 }}>
+                  <div style={{
+                    width: 3,
+                    height: '100%',
+                    background: '#e0e0e0',
+                    borderRadius: 3,
+                    marginTop: 5,
+                    marginLeft: 10,
+                  }} />
+                  <div style={{
+                    maxHeight: 120,
+                    overflowY: 'auto',
+                    marginTop: 6,
+                    padding: 0,
+                    fontSize: 13,
+                    color: '#000',
+                    background: 'none',
+                    border: 'none',
+                    boxShadow: 'none',
+                    borderRadius: 0,
+                    animation: 'fadeIn 0.18s',
+                    marginLeft: 8,
+                    opacity: 0.65,
+                    flex: 1,
+                    display:'flex',
+                    flexDirection: 'column',
+                    rowGap: 9
+                  }}>
+                    {item.sizeDetails && (
+                      <div style={{  }}>
+                        <strong style={{ fontWeight: 150 }}>{t('size_details') || 'Size details'}:</strong> {item.sizeDetails}
+                      </div>
+                    )}
+                    {item.material && (
+                      <div style={{  }}>
+                        <strong style={{ fontWeight: 150 }}>{t('material')}:</strong> {item.material}
+                      </div>
+                    )}
+                    {item.additionalInfo && (
+                      <div style={{  }}>
+                        <strong style={{ fontWeight: 150 }}>{t('additional_info')}:</strong><br />{item.additionalInfo}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

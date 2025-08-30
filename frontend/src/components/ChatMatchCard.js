@@ -55,7 +55,6 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
             src={item.photoURLs?.[0]}
             alt={`Their item ${i + 1}`}
             loading="lazy"
-            onClick={() => onViewProfile(match.otherUser, false)}
             style={{
               width: 85,
               height: 85,
@@ -113,7 +112,6 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
                   src={item.photoURLs?.[0]}
                   alt={`Your item ${idx + 1}`}
                   loading="lazy"
-                  onClick={() => onViewProfile(match.otherUser, true)}
                   style={{
                     width: 36,
                     height: 36,
@@ -130,24 +128,6 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
             : null}
         </div>
       </div>
-
-
-      {/* <button
-        onClick={() => onViewProfile(match.otherUser)}
-        style={{
-          background: "#f3f3f3",
-          color: "#444",
-          border: "none",
-          borderRadius: 10,
-          fontSize: 14,
-          width: "80px",
-          padding: "7px 12px",
-          cursor: "pointer",
-          marginBottom: 27,
-        }}
-      >
-        {t("view_profile")}
-      </button> */}
     </div>
   );
 }
