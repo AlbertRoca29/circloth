@@ -54,7 +54,7 @@ function ItemDetailModal({
   // Modal style: absolute (popup) or relative (inline)
   const modalWrapperStyle = matching
     ? {
-        marginTop: "15vh",
+        marginTop: "12.5vh",
         background: 'transparent',
         marginLeft: "0%",
         width: '100vw',
@@ -84,7 +84,7 @@ function ItemDetailModal({
         borderRadius: 10,
         boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
         padding: 0,
-        width: '90%',
+        width: '92%',
         height: '100%',
         overflow: 'hidden',
         display: 'flex',
@@ -98,7 +98,7 @@ function ItemDetailModal({
         borderRadius: 12,
         boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
         padding: 0,
-        width: '85vw',
+        width: '92%',
         height: '75vh',
         overflow: 'hidden',
         display: 'flex',
@@ -110,13 +110,60 @@ function ItemDetailModal({
   return (
     <div style={{ ...modalWrapperStyle, fontFamily: 'Geist' }}>
       <div style={cardStyle}>
+        {/* Close 'X' button for non-matching modals */}
+        {!matching && (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: 14,
+              right: 18,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              zIndex: 20,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.18s, box-shadow 0.18s',
+              outline: 'none',
+              padding: 0,
+              // Removed boxShadow for a more minimalistic look
+              // boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+              textShadow: '0 1px 4px #fff, 0 0px 2px #0001',
+              borderWidth: 0,
+              borderStyle: 'solid',
+              borderColor: 'rgba(0,0,0,0.04)',
+              backdropFilter: 'blur(1.5px)',
+              WebkitBackdropFilter: 'blur(1.5px)',
+              userSelect: 'none',
+            }}
+            aria-label={t('close') || 'Close'}
+            title={t('close') || 'Close'}
+          >
+            <span style={{
+              fontSize: 35,
+              fontWeight: 100,
+              lineHeight: 1,
+              letterSpacing: 1,
+              color: 'inherit',
+              filter: 'drop-shadow(0 1px 2px #ffffff9c) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.11))',
+              textAlign: 'center',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>×</span>
+          </button>
+        )}
         {/* Image section, takes most of the card */}
         {images.length > 0 && (
           <div
             style={{
               position: 'relative',
               width: '100%',
-              height: '69%',
+              height: '100%',
               background: '#f7f7f7',
               display: 'flex',
               alignItems: 'center',
@@ -371,36 +418,38 @@ function ItemDetailModal({
           )}
         </div>
         {/* Footer (close button) */}
-        <div style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '10px 0 18px 0',
-          borderTop: '1px solid #f0f0f0',
-          background: '#fff',
-        }}>
-          {footer ? footer : (
-            <button
-              onClick={onClose}
-              style={{
-                background: '#f5f5f5',
-                color: '#222',
-                border: 'none',
-                borderRadius: 8,
-                padding: '7px 18px',
-                fontWeight: 400,
-                fontSize: 15,
-                cursor: 'pointer',
-                boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
-                transition: 'background 0.18s',
-              }}
-              title={t('close')}
-            >
-              {t('close') || 'Close'}
-            </button>
-          )}
-        </div>
+        {matching && (
+          <div style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '10px 0 18px 0',
+            borderTop: '1px solid #f0f0f0',
+            background: '#fff',
+          }}>
+            {footer ? footer : (
+              <button
+                onClick={onClose}
+                style={{
+                  background: '#f5f5f5',
+                  color: '#222',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '7px 18px',
+                  fontWeight: 400,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
+                  transition: 'background 0.18s',
+                }}
+                title={t('close')}
+              >
+                {t('close') || 'Close'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -157,14 +157,6 @@ def match_items(req: MatchRequest):
 # Use new action logic
 @app.post("/action")
 def handle_action(req: ActionRequest):
-    user = db.get_user(req.user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
-
-    # Only update location if present
-    # if hasattr(req, "location") and req.location:
-    #     db.update_user(req.user_id, {"location": {**req.location, "updated_at": datetime.utcnow().isoformat() + "Z"}})
-    print(req.user_id, req.item_id, req.action)
     handle_user_action(req.user_id, req.item_id, req.action)
     return {"message_key": "ACTION_HANDLED"}
 

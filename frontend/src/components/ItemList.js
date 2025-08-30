@@ -7,7 +7,6 @@ import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
 import { getCategoryEmoji } from "../utils/general";
 import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
-
 import '../styles/buttonStyles.css';
 // Minimal Dropdown Menu component
 import { useRef, useCallback } from "react";
@@ -323,9 +322,9 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
               key={item.id}
               style={{
                 border: userLiked(item.id) ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
-                aspectRatio: 1,
+                aspectRatio: 0.9,
                 background: "#fff",
-                borderRadius: 16,
+                borderRadius: 9,
                 boxShadow: "0 1.5px 8px 0 rgba(0,0,0,0.04)",
                 padding: 0,
                 display: "flex",
@@ -343,13 +342,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 <div style={{
                   position: 'relative',
                   width: '100%',
-                  height: "68%",
+                  height: "75%",
                   background: '#f6f6f6',
                   overflow: 'hidden',
                   transition: 'transform 0.25s ease-in-out',
                   cursor: 'pointer',
-                  borderTopLeftRadius: 16,
-                  borderTopRightRadius: 16
+                //   borderTopLeftRadius: 10,
+                //   borderTopRightRadius: 10
                 }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -362,8 +361,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      borderTopLeftRadius: 16,
-                      borderTopRightRadius: 16
                     }}
                   />
                 </div>
@@ -384,13 +381,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 {/* Left: Name and Size */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                   <span style={{
-                    fontWeight: 500,
-                    fontSize: 15,
+                    fontWeight: 200,
+                    fontSize: 14,
                     color: '#232323',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    maxWidth: 110
+                    maxWidth: 150
                   }}>{t(`category_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
                     fontSize: 13,

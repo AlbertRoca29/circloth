@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { UserIcon, HeartIcon, ChatIcon } from '../utils/svg';
 import { useTranslation } from "react-i18next";
 
-function Tabs({ activeTab, setActiveTab, hasClothes=true }) {
+function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
   const { t } = useTranslation();
   const messageRef = useRef(null);
 
@@ -79,7 +79,25 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true }) {
           tab="chats"
           label="tab_chats"
           onClick={() => setActiveTab("chats")}
-          icon={<ChatIcon />}
+          icon={
+            <span style={{ position: "relative", display: "inline-block" }}>
+              <ChatIcon />
+              {hasUnreadChats && (
+                <span style={{
+                  position: "absolute",
+                  top: -2,
+                  right: -2,
+                  width: 8,
+                  height: 8,
+                  background: "#e11d48",
+                  borderRadius: "50%",
+                  border: "2px solid #fff",
+                  zIndex: 2,
+                  boxShadow: "0 0 2px #e11d48"
+                }} />
+              )}
+            </span>
+          }
         />
       </div>
 

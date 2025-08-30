@@ -103,21 +103,26 @@ class FirestoreDB:
         # Reset in-memory read counts after writing to file
         self.read_counts = {}
 
-    def _track_read(self, function_name, collection_ref):
+
+    def _log_and_get(self, function_name, ref, *args, **kwargs):
+        result = ref.get(*args, **kwargs)
         self._log_read(function_name)
-        return collection_ref
+        return result
+
+    def _log_and_stream(self, function_name, ref, *args, **kwargs):
+        result = ref.stream(*args, **kwargs)
+        self._log_read(function_name)
+        return result
 
     def list_user_chats(self, user_id: str):
-        chats_ref = self._track_read("list_user_chats", self.db.collection("chats").where("participants", "array_contains", user_id))
+        chats_query = self.db.collection("chats").where("participants", "array_contains", user_id)
+        chat_docs = self._log_and_get("list_user_chats", chats_query)
         chats = []
-        chat_docs = chats_ref.get()
-        self._log_read("list_user_chats")
         for doc in chat_docs:
             chat = doc.to_dict()
             chat_id = chat["id"]
-            msg_ref = self._track_read("list_user_chats", self.db.collection("chats").document(chat_id).collection("messages"))
-            last_msg_docs = msg_ref.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(1).get()
-            self._log_read("list_user_chats")
+            msg_query = self.db.collection("chats").document(chat_id).collection("messages").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(1)
+            last_msg_docs = self._log_and_get("list_user_chats", msg_query)
             last_msg = list(last_msg_docs)
             last_msg_ts = last_msg[0].to_dict()["timestamp"] if last_msg else None
             last_access = chat.get("last_access", {}).get(user_id)
@@ -134,26 +139,22 @@ class FirestoreDB:
         chat_ref.set({"last_access": {user_id: now}}, merge=True)
 
     def delete_item_matches(self, item_id: str):
-        users_ref = self._track_read("delete_item_matches", self.db.collection("users"))
-        user_docs = users_ref.get()
-        self._log_read("delete_item_matches")
+        users_query = self.db.collection("users")
+        user_docs = self._log_and_get("delete_item_matches", users_query)
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_ref = self._track_read("delete_item_matches", users_ref.document(user_id).collection("actions"))
-            action_docs = actions_ref.where("item_id", "==", item_id).where("action", "==", "like").get()
-            self._log_read("delete_item_matches")
+            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id).where("action", "==", "like")
+            action_docs = self._log_and_get("delete_item_matches", actions_query)
             for doc in action_docs:
                 doc.reference.delete()
 
     def delete_item_actions(self, item_id: str):
-        users_ref = self._track_read("delete_item_actions", self.db.collection("users"))
-        user_docs = users_ref.get()
-        self._log_read("delete_item_actions")
+        users_query = self.db.collection("users")
+        user_docs = self._log_and_get("delete_item_actions", users_query)
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_ref = self._track_read("delete_item_actions", users_ref.document(user_id).collection("actions"))
-            action_docs = actions_ref.where("item_id", "==", item_id).get()
-            self._log_read("delete_item_actions")
+            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id)
+            action_docs = self._log_and_get("delete_item_actions", actions_query)
             for doc in action_docs:
                 doc.reference.delete()
 
@@ -164,9 +165,8 @@ class FirestoreDB:
 
     # --- User logic ---
     def get_user(self, user_id: str) -> Optional[dict]:
-        user_ref = self._track_read("get_user", self.db.collection("users").document(user_id))
-        user_doc = user_ref.get()
-        self._log_read("get_user")
+        user_query = self.db.collection("users").document(user_id)
+        user_doc = self._log_and_get("get_user", user_query)
         return user_doc.to_dict() if user_doc.exists else None
 
     def update_user(self, user_id: str, data: dict):
@@ -182,18 +182,15 @@ class FirestoreDB:
 
     # --- Item logic ---
     def get_item(self, item_id: str) -> Optional[dict]:
-        item_ref = self._track_read("get_item", self.db.collection("items").document(item_id))
-        item_doc = item_ref.get()
-        self._log_read("get_item")
+        item_query = self.db.collection("items").document(item_id)
+        item_doc = self._log_and_get("get_item", item_query)
         return item_doc.to_dict() if item_doc.exists else None
 
     def list_items(self, exclude_owner: Optional[str] = None, exclude_ids: Optional[List[str]] = None) -> List[dict]:
-        ref = self._track_read("list_items", self.db.collection("items"))
-        query = ref
+        query = self.db.collection("items")
         if exclude_ids and len(exclude_ids) > 0:
             query = query.where("id", "not-in", exclude_ids)
-        docs = [self._doc_with_id(doc) for doc in query.stream()]
-        self._log_read("list_items")
+        docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_items", query)]
         if exclude_owner:
             docs = [doc for doc in docs if doc.get("ownerId") != exclude_owner]
         return docs
@@ -214,16 +211,14 @@ class FirestoreDB:
         self.db.collection("items").document(item_id).delete()
 
     def list_user_items(self, user_id: str) -> List[dict]:
-        ref = self._track_read("list_user_items", self.db.collection("items").where("ownerId", "==", user_id))
-        docs = [self._doc_with_id(doc) for doc in ref.stream()]
-        self._log_read("list_user_items")
+        query = self.db.collection("items").where("ownerId", "==", user_id)
+        docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_user_items", query)]
         return docs
 
     # --- User Actions ---
     def delete_user_action(self, user_id: str, item_id: str):
-        actions_ref = self._track_read("delete_user_action", self.db.collection("users").document(user_id).collection("actions"))
-        for doc in actions_ref.where("item_id", "==", item_id).stream():
-            self._log_read("delete_user_action")
+        actions_query = self.db.collection("users").document(user_id).collection("actions").where("item_id", "==", item_id)
+        for doc in self._log_and_stream("delete_user_action", actions_query):
             doc.reference.delete()
 
     def save_user_action(self, user_id: str, item_id: str, action_type: str, timestamp):
@@ -236,16 +231,14 @@ class FirestoreDB:
         })
 
     def get_user_actions(self, user_id: str) -> list:
-        actions_ref = self._track_read("get_user_actions", self.db.collection("users").document(user_id).collection("actions"))
-        actions = [doc.to_dict() for doc in actions_ref.stream()]
-        self._log_read("get_user_actions")
+        actions_query = self.db.collection("users").document(user_id).collection("actions")
+        actions = [doc.to_dict() for doc in self._log_and_stream("get_user_actions", actions_query)]
         return actions
 
     def get_latest_user_actions(self, user_id: str) -> dict:
-        actions_ref = self._track_read("get_latest_user_actions", self.db.collection("users").document(user_id).collection("actions"))
+        actions_query = self.db.collection("users").document(user_id).collection("actions")
         latest = {}
-        for doc in actions_ref.stream():
-            self._log_read("get_latest_user_actions")
+        for doc in self._log_and_stream("get_latest_user_actions", actions_query):
             data = doc.to_dict()
             item_id = data["item_id"]
             prev = latest.get(item_id)
@@ -259,11 +252,11 @@ class FirestoreDB:
 
     def _ensure_chat_doc(self, user1: str, user2: str):
         conv_id = self._get_conversation_id(user1, user2)
-        chat_ref = self._track_read("_ensure_chat_doc", self.db.collection("chats").document(conv_id))
-        if not chat_ref.get().exists:
-            self._log_read("_ensure_chat_doc")
+        chat_query = self.db.collection("chats").document(conv_id)
+        chat_doc = self._log_and_get("_ensure_chat_doc", chat_query)
+        if not chat_doc.exists:
             now = datetime.utcnow().isoformat() + "Z"
-            chat_ref.set({
+            chat_query.set({
                 "id": conv_id,
                 "participants": [user1, user2],
                 "created_at": now,
@@ -284,8 +277,7 @@ class FirestoreDB:
 
     def get_chat_messages(self, user1: str, user2: str, limit: int = 50) -> list:
         conv_id = self._get_conversation_id(user1, user2)
-        msg_ref = self._track_read("get_chat_messages", self.db.collection("chats").document(conv_id).collection("messages"))
-        msgs = msg_ref.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit).stream()
-        self._log_read("get_chat_messages")
+        msg_query = self.db.collection("chats").document(conv_id).collection("messages").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit)
+        msgs = self._log_and_stream("get_chat_messages", msg_query)
         result = [doc.to_dict() for doc in msgs]
         return list(reversed(result))

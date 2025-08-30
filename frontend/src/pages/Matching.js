@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSwipeable } from "react-swipeable";
 import { useTranslation } from "react-i18next";
 import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
 import ItemDetailModal from "../components/ItemDetailModal";
@@ -75,6 +76,36 @@ function Matching({ user, setHasLocation }) {
     }
   };
 
+  // Move hooks to top-level, before any early returns
+  const [swipeDir, setSwipeDir] = useState(null);
+  const [swipeAnim, setSwipeAnim] = useState(0); // px offset for animation
+
+  const handleSwiped = (eventData) => {
+    if (eventData.dir === "Right") {
+      setSwipeDir("right");
+      setSwipeAnim(300);
+      setTimeout(() => {
+        setSwipeAnim(0);
+        setSwipeDir(null);
+        handleAction("like");
+      }, 200);
+    } else if (eventData.dir === "Left") {
+      setSwipeDir("left");
+      setSwipeAnim(-300);
+      setTimeout(() => {
+        setSwipeAnim(0);
+        setSwipeDir(null);
+        handleAction("pass");
+      }, 200);
+    }
+  };
+
+  const handlers = useSwipeable({
+    onSwiped: handleSwiped,
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  });
+
   if (showSpinner) return <LoadingSpinner />;
   const cardStyle = {
     display: 'flex',
@@ -83,7 +114,7 @@ function Matching({ user, setHasLocation }) {
     justifyContent: 'center',
     width: '65vw',
     marginTop: '20vh',
-    marginLeft: '12.5vw',
+    marginLeft: '17.5vw',
     height: '35vh',
     whiteSpace: "pre-line",
     background: '#fff',
@@ -113,37 +144,51 @@ function Matching({ user, setHasLocation }) {
     </div>
   );
 
-  // Use ItemDetailModal for the detailed view, always open
+  // Tinder-style card effect
+  const tinderCardStyle = {
+    transition: swipeDir ? 'transform 0.2s cubic-bezier(.68,-0.55,.27,1.55)' : 'transform 0.5s',
+    transform: `translateX(${swipeAnim}px) rotate(${swipeAnim/10}deg)`,
+    borderRadius: 18,
+    margin: 'auto',
+    padding: 0,
+    position: 'relative',
+    zIndex: 2,
+  };
+
   return (
-    <ItemDetailModal
-      item={item}
-      open={true}
-      onClose={() => {}}
-      currentIdx={imgIdx}
-      setIdx={setImgIdx}
-      matching={true}
-      showNavigation={true}
-      footer={
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 30 }}>
-          <button
-            onClick={() => handleAction("pass")}
-            disabled={actionLoading}
-            className="common-button pass"
-            title="Pass"
-          >
-            <span role="img" aria-label="pass">❌</span>
-          </button>
-          <button
-            onClick={() => handleAction("like")}
-            disabled={actionLoading}
-            className="common-button like"
-            title="Like"
-          >
-            <span role="img" aria-label="like">❤️</span>
-          </button>
-        </div>
-      }
-    />
+    <div {...handlers} style={tinderCardStyle}>
+      <ItemDetailModal
+        item={item}
+        open={true}
+        onClose={() => {}}
+        currentIdx={imgIdx}
+        setIdx={setImgIdx}
+        matching={true}
+        showNavigation={true}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 36, marginBottom: 12 }}>
+            <button
+              onClick={() => handleAction("pass")}
+              disabled={actionLoading}
+              className="common-button pass"
+              title="Pass"
+              style={{ fontSize: 32, borderRadius: '50%', width: 60, height: 60, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
+            >
+              <span role="img" aria-label="pass">❌</span>
+            </button>
+            <button
+              onClick={() => handleAction("like")}
+              disabled={actionLoading}
+              className="common-button like"
+              title="Like"
+              style={{ fontSize: 32, borderRadius: '50%', width: 60, height: 60, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
+            >
+              <span role="img" aria-label="like">❤️</span>
+            </button>
+          </div>
+        }
+      />
+    </div>
   );
 }
 

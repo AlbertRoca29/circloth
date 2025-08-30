@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { fetchMessages, sendMessage } from "../api/chatApi";
+import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
 import { fetchMatches } from "../api/matchingApi";
@@ -11,9 +11,10 @@ import { HeartIcon } from '../utils/svg';
 // IoSend icon for send button
 
 
-function Chats({ user }) {
+function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const { t } = useTranslation();
   const [matches, setMatches] = useState([]);
+  const [chats, setChats] = useState([]); // Store chat list with unread info
   const [chattingWith, setChattingWith] = useState(null); // match
   const [viewingTheirProfile, setviewingTheirProfile] = useState(null);
   const [viewingYourProfile, setviewingYourProfile] = useState(null);
@@ -45,47 +46,71 @@ function Chats({ user }) {
             matchIds: [],
             originalMatches: [],
             theirItem: undefined, // will set below
+            isUnread: false, // default, will set below
           };
         }
         grouped[key].theirItems.push(m.theirItem);
-        // Always set theirItem to the first in theirItems for default card
         if (!grouped[key].theirItem && m.theirItem) {
           grouped[key].theirItem = m.theirItem;
         }
         grouped[key].matchIds.push(m.id);
         grouped[key].originalMatches.push(m);
       });
-      // After grouping, ensure theirItem is set for all groups (fallback to first in theirItems)
+      // Merge unread status from chats
       Object.values(grouped).forEach(group => {
         if (!group.theirItem && group.theirItems.length > 0) {
           group.theirItem = group.theirItems[0];
         }
-        // Set isUnread true if any originalMatches are unread
-        group.isUnread = group.originalMatches.some(m => m.isUnread);
+        // Find chat for this user
+        const chat = chats.find(c => c.participants && c.participants.includes(group.otherUser.id));
+        group.isUnread = chat ? !!chat.is_unread : false;
       });
       return Object.values(grouped);
-    }, [matches]);
+    }, [matches, chats]);
 
-  // Modify fetchAndSetMatches to only fetch matches without loading chats
-  const fetchAndSetMatches = async () => {
+    // Notify parent if any chat is unread
+    React.useEffect(() => {
+      if (onUnreadChange) {
+        const anyUnread = groupedArr.some(g => g.isUnread);
+        onUnreadChange(anyUnread);
+      }
+    }, [groupedArr, onUnreadChange]);
+
+
+  // Fetch matches and chats in parallel
+  const fetchAndSetMatchesAndChats = async () => {
     if (!user || !user.uid) return;
-    const matches = await fetchMatches(user.uid);
+    const [matches, chats] = await Promise.all([
+      fetchMatches(user.uid),
+      fetchUserChats(user.uid)
+    ]);
     setMatches(matches);
+    setChats(chats);
   };
 
-  // Initial fetch and polling for matches/unread status
+  // Fetch unread/matches when user or refreshUnread changes
   useEffect(() => {
     if (!user || !user.uid) return;
     const fetchData = async () => {
-        setIsLoading(true);
-        await fetchAndSetMatches();
-        setIsLoading(false);
+      setIsLoading(true);
+      await fetchAndSetMatchesAndChats();
+      setIsLoading(false);
     };
-
     fetchData();
-    // const interval = setInterval(fetchAndSetMatches, 5000); // Poll every 5 seconds
+    // Optionally poll for unread status
+    // const interval = setInterval(fetchAndSetMatchesAndChats, 5000);
     // return () => clearInterval(interval);
-  }, [user]);
+  }, [user, refreshUnread]);
+
+  // Call onChatClose when chat is closed
+  useEffect(() => {
+    if (typeof onChatClose !== 'function') return;
+    if (chattingWith === null) {
+      onChatClose();
+    }
+    // Only run when chattingWith changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chattingWith]);
 
   // Update the onChat handler to dynamically fetch chat messages
   const handleChatClick = async (chatObj) => {
@@ -162,23 +187,23 @@ function Chats({ user }) {
 
   if (chattingWith && !viewingTheirProfile) {
     return (
-         <div style={{ position: 'fixed', top: '12.5%', left: '5%', width: '90%', height: '75%', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
-        <div style={{ position: 'absolute', width: '100%', height: '100%' }}>
-          <button
-            onClick={() => setChattingWith(null)}
-            aria-label="Go back"
-            className="common-button go-back"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', top: 0, left: "85%", position: "absolute" }}
-            >
-              <CloseIcon />
-        </button>
-        </div>
-        <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '100%', height: '90%', background: '#fff', boxShadow: '0 2px 16px #0001', position: 'relative' }}>
+         <div style={{ position: 'fixed', top: '9%', width: '100%', height: '79vh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
+
+        <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '95%', height: '90%', background: '#fff', boxShadow: '0 2px 16px #0001', position: 'relative' }}>
           {/* Name at the top */}
           <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
             <div style={{ fontWeight: 500, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'left' }}>
               {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
             </div>
+          </div>
+          <div style={{ position: 'absolute', top: '10px', right: '20px', cursor: 'pointer' }}>
+            <button
+                onClick={() => setChattingWith(null)}
+                aria-label="Go back"
+                style={{ border: 'none', background: 'none', fontSize: 20, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer' ,color: '#555' }}
+                >
+                x
+            </button>
           </div>
           {/* Button below name */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5' }}>

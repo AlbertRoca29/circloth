@@ -26,7 +26,7 @@ function App() {
   const [appUser, setAppUser] = useState(null);           // Backend user profile
   const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
-  const [activeTab, setActiveTab] = useState("clothes");
+  const [activeTab, setActiveTab] = useState("matching");
   const [hasClothes, setHasClothes] = useState(false);
   const [refreshItems, setRefreshItems] = useState(0);
   // Location permission tracking hidden for future release
@@ -66,10 +66,11 @@ function App() {
     }
   };
 
-  // Scroll to top when switching to Matching or Chats tab
+  // Scroll to top and refresh unread when switching to Matching or Chats tab
   useEffect(() => {
     if (activeTab === "matching" || activeTab === "chats") {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      setRefreshUnread(r => r + 1);
     }
   }, [activeTab]);
   // Listen to Firebase auth state
@@ -124,6 +125,10 @@ function App() {
 
   // Track if Chats modal is open
   const [chatsModalOpen, setChatsModalOpen] = useState(false);
+  // Track if any chat is unread
+  const [hasUnreadChats, setHasUnreadChats] = useState(false);
+  // Used to trigger unread refresh
+  const [refreshUnread, setRefreshUnread] = useState(0);
 
   useEffect(() => {
     const handleBackButton = (event) => {
@@ -409,7 +414,13 @@ function App() {
         )}
         {activeTab === "chats" && (
           <React.Suspense fallback={<div className="card">Loading chats...</div>}>
-            <Chats user={appUser} onModalOpenChange={setChatsModalOpen} />
+            <Chats
+              user={appUser}
+              onModalOpenChange={setChatsModalOpen}
+              onUnreadChange={setHasUnreadChats}
+              refreshUnread={refreshUnread}
+              onChatClose={() => setRefreshUnread(r => r + 1)}
+            />
           </React.Suspense>
         )}
       </div>
@@ -422,6 +433,7 @@ function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           hasClothes={hasClothes}
+          hasUnreadChats={hasUnreadChats}
         />
       )}
 
