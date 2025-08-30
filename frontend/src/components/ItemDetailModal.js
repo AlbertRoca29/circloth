@@ -125,7 +125,7 @@ function ItemDetailModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'color 0.18s, box-shadow 0.18s',
+            //   transition: 'color 0.18s, box-shadow 0.18s',
               outline: 'none',
               padding: 0,
               // Removed boxShadow for a more minimalistic look
@@ -143,11 +143,12 @@ function ItemDetailModal({
           >
             <span style={{
               fontSize: 35,
+              fontFamily: 'Geist',
               fontWeight: 100,
               lineHeight: 1,
               letterSpacing: 1,
               color: 'inherit',
-              filter: 'drop-shadow(0 1px 2px #ffffff9c) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.11))',
+            //   filter: 'drop-shadow(0 1px 2px #ffffff9c) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.11))',
               textAlign: 'center',
               width: '100%',
               height: '100%',

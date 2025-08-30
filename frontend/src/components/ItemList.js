@@ -347,8 +347,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                   overflow: 'hidden',
                   transition: 'transform 0.25s ease-in-out',
                   cursor: 'pointer',
-                //   borderTopLeftRadius: 10,
-                //   borderTopRightRadius: 10
                 }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -370,8 +368,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '10px 12px 8px 12px',
-                minHeight: 44,
+                padding: '12px 12px 7px 11px',
                 background: 'rgba(255,255,255,0.98)',
                 borderBottomLeftRadius: 16,
                 borderBottomRightRadius: 16,
@@ -382,15 +379,15 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                   <span style={{
                     fontWeight: 200,
-                    fontSize: 14,
+                    fontSize: 13,
                     color: '#232323',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    maxWidth: 150
+                    maxWidth: '30vw'
                   }}>{t(`category_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     color: '#888',
                     marginTop: 2
                   }}>Size: {t(item.size) || item.size || '-'}</span>

@@ -203,8 +203,8 @@ function AddItem({ user, onItemAdded }) {
           alignItems: 'center',
           justifyContent: 'center',
           position: "fixed",
-          bottom: "13vh",
-          right: "13vh",
+          bottom: "15vh",
+          right: "12vh",
           textAlign: 'center',
         }}>
           <span style={{
@@ -242,9 +242,9 @@ function AddItem({ user, onItemAdded }) {
           </button>
         </div>
       )}
-      <Collapse in={open} sx={{ width: '100%' , p:1}}>
+      <Collapse in={open} sx={{ width: '90vw' , p:1}}>
         <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 1.5, borderRadius: 2, boxShadow: 10, position: 'relative', border: '1px solid #22c55e' }}>
-          <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 4, right: 4, minWidth: 0, fontSize: 28, p: 0, lineHeight: 1, color: '#888' }}>×</Button>
+          <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 4, right: 10, minWidth: 0, fontSize: 28, p: 0, lineHeight: 1, color: '#888' }}>×</Button>
           <Typography sx={{ mb: 1, fontWeight: 200, fontSize:14, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('add_item')}</Typography>
 
 
