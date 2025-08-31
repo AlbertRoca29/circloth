@@ -252,12 +252,11 @@ function App() {
                     <div style={{ fontSize: 13, color: "#9b9b9bff" }}>
                       {(() => {
                         const email = appUser?.email || "user@example.com";
-                        const maxLen = 17;
+                        const maxLen = 20;
                         return email.length > maxLen ? email.slice(0, maxLen) + '...' : email;
                       })()}
                     </div>
                   </div>
-                  <hr style={{ border: "none", borderTop: "1px solid #ddd" }} />
                   {/* Language Switcher - custom dropdown */}
                   <div style={{ position: 'relative', display: "flex", alignItems: "center", gap: 8 }}>
                     <GlobeIcon />

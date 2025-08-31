@@ -2,6 +2,130 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 
+// Extracted common image rendering logic
+function ItemImage({ item, alt, style, ...rest }) {
+  return (
+    <img
+      key={item.id}
+      src={item.photoURLs?.[0]}
+      alt={alt}
+      loading="lazy"
+      style={style}
+      {...rest}
+    />
+  );
+}
+
+function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 28 }) {
+  if (!items || items.length === 0) return null;
+
+  // Common style for all images
+  const baseStyle = {
+    width: '100%',
+    height: '100%',
+    borderRadius,
+    objectFit: "cover",
+    border,
+    cursor: "pointer",
+  };
+
+  if (items.length === 1) {
+    return (
+      <ItemImage
+        item={items[0]}
+        alt={`item 1`}
+        style={{
+          ...baseStyle,
+          gridColumn: '1 / span 2',
+          gridRow: '1 / span 2',
+        }}
+      />
+    );
+  } else if (items.length === 2) {
+    return items.map((item, i) => (
+      <ItemImage
+        key={item.id || i}
+        item={item}
+        alt={`item ${i + 1}`}
+        style={{
+          ...baseStyle,
+          gridColumn: i === 0 ? '1' : '2',
+          gridRow: '1 / span 2',
+        }}
+      />
+    ));
+  } else if (items.length === 3) {
+    return [
+      <ItemImage
+        key={items[0].id || 0}
+        item={items[0]}
+        alt={`item 1`}
+        style={{
+          ...baseStyle,
+          gridColumn: '1 / span 2',
+          gridRow: '1',
+        }}
+      />,
+      <ItemImage
+        key={items[1].id || 1}
+        item={items[1]}
+        alt={`item 2`}
+        style={{
+          ...baseStyle,
+          gridColumn: '1',
+          gridRow: '2',
+        }}
+      />,
+      <ItemImage
+        key={items[2].id || 2}
+        item={items[2]}
+        alt={`item 3`}
+        style={{
+          ...baseStyle,
+          gridColumn: '2',
+          gridRow: '2',
+        }}
+      />
+    ];
+  } else if (items.length === 4) {
+    return items.slice(0, 4).map((item, i) => (
+      <ItemImage
+        key={item.id || i}
+        item={item}
+        alt={`item ${i + 1}`}
+        style={baseStyle}
+      />
+    ));
+  } else if (items.length > 4) {
+    return [
+      ...items.slice(0, 3).map((item, i) => (
+        <ItemImage
+          key={item.id || i}
+          item={item}
+          alt={`item ${i + 1}`}
+          style={baseStyle}
+        />
+      )),
+      <div
+        key="plus"
+        style={{
+          ...baseStyle,
+          background: 'rgba(0,0,0,0.35)',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize,
+          fontWeight: 700,
+        }}
+      >
+        +{items.length - 3}
+      </div>
+    ];
+  }
+  return null;
+}
+
 function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
   const { t } = useTranslation();
 
@@ -12,11 +136,11 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       style={{
         cursor: "pointer",
         background: "#fff",
-        borderRadius: 20,
+        borderRadius: 14,
         boxShadow: "0 2px 14px rgba(0,0,0,0.09)",
         padding: 14,
         marginBottom: 24,
-        width: "90%",
+        width: "100%",
         minHeight: "80px",
         display: "flex",
         flexDirection: "row",
@@ -43,89 +167,63 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
 
       <div
         style={{
-          position: "relative",
-          width: 85,
-          height: 85 + (match.theirItems.length - 1) * 9,
-          marginRight: (match.theirItems.length - 1) * 16,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: '1fr 1fr',
+          gap: 4,
+          width: 100,
+          height: 100,
+          marginRight: 8,
+          borderRadius: 12,
+          border: '2px solid #ffffff',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {match.theirItems.map((item, i) => (
-          <img
-            key={item.id || i}
-            src={item.photoURLs?.[0]}
-            alt={`Their item ${i + 1}`}
-            loading="lazy"
-            style={{
-              width: 85,
-              height: 85,
-              borderRadius: 15,
-              objectFit: "cover",
-              border: "2.5px solid #e0e0e0",
-              position: "absolute",
-              left: i * 15,
-              top: i * 7.5,
-              zIndex: match.theirItems.length - i,
-              cursor: "pointer",
-            }}
-          />
-        ))}
+        <ItemGrid items={match.theirItems} size={85} borderRadius={0} border={0} fontSize={28} />
       </div>
 
       <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          gap: 6,
-        }}
-      >
-        <div
           style={{
-            fontWeight: 200,
-            fontSize: 16,
+            position: "absolute",
+            marginTop: "2.5vh",
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gridTemplateRows: '1fr 1fr',
+            gap: 1.5,
+            width: 60,
+            height: "100%",
+            borderRadius: 6,
+            border: '0px solid #ffffff',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <ItemGrid items={match.yourItems || []} size={36} borderRadius={0} border={0} fontSize={16} />
+      </div>
+      <div style={{
+        height: "9vh",
+        marginLeft:"5vw",
+        width: "30vw",
+        textAlign: "center",
+        background:"transparent",
+      }}>
+      <div
+          style={{
+            fontWeight: 150,
+            fontSize: 19,
             color: "#15803d",
           }}
         >
           {match.otherUser.name || match.otherUser.displayName}
         </div>
-        <div
-          style={{
-            fontSize: 22,
-            lineHeight: 1,
-          }}
-        >
-          {getCategoryEmoji(match.theirItem?.category)}
-        </div>
-        <div
-          style={{
-            position: "relative",
-            marginLeft: -20 + (6 - match.theirItems.length) * 20,
-            width: 36 + (match.yourItems.length - 1) * 10,
-            height: 36,
-          }}
-        >
-          {Array.isArray(match.yourItems) && match.yourItems.length > 0
-            ? match.yourItems.map((item, idx) => (
-                <img
-                  key={item.id || idx}
-                  src={item.photoURLs?.[0]}
-                  alt={`Your item ${idx + 1}`}
-                  loading="lazy"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    objectFit: "cover",
-                    border: "1px solid #e0e0e0",
-                    position: "absolute",
-                    left: idx * 15,
-                    zIndex: match.yourItems.length - idx,
-                    cursor: "pointer",
-                  }}
-                />
-              ))
-            : null}
+        <div style={{
+              lineHeight:2,
+              fontWeight: 150,
+              fontSize: 14,
+              color: "#888888ff",
+            }}>
+              text de prova
         </div>
       </div>
     </div>
