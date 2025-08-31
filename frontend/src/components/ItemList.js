@@ -105,7 +105,15 @@ function DropdownMenu({ onEdit, onDelete, onClose }) {
   );
 }
 
-function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_delete", from_user_matching = null, matching = false }) {
+function ItemList({ user, refreshSignal, onModalOpenChange,
+  buttons = "edit_delete",
+  from_user_matching = null,
+  matching = false,
+  only_likes = false,
+  maxItems = null,
+  onExpand = null,
+  expanded = false })
+  {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -284,12 +292,18 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
   };
 
   const sortedItems = [...items].sort((a, b) => {
-    const aLiked = userLiked(a.id) ? 1 : 0;
-    const bLiked = userLiked(b.id) ? 1 : 0;
-    return bLiked - aLiked; // Sort liked items first
+    const aLiked = userLiked(b.id) ? 1 : 0;
+    const bLiked = userLiked(a.id) ? 1 : 0;
+    return aLiked - bLiked; // Sort liked items last
   });
+  if( only_likes === false ){
+    sortedItems.reverse();
+  }
 
   const filteredItems = sortedItems.filter(item => !(matching && buttons!=='like_pass' && !userLiked(item.id)));
+
+  // Limit items if maxItems is set and not expanded
+  const itemsToShow = (maxItems && !expanded) ? filteredItems.slice(0, maxItems) : filteredItems;
 
   if (!items.length) {
     return (
@@ -311,32 +325,50 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
         onCancel={confirmDialog.onCancel}
       />
       {!modalOpen && (
+        <>
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: 16,
           width: "100%",
         }}>
-          {filteredItems.map(item => (
+          {itemsToShow.map((item, idx) => (
             <div
               key={item.id}
               style={{
-                border: userLiked(item.id) ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
+                display: !userLiked(item.id) && only_likes===true ? 'none' : 'flex',
+                border: userLiked(item.id) && only_likes===false && buttons!="like_pass" ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
                 aspectRatio: 0.9,
                 background: "#fff",
                 borderRadius: 9,
                 boxShadow: "0 1.5px 8px 0 rgba(0,0,0,0.04)",
                 padding: 0,
-                display: "flex",
                 flexDirection: "column",
                 alignItems: "stretch",
                 position: "relative",
                 overflow: "hidden",
                 cursor: "pointer",
-                transition: "box-shadow .15s, border .15s"
+                transition: "box-shadow .15s, border .15s, opacity 0.45s cubic-bezier(.4,2,.6,1), transform 0.45s cubic-bezier(.4,2,.6,1)",
+                opacity: 1,
+                transform: 'translateY(0)',
+                animation: 'itemListFadeIn 0.55s cubic-bezier(.4,2,.6,1) both',
+                animationDelay: `${idx * 60}ms`,
               }}
               onClick={() => { setModalItem(item); setModalIdx(0); setModalOpen(true); }}
             >
+      {/* Fade/slide-in animation keyframes */}
+      <style>{`
+        @keyframes itemListFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(32px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
               {/* Main Image */}
               {item.photoURLs && item.photoURLs[0] && (
                 <div style={{
@@ -437,7 +469,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
                       </button>
                     )}
                   </div>
-                ) : (
+                ) : buttons === "edit_delete" && (
                   <div style={{ position: 'relative', marginLeft: 8 }}>
                     <button
                       onClick={e => {
@@ -488,6 +520,49 @@ function ItemList({ user, refreshSignal, onModalOpenChange, buttons = "edit_dele
             </div>
           ))}
         </div>
+        {/* Expand/collapse button if maxItems is set and there are more items */}
+        {maxItems && filteredItems.length > maxItems && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+            <button
+              onClick={onExpand}
+              style={{
+                background: '#e5e5e5',
+                color: '#15803d',
+                border: 'none',
+                borderRadius: 8,
+                padding: '9px 22px 9px 18px',
+                fontWeight: 500,
+                fontSize: 15,
+                cursor: 'pointer',
+                margin: '0 auto',
+                minWidth: 90,
+                boxShadow: expanded ? '0 2px 12px #22c55e33' : '0 1px 4px #0001',
+                transition: 'box-shadow 0.25s cubic-bezier(.4,2,.6,1), background 0.18s',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                outline: expanded ? '2px solid #22c55e55' : 'none',
+              }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <span style={{
+                display: 'inline-block',
+                transition: 'transform 0.32s cubic-bezier(.4,2,.6,1)',
+                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                marginRight: 4,
+              }}>
+                {/* Down arrow SVG */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.5 8.5L10 13L14.5 8.5" stroke="#15803d" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+              {expanded ? t('show_less', 'Show less') : t('show_all', 'Show all')}
+            </button>
+          </div>
+        )}
+        </>
       )}
       {/* Modal using ItemDetailModal */}
       {modalOpen && !!modalItem && (

@@ -11,6 +11,8 @@ import { HeartIcon } from '../utils/svg';
 // IoSend icon for send button
 
 
+
+
 function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const { t } = useTranslation();
   const [matches, setMatches] = useState([]);
@@ -18,8 +20,13 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const [chattingWith, setChattingWith] = useState(null); // match
   const [viewingTheirProfile, setviewingTheirProfile] = useState(null);
   const [viewingYourProfile, setviewingYourProfile] = useState(null);
+  // New state for trade view
+  const [viewingTrade, setViewingTrade] = useState(null); // { otherUser, yourItems, theirItems }
   const [itemListModalOpen, setItemListModalOpen] = useState(false);
 
+  // Expand/collapse state for trade view item lists (must be at top level)
+  const [expandTheir, setExpandTheir] = useState(false);
+  const [expandYours, setExpandYours] = useState(false);
 
   // Chat UI hooks (always defined, only used if chattingWith is set)
   const [messages, setMessages] = useState([]);
@@ -28,6 +35,18 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showSpinner, setShowSpinner] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Always call this useEffect to comply with hooks rules (must be at the top of the component)
+  useEffect(() => {
+    if (viewingTrade && !viewingTheirProfile) {
+      document.body.style.overflow = '';
+    } else if (chattingWith) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [viewingTrade, viewingTheirProfile, chattingWith]);
 
 
     // Grouping logic in useMemo so it recalculates every time matches changes
@@ -140,13 +159,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   }
 
 
-  // Disable body scroll when chat is open
-  useEffect(() => {
-    if (chattingWith) {
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = ''; };
-    }
-  }, [chattingWith]);
+  // (Removed duplicate/conditional useEffect for body scroll. Now handled by the unified useEffect below.)
 
   useEffect(() => {
     if (isLoading && matches.length === 0) {
@@ -161,13 +174,15 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   useEffect(() => {
     if (chattingWith) {
       const interval = setInterval(async () => {
-        const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
-        setMessages(msgs);
+        if (chattingWith && !viewingTheirProfile && !viewingTrade) {
+          const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
+          setMessages(msgs);
+        }
       }, 3000); // Update every 3 seconds
 
-      return () => clearInterval(interval); // Cleanup on unmount or when chattingWith changes
+      return () => clearInterval(interval); // Cleanup on unmount or when dependencies change
     }
-  }, [chattingWith, user]);
+  }, [chattingWith, user, viewingTheirProfile, viewingTrade]);
 
 
   if (showSpinner) {
@@ -175,17 +190,133 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   }
 
 
+
   // Move handleViewProfile above its first usage
   const handleViewProfile = (user, yours=false) => {
     if (yours) {
       setviewingYourProfile(user);
-    }
-    else{
-        setviewingTheirProfile(user);
+    } else {
+      setviewingTheirProfile(user);
     }
   };
 
-  if (chattingWith && !viewingTheirProfile) {
+  // Handler for viewing the trade
+  const handleViewTrade = (chatObj) => {
+    // chatObj is the group object from groupedArr
+    setViewingTrade({
+      otherUser: chatObj.otherUser,
+      yourItems: chatObj.yourItems,
+      theirItems: chatObj.theirItems,
+      group: chatObj
+    });
+  };
+
+
+
+
+  if (viewingTrade && !viewingTheirProfile) {
+    return (
+      <div style={{ position: 'fixed', top: '9%', width: '100%', height: '79vh', zIndex: 20, background: 'transparent', overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', fontFamily: 'Geist' }}>
+        {/* Title and close button */}
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px 0 24px', background: 'transparent', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
+          <div style={{ fontWeight: 200, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'center' }}>
+            {t('trade_view_title', 'Trade View')}
+          </div>
+          <button
+            onClick={() => setViewingTrade(null)}
+            aria-label="Close trade view"
+            style={{ border: 'none', background: 'none', fontSize: 20, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#555' }}
+          >
+            x
+          </button>
+        </div>
+        {/* Main trade content: two ItemLists stacked vertically */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center', width: '100%', marginTop: 18, gap: 32 }}>
+          {/* Their Items */}
+          <div style={{ width: '90%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16 }}>
+              <h3 style={{ textAlign: 'center', color: '#15803d', margin: 0 }}>{t('their_items', 'Their items')}</h3>
+              <button
+                onClick={() => setviewingTheirProfile(viewingTrade.otherUser)}
+                style={{
+                  background: '#e5e5e5',
+                  color: '#15803d',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '5px 13px',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  transition: 'background 0.18s',
+                  marginLeft: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5
+                }}
+                title={t('view_profile', 'View profile')}
+              >
+                <svg width="17" height="17" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 2}}>
+                  <circle cx="10" cy="7.5" r="3.5" stroke="#15803d" strokeWidth="1.5"/>
+                  <path d="M3.5 16c0-2.485 2.5-4.5 6.5-4.5s6.5 2.015 6.5 4.5" stroke="#15803d" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                {t('view_profile', 'Profile')}
+              </button>
+
+            </div>
+            <ItemList
+              user={{ ...viewingTrade.otherUser, items: viewingTrade.theirItems }}
+              onModalOpenChange={() => {}}
+              buttons="like_pass"
+              only_likes={true}
+              matching={true}
+              from_user_matching={user}
+              maxItems={2}
+              expanded={expandTheir}
+              onExpand={() => setExpandTheir(e => !e)}
+            />
+          </div>
+          {/* Your Items */}
+          <div style={{ width: '90%' }}>
+            <h3 style={{ textAlign: 'center', color: '#15803d' }}>{t('your_items', 'Your Items')}</h3>
+            <ItemList
+              user={{ ...user, items: viewingTrade.yourItems }}
+              onModalOpenChange={() => {}}
+              buttons="none"
+              matching={false}
+              from_user_matching={viewingTrade.otherUser}
+              maxItems={2}
+              expanded={expandYours}
+              onExpand={() => setExpandYours(e => !e)}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+if (viewingTheirProfile) {
+    return (
+      <div style={{ margin: '32% auto' }}>
+        <button
+          onClick={() => setviewingTheirProfile(null)}
+          className="common-button go-back"
+          style={{ top: "13.5vh", left: "6vw" }}
+        >
+            <BackIcon />
+
+        </button>
+        <ItemList
+          user={viewingTheirProfile}
+          onModalOpenChange={setItemListModalOpen}
+          buttons="like_pass"
+          matching={true}
+          from_user_matching={user}
+        />
+      </div>
+    );
+  }
+
+  if (chattingWith) {
     return (
          <div style={{ position: 'fixed', top: '9%', width: '100%', height: '79vh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
 
@@ -208,11 +339,11 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
           {/* Button below name */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5' }}>
             <div
-              onClick={() => handleViewProfile(chattingWith.otherUser)}
+              onClick={() => handleViewTrade(chattingWith)}
               style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
             >
               <HeartIcon style={{ marginRight: 6, verticalAlign: 'middle' }} />
-              {t('look_at_their_items', `Look at ${chattingWith.otherUser.name || chattingWith.otherUser.displayName || 'their'} Items`)}
+              {t('look_at_the_trade', 'Look at the trade')}
             </div>
           </div>
           {/* Chat messages */}
@@ -246,7 +377,6 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               onChange={e => setInput(e.target.value)}
               placeholder={t('type_a_message', 'Type a message...')}
               style={{ flex: 1, borderRadius: 20, border: '1px solid #ddd', padding: '11px 16px', fontSize: 15.5, outline: 'none', background: '#fafafa' }}
-              autoFocus
             />
             <button
               type="submit"
@@ -264,54 +394,6 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
       </div>
     );
   }
-
-
-
-  if (viewingTheirProfile) {
-    return (
-      <div style={{ margin: '32% auto' }}>
-        <button
-          onClick={() => setviewingTheirProfile(null)}
-          className="common-button go-back"
-          style={{ top: "13.5vh", left: "6vw" }}
-        >
-            <BackIcon />
-
-        </button>
-        <ItemList
-          user={viewingTheirProfile}
-          onModalOpenChange={setItemListModalOpen}
-          buttons="like_pass"
-          matching={true}
-          from_user_matching={user}
-        />
-      </div>
-    );
-  }
-  if (viewingYourProfile) {
-    console.log(chattingWith)
-    return (
-      <div style={{ margin: '30% auto'}}>
-        <button
-          onClick={() => setviewingYourProfile(null)}
-          className="common-button go-back"
-          style={{ top:60}}
-        >
-            <BackIcon />
-
-        </button>
-
-        <ItemList
-          user={user}
-          onModalOpenChange={setItemListModalOpen}
-          buttons="none"
-          matching={true}
-          from_user_matching={viewingYourProfile}
-        />
-      </div>
-    );
-  }
-
 
 
   return (

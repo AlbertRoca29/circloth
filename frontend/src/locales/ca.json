@@ -78,5 +78,7 @@
   "pass_item_title": "Passar article",
   "pass_item_confirm": "Segur que vols passar aquest article?",
   "pass": "Passar",
-  "cancel": "Cancel·la"
+  "cancel": "Cancel·la",
+  "look_at_their_items": "Mira els articles de {{name}}",
+  "look_at_your_items": "Mira els teus articles que li han agradat"
 }

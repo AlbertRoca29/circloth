@@ -136,29 +136,28 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       style={{
         cursor: "pointer",
         background: "#fff",
-        borderRadius: 14,
+        borderRadius: 12,
         boxShadow: "0 2px 14px rgba(0,0,0,0.09)",
-        padding: 14,
+        height: "20vh",
         marginBottom: 24,
         width: "100%",
         display: "flex",
         alignItems: "center",
         position: "relative",
-        gap: 16,
       }}
     >
       {isUnread && (
         <span
           style={{
             position: "absolute",
-            top: 8,
-            left: 8,
-            width: 14,
-            height: 14,
+            top: 6,
+            left: 6,
+            width: 12,
+            height: 12,
             background: "red",
             borderRadius: "50%",
             zIndex: 2,
-            border: "4px solid #fff",
+            border: "3px solid #ffffffd6",
           }}
         />
       )}
@@ -166,15 +165,14 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gridTemplateRows: '1fr 1fr',
-          gap: 4,
-          width: 100,
-          minHeight:100,
+          gridTemplateColumns: '1 1',
+          gridTemplateRows: '1 1',
+          gap: 0,
+          aspectRatio: "0.9",
           height: "100%",
-          marginRight: 8,
+          marginRight: 20,
           borderRadius: 12,
-          border: '2px solid #ffffff',
+        //   border: '2px solid #ffffff',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -184,33 +182,33 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
 
       <div
           style={{
+            visibility: 'hidden',
             position: "absolute",
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gridTemplateRows: '1fr 1fr',
-            gap: 2,
+            gap: 0,
             width: 60,
-            minHeight:60,
-            height: "100%",
+            aspectRatio: "0.9",
             borderRadius: 6,
             border: '0px solid #ffffff',
             position: 'relative',
             overflow: 'hidden',
           }}
         >
-          <ItemGrid items={match.yourItems || []} size={36} borderRadius={0} border={0} fontSize={16} />
+          <ItemGrid items={match.yourItems || []} size={0} borderRadius={0} border={0} fontSize={16} />
       </div>
       <div style={{
         height: "9vh",
         marginLeft:"5vw",
         width: "30vw",
-        textAlign: "center",
+        textAlign: "left",
         background:"transparent",
       }}>
       <div
           style={{
             fontWeight: 150,
-            fontSize: 19,
+            fontSize: 20,
             color: "#15803d",
           }}
         >
