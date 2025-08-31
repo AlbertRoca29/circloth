@@ -17,6 +17,7 @@ function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText 
   return (
     <div style={{
       position: 'fixed',
+      fontFamily: 'Geist',
       top: 0,
       left: 0,
       width: '100vw',
@@ -31,14 +32,13 @@ function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText 
         background: '#fff',
         borderRadius: 16,
         boxShadow: '0 2px 16px 0 rgba(0,0,0,0.13)',
-        minWidth: 280,
-        maxWidth: 340,
-        padding: '28px 20px 18px 20px',
+        width: "65vw",
+        padding: '28px 10px 18px 10px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 10, color: '#232323', textAlign: 'center' }}>{title}</div>
+        <div style={{ fontWeight: 200, fontSize: 18, marginBottom: 10, color: '#232323', textAlign: 'center' }}>{title}</div>
         <div style={{ fontSize: 15, color: '#444', marginBottom: 22, textAlign: 'center' }}>{message}</div>
         <div style={{ display: 'flex', gap: 12, width: '100%', justifyContent: 'center' }}>
           <button onClick={onCancel} style={{
@@ -53,7 +53,7 @@ function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText 
   );
 }
 
-function DropdownMenu({ onEdit, onDelete, onClose }) {
+function DropdownMenu({ onEdit, onDelete, onClose, position }) {
   const menuRef = useRef(null);
 
   // Close menu on outside click
@@ -70,27 +70,27 @@ function DropdownMenu({ onEdit, onDelete, onClose }) {
   return (
     <div style={{
       position: 'fixed',
-      top: '0',
-      left: '0',
+      top: 0,
+      left: 0,
       width: '100vw',
       height: '100vh',
-      zIndex: 99999,
+      zIndex: 100000,
       pointerEvents: 'none',
     }}>
       <div
         ref={menuRef}
         style={{
-          position: 'absolute',
-          top: 'var(--dropdown-top, 60px)',
-          left: 'var(--dropdown-left, 60px)',
-          background: '#fff',
+          position: 'fixed',
+          top: position?.top || 60,
+          left: position?.left || 60,
+          background: "#fff",
           border: '1px solid #eee',
           borderRadius: 8,
           boxShadow: '0 2px 8px 0 rgba(0,0,0,0.12)',
           minWidth: 90,
           padding: '4px 0',
           fontSize: 15,
-          zIndex: 99999,
+          zIndex: 999999,
           pointerEvents: 'auto',
         }}
       >
@@ -127,6 +127,8 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ open: false });
   const [menuOpenId, setMenuOpenId] = useState(null); // For dropdown menu
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [menuItem, setMenuItem] = useState(null);
   const [userActions, setUserActions] = useState({});
 
   // Disable body scroll when ItemDetailModal is open
@@ -417,12 +419,12 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: '30vw'
-                  }}>{t(`category_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
+                  }}>{t(`short_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
                     fontSize: 12,
                     color: '#888',
                     marginTop: 2
-                  }}>Size: {t(item.size) || item.size || '-'}</span>
+                  }}>{t('size')}: {t(item.size) || item.size || '-'}</span>
                 </div>
                 {/* Right: Actions */}
                 {buttons === "like_pass" ? (
@@ -474,11 +476,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                     <button
                       onClick={e => {
                         e.stopPropagation();
-                        // Save button position for dropdown
                         const rect = e.currentTarget.getBoundingClientRect();
-                        document.documentElement.style.setProperty('--dropdown-top', `${rect.bottom + window.scrollY}px`);
-                        document.documentElement.style.setProperty('--dropdown-left', `${rect.right - 120}px`);
+                        setMenuPosition({
+                          top: rect.bottom + window.scrollY,
+                          left: rect.right - 120
+                        });
                         setMenuOpenId(menuOpenId === item.id ? null : item.id);
+                        setMenuItem(item);
                       }}
                       style={{
                         background: 'none',
@@ -499,21 +503,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                     >
                       <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>⋮</span>
                     </button>
-                    {menuOpenId === item.id && (
-                      <DropdownMenu
-                        onEdit={e => {
-                          e?.stopPropagation?.();
-                          setMenuOpenId(null);
-                          // Edit coming soon
-                        }}
-                        onDelete={e => {
-                          e?.stopPropagation?.();
-                          setMenuOpenId(null);
-                          handleDelete(item);
-                        }}
-                        onClose={() => setMenuOpenId(null)}
-                      />
-                    )}
                   </div>
                 )}
               </div>
@@ -526,21 +515,19 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
             <button
               onClick={onExpand}
               style={{
-                background: '#e5e5e5',
+                background: 'white',
                 color: '#15803d',
-                border: 'none',
+                border: '1.5px solid #118a3d13',
                 borderRadius: 8,
-                padding: '9px 22px 9px 18px',
-                fontWeight: 500,
-                fontSize: 15,
+                padding: '6.5px 18px 6.5px 12px',
+                fontSize: 14,
                 cursor: 'pointer',
                 margin: '0 auto',
-                minWidth: 90,
                 boxShadow: expanded ? '0 2px 12px #22c55e33' : '0 1px 4px #0001',
                 transition: 'box-shadow 0.25s cubic-bezier(.4,2,.6,1), background 0.18s',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 8,
+                gap: 6,
                 outline: expanded ? '2px solid #22c55e55' : 'none',
               }}
               onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
@@ -558,12 +545,30 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                   <path d="M5.5 8.5L10 13L14.5 8.5" stroke="#15803d" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
-              {expanded ? t('show_less', 'Show less') : t('show_all', 'Show all')}
+              {expanded ? t('show_less') || 'Show less' : t('show_all') || 'Show all'}
             </button>
           </div>
         )}
         </>
       )}
+      {/* DropdownMenu rendered at root for overlay */}
+      {menuOpenId && menuItem && (
+        <DropdownMenu
+          onEdit={e => {
+            e?.stopPropagation?.();
+            setMenuOpenId(null);
+            // Edit coming soon
+          }}
+          onDelete={e => {
+            e?.stopPropagation?.();
+            setMenuOpenId(null);
+            handleDelete(menuItem);
+          }}
+          onClose={() => setMenuOpenId(null)}
+          position={menuPosition}
+        />
+      )}
+
       {/* Modal using ItemDetailModal */}
       {modalOpen && !!modalItem && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999 }}>

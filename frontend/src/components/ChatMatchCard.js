@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
+import { height } from "@mui/system";
 
 // Extracted common image rendering logic
 function ItemImage({ item, alt, style, ...rest }) {
@@ -23,6 +24,8 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
   const baseStyle = {
     width: '100%',
     height: '100%',
+    minWidth: 0,
+    minHeight: 0,
     borderRadius,
     objectFit: "cover",
     border,
@@ -55,38 +58,40 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
       />
     ));
   } else if (items.length === 3) {
-    return [
-      <ItemImage
-        key={items[0].id || 0}
-        item={items[0]}
-        alt={`item 1`}
-        style={{
-          ...baseStyle,
-          gridColumn: '1 / span 2',
-          gridRow: '1',
-        }}
-      />,
-      <ItemImage
-        key={items[1].id || 1}
-        item={items[1]}
-        alt={`item 2`}
-        style={{
-          ...baseStyle,
-          gridColumn: '1',
-          gridRow: '2',
-        }}
-      />,
-      <ItemImage
-        key={items[2].id || 2}
-        item={items[2]}
-        alt={`item 3`}
-        style={{
-          ...baseStyle,
-          gridColumn: '2',
-          gridRow: '2',
-        }}
-      />
-    ];
+    return (
+      <>
+        <ItemImage
+          key={items[0].id || 0}
+          item={items[0]}
+          alt={`item 1`}
+          style={{
+            ...baseStyle,
+            gridColumn: '1 / span 2',
+            gridRow: '1',
+          }}
+        />
+        <ItemImage
+          key={items[1].id || 1}
+          item={items[1]}
+          alt={`item 2`}
+          style={{
+            ...baseStyle,
+            gridColumn: '1',
+            gridRow: '2',
+          }}
+        />
+        <ItemImage
+          key={items[2].id || 2}
+          item={items[2]}
+          alt={`item 3`}
+          style={{
+            ...baseStyle,
+            gridColumn: '2',
+            gridRow: '2',
+          }}
+        />
+      </>
+    );
   } else if (items.length === 4) {
     return items.slice(0, 4).map((item, i) => (
       <ItemImage
@@ -137,7 +142,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
         cursor: "pointer",
         background: "#fff",
         borderRadius: 12,
-        boxShadow: "0 2px 14px rgba(0,0,0,0.09)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
         height: "20vh",
         marginBottom: 24,
         width: "100%",
@@ -165,17 +170,19 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1 1',
-          gridTemplateRows: '1 1',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: '1fr 1fr',
           gap: 0,
-          aspectRatio: "0.9",
           height: "100%",
-          aspectRatio: "0.9",
+          aspectRatio: "1",
           marginRight: 20,
           borderRadius: 12,
-        //   border: '2px solid #ffffff',
           position: 'relative',
           overflow: 'hidden',
+          alignItems: 'stretch',
+          justifyItems: 'stretch',
+          minWidth: 0,
+          minHeight: 0,
         }}
       >
         <ItemGrid items={match.theirItems} size={85} borderRadius={0} border={0} fontSize={28} />

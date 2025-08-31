@@ -303,7 +303,7 @@ function ItemDetailModal({
                 letterSpacing: 0.2,
                 display: 'inline-block',
               }}>
-                <strong style={{ fontWeight: 170 }}>Size:</strong> {t(item.size) || item.size}
+                <strong style={{ fontWeight: 170 }}>{t('size')}:</strong> {t(item.size) || item.size}
               </span>
             </div>
           )}

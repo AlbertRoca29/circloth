@@ -13,6 +13,14 @@
   "category_shoes": "Zapatos",
   "category_accessories": "Accesorios",
   "category_other": "Otro",
+
+    "short_tops": "Tops",
+    "short_jackets_sweaters": "Chaquetas",
+    "short_pants_shorts": "Pantalones",
+    "short_dresses_skirts": "Vestidos",
+    "short_shoes": "Zapatos",
+    "short_accessories": "Acces.",
+    "short_other": "Otro",
   "tab_clothes": "Ropa",
   "tab_matching": "Match",
   "tab_chats": "Chats",
@@ -79,5 +87,7 @@
   "look_at_their_items": "Ver los artículos de {{name}}",
   "look_at_your_items": "Ver tus artículos que le gustaron",
   "their_items": "Sus artículos",
-  "trade_view_title": "Vista de intercambio"
+  "trade_view_title": "Vista de intercambio",
+  "show_all": "Ver todo",
+  "show_less": "Ver menos"
 }

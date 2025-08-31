@@ -13,6 +13,14 @@
   "category_shoes": "Sabates",
   "category_accessories": "Accessoris",
   "category_other": "Altres",
+
+    "short_tops": "Tops",
+    "short_jackets_sweaters": "Jaquetes",
+    "short_pants_shorts": "Pantalons",
+    "short_dresses_skirts": "Vestits",
+    "short_shoes": "Sabates",
+    "short_accessories": "Acces.",
+    "short_other": "Altres",
   "tab_clothes": "Roba",
   "tab_matching": "Match",
   "tab_chats": "Xats",
@@ -82,5 +90,7 @@
   "look_at_their_items": "Mira els articles de {{name}}",
   "look_at_your_items": "Mira els teus articles que li han agradat",
   "their_items": "Els seus articles",
-  "trade_view_title": "Vista d'intercanvi"
+  "trade_view_title": "Vista d'intercanvi",
+  "show_all": "Mostra-ho tot",
+  "show_less": "Mostra'n menys"
 }

@@ -408,10 +408,8 @@ function App() {
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
-                onModalOpenChange={(open) => {
-    console.log("App.js: setItemListModalOpen called with", open);
-    setItemListModalOpen(open);
-  }}
+                onModalOpenChange={(open) => {setItemListModalOpen(open);}
+            }
               />
             )}
           </>
