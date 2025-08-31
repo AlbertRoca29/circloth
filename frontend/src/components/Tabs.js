@@ -50,7 +50,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           left: "50%",
           bottom: 2,
           transform: "translateX(-50%)",
-          width: "260px",
+          width: "70vw",
           height: 68,
           display: "flex",
           justifyContent: "space-around",
@@ -60,8 +60,8 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           backdropFilter: "blur(12px)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
           zIndex: 200,
-          padding: "0 8px",
-          gap: 4,
+          padding: "0px 100px",
+          gap: "3vw",
         }}
       >
         <TabButton

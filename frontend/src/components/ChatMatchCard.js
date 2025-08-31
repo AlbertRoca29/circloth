@@ -170,6 +170,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
           gap: 0,
           aspectRatio: "0.9",
           height: "100%",
+          aspectRatio: "0.9",
           marginRight: 20,
           borderRadius: 12,
         //   border: '2px solid #ffffff',
@@ -182,13 +183,12 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
 
       <div
           style={{
-            visibility: 'hidden',
             position: "absolute",
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gridTemplateRows: '1fr 1fr',
+            display: 'none', //grid
+            // gridTemplateColumns: '1fr 1fr',
+            // gridTemplateRows: '1fr 1fr',
             gap: 0,
-            width: 60,
+            height: "100%",
             aspectRatio: "0.9",
             borderRadius: 6,
             border: '0px solid #ffffff',
@@ -199,23 +199,31 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
           <ItemGrid items={match.yourItems || []} size={0} borderRadius={0} border={0} fontSize={16} />
       </div>
       <div style={{
-        height: "9vh",
-        marginLeft:"5vw",
-        width: "30vw",
+        position: "relative",
+        height: "70%",
+        background: "green",
+        width: "50%",
+        marginLeft: "10px",
         textAlign: "left",
-        background:"transparent",
+        background: "transparent",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "left",
       }}>
       <div
           style={{
+            width: "100%",
             fontWeight: 150,
-            fontSize: 20,
-            color: "#15803d",
+            fontSize: 19,
+            color: "#147939ff",
           }}
         >
           {match.otherUser.name || match.otherUser.displayName}
         </div>
         <div style={{
-              lineHeight:2,
+              lineHeight:1.5,
+              width: "100%",
               fontWeight: 150,
               fontSize: 14,
               color: "#888888ff",

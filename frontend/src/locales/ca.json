@@ -80,5 +80,7 @@
   "pass": "Passar",
   "cancel": "Cancel·la",
   "look_at_their_items": "Mira els articles de {{name}}",
-  "look_at_your_items": "Mira els teus articles que li han agradat"
+  "look_at_your_items": "Mira els teus articles que li han agradat",
+  "their_items": "Els seus articles",
+  "trade_view_title": "Vista d'intercanvi"
 }

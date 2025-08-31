@@ -79,5 +79,7 @@
   "pass": "Pass",
   "cancel": "Cancel",
   "look_at_their_items": "Look at {{name}}'s Items",
-  "look_at_your_items": "Look at your items they liked"
+  "look_at_your_items": "Look at your items they liked",
+  "their_items": "Their items",
+  "trade_view_title": "Trade View"
 }

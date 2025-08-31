@@ -193,8 +193,18 @@ function App() {
       )}
       {/* Header - fixed, outside main-container */}
   {!itemListModalOpen && !chatsModalOpen && (
-        <div className="header-bubble">
+        <div>
           <div style={{
+            position: "fixed",
+            top: 0,
+            left: "50vw",
+            transform: "translateX(-50%)",
+            width: "100%",
+            background: "var(--primary-light)",
+            boxShadow: "0 8px 19px var(--shadow)",
+            padding: "2.5vh 0 2vh 0",
+            zIndex: 500,
+            margin: "0",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -204,7 +214,7 @@ function App() {
               fontWeight: 600,
               fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
               margin: 0,
-              marginLeft: "12px",
+              marginLeft: "5vw",
               letterSpacing: "0.04em",
               fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif"
             }}>
@@ -219,7 +229,7 @@ function App() {
                   background: "none",
                   border: "none",
                   padding: 0,
-                  margin: 0,
+                  marginRight: "10vw",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center"

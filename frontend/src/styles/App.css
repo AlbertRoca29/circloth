@@ -20,19 +20,8 @@
   font-weight: 150 !important;
   letter-spacing: 0.01em;
 }
-.header-bubble {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  background: var(--primary-light);
-  /* border-radius: 0 0 1.5rem 1.5rem; */
-  box-shadow: 0 8px 19px var(--shadow);
-  padding: 2.3rem 3rem 1.2rem 2rem;
-  z-index: 500; /* above everything */
-  margin: 0rem 0;
-}
+
+
 
 /* Main centered container for desktop */
 /* Main centered container for desktop, more spacious */
