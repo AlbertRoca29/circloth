@@ -131,8 +131,39 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
   return null;
 }
 
-function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
+function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, currentUserId }) {
   const { t } = useTranslation();
+
+  // Helper: render last message or New match! Now also renders time if present
+  function renderLastMessage() {
+    if (lastMessage && lastMessage.content) {
+      const isSent = lastMessage.sender === currentUserId;
+      // Format time (assume lastMessage.timestamp is ISO string or ms)
+      let timeStr = '';
+      if (lastMessage.timestamp) {
+        let dateObj = typeof lastMessage.timestamp === 'string' ? new Date(lastMessage.timestamp) : new Date(Number(lastMessage.timestamp));
+        if (!isNaN(dateObj.getTime())) {
+          timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+      }
+      return (
+        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+          <span style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            {isSent && (
+              <svg width="16" height="16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 2}}>
+                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill="#22c55e" />
+              </svg>
+            )}
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: "25vw" }}>{lastMessage.content}</span>
+          </span>
+          {timeStr && (
+            <span style={{ color: '#888', fontSize: 12, marginTop: 2, marginLeft: isSent ? 18 : 0, whiteSpace: 'nowrap' }}>{timeStr}</span>
+          )}
+        </span>
+      );
+    }
+    return <span style={{ color: '#22c55e', fontWeight: 500 }}>{t('new_match', 'New match!')}</span>;
+  }
 
   return (
     <div
@@ -141,14 +172,15 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
       style={{
         cursor: "pointer",
         background: "#fff",
-        borderRadius: 12,
+        borderRadius: 13,
         boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+        marginBottom: 18,
         height: "20vh",
-        marginBottom: 24,
-        width: "100%",
+        width: "85vw",
         display: "flex",
         alignItems: "center",
         position: "relative",
+        transition: 'box-shadow 0.18s',
       }}
     >
       {isUnread && (
@@ -159,14 +191,16 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
             left: 6,
             width: 12,
             height: 12,
-            background: "red",
+            background: "#22c55e",
             borderRadius: "50%",
             zIndex: 2,
-            border: "3px solid #ffffffd6",
+            border: "2.5px solid #fff",
+            boxShadow: '0 0 0 2px #e5e5e5',
           }}
         />
       )}
 
+      {/* Image grid (left part) */}
       <div
         style={{
           display: 'grid',
@@ -175,67 +209,63 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile }) {
           gap: 0,
           height: "100%",
           aspectRatio: "1",
-          marginRight: 20,
+          marginRight: 18,
           borderRadius: 12,
           position: 'relative',
           overflow: 'hidden',
           alignItems: 'stretch',
           justifyItems: 'stretch',
-          minWidth: 0,
-          minHeight: 0,
         }}
       >
         <ItemGrid items={match.theirItems} size={85} borderRadius={0} border={0} fontSize={28} />
       </div>
 
+      {/* Info column (right part) */}
       <div
+        style={{
+          marginTop: "6vh",
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          minWidth: 0,
+          gap: 14,
+          height: '100%',
+          padding: '18px 18px 18px 0', // more padding, no left padding to keep close to image
+        }}
+      >
+        <div
           style={{
-            position: "absolute",
-            display: 'none', //grid
-            // gridTemplateColumns: '1fr 1fr',
-            // gridTemplateRows: '1fr 1fr',
-            gap: 0,
-            height: "100%",
-            aspectRatio: "0.9",
-            borderRadius: 6,
-            border: '0px solid #ffffff',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <ItemGrid items={match.yourItems || []} size={0} borderRadius={0} border={0} fontSize={16} />
-      </div>
-      <div style={{
-        position: "relative",
-        height: "70%",
-        background: "green",
-        width: "50%",
-        marginLeft: "10px",
-        textAlign: "left",
-        background: "transparent",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "left",
-      }}>
-      <div
-          style={{
-            width: "100%",
-            fontWeight: 150,
+            fontWeight: 200,
             fontSize: 19,
-            color: "#147939ff",
+            color: "#15803d",
+            letterSpacing: 0.1,
+            maxWidth: '100%',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           {match.otherUser.name || match.otherUser.displayName}
         </div>
-        <div style={{
-              lineHeight:1.5,
-              width: "100%",
-              fontWeight: 150,
-              fontSize: 14,
-              color: "#888888ff",
-            }}>
-              text de prova
+        <div style={{ width: '95%', borderBottom: '1.5px solid #e5e5e5', margin: '2px 0 6px 0' }} />
+        <div
+          style={{
+            lineHeight: 1.3,
+            fontWeight: 150,
+            fontSize: 15,
+            color: "#555",
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            minHeight: 22,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {renderLastMessage()}
         </div>
       </div>
     </div>

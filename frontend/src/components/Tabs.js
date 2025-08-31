@@ -90,11 +90,11 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
                   right: -2,
                   width: 8,
                   height: 8,
-                  background: "#e11d48",
+                  background: "#23e900ff",
                   borderRadius: "50%",
                   border: "2px solid #fff",
                   zIndex: 2,
-                  boxShadow: "0 0 2px #e11d48"
+                  boxShadow: "0 0 2px #2de11dff"
                 }} />
               )}
             </span>

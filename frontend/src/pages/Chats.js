@@ -409,13 +409,24 @@ if (viewingTheirProfile) {
         </div>
       )}
       {groupedArr.map((group, idx) => {
+        // Find the chat for this group
+        const chat = chats.find(c => c.participants && c.participants.includes(group.otherUser.id));
+        // Get last message if available
+        let lastMessage = null;
+        if (chat && chat.messages && chat.messages.length > 0) {
+          lastMessage = chat.messages[chat.messages.length - 1];
+        } else if (chat && chat.last_message) {
+          lastMessage = chat.last_message;
+        }
         return (
           <ChatMatchCard
             key={group.matchIds.join('-')}
             match={group}
             isUnread={group.isUnread}
-            onChat={handleChatClick} // Use the new handler
+            onChat={handleChatClick}
             onViewProfile={handleViewProfile}
+            lastMessage={lastMessage}
+            currentUserId={user?.uid}
           />
         );
       })}
