@@ -226,7 +226,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
             <button
               onClick={() => setViewingTrade(null)}
               aria-label="Close trade view"
-              style={{ position: 'absolute', right: 12, top: 6, border: 'none', background: 'rgba(255,255,255,0.18)', fontSize: 24, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)', transition: 'background 0.18s' }}
+              style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
               onMouseOver={e => e.currentTarget.style.background = '#fff4'}
               onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
             >

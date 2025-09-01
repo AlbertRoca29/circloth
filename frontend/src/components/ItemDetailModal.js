@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon } from "../utils/svg";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, CloseIcon } from "../utils/svg";
 import { useTranslation } from "react-i18next";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
@@ -107,6 +107,42 @@ function ItemDetailModal({
         position: 'relative',
         margin: 0,
       };
+
+  // Updated the close button to be square with a green background to match the app style
+  const closeButtonStyle = {
+    position: 'absolute',
+    top: 16,
+    right: 20,
+    width: 34,
+    height: 34,
+    fontFamily: 'Geist',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#08a12cd0', // Green background to match app style
+    border: 'none',
+    borderRadius: 4, // Square with slight rounding
+    cursor: 'pointer',
+    zIndex: 20,
+    outline: 'none',
+    padding: 0,
+    transition: 'background 0.18s, box-shadow 0.18s',
+    userSelect: 'none',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+  };
+
+  const closeButtonHoverStyle = {
+    background: '#17a566', // Darker green on hover
+  };
+
+  const closeIconStyle = {
+    width: 18,
+    height: 18,
+    stroke: '#fff', // White icon for contrast
+    strokeWidth: 1.7,
+    strokeLinecap: 'round',
+  };
+
   return (
     <div style={{ ...modalWrapperStyle, fontFamily: 'Geist' }}>
       <div style={cardStyle}>
@@ -114,48 +150,13 @@ function ItemDetailModal({
         {!matching && (
           <button
             onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: 14,
-              right: 18,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              zIndex: 20,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            //   transition: 'color 0.18s, box-shadow 0.18s',
-              outline: 'none',
-              padding: 0,
-              // Removed boxShadow for a more minimalistic look
-              // boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
-              textShadow: '0 1px 4px #fff, 0 0px 2px #0001',
-              borderWidth: 0,
-              borderStyle: 'solid',
-              borderColor: 'rgba(0,0,0,0.04)',
-              backdropFilter: 'blur(1.5px)',
-              WebkitBackdropFilter: 'blur(1.5px)',
-              userSelect: 'none',
-            }}
+            style={closeButtonStyle}
+            onMouseOver={(e) => e.currentTarget.style.background = closeButtonHoverStyle.background}
+            onMouseOut={(e) => e.currentTarget.style.background = closeButtonStyle.background}
             aria-label={t('close') || 'Close'}
             title={t('close') || 'Close'}
           >
-            <span style={{
-              fontSize: 35,
-              fontFamily: 'Geist',
-              fontWeight: 100,
-              lineHeight: 1,
-              letterSpacing: 1,
-              color: 'inherit',
-            //   filter: 'drop-shadow(0 1px 2px #ffffff9c) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.11))',
-              textAlign: 'center',
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>×</span>
+            <CloseIcon />
           </button>
         )}
         {/* Image section, takes most of the card */}

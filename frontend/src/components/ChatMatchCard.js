@@ -154,7 +154,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
                 <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill="#22c55e" />
               </svg>
             )}
-            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: "25vw" }}>{lastMessage.content}</span>
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: "30vw" }}>{lastMessage.content}</span>
           </span>
           {timeStr && (
             <span style={{ color: '#888', fontSize: 12, marginTop: 2, marginLeft: isSent ? 18 : 0, whiteSpace: 'nowrap' }}>{timeStr}</span>
@@ -175,7 +175,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         borderRadius: 13,
         boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
         marginBottom: 18,
-        height: "20vh",
+        height: "16vh",
         width: "85vw",
         display: "flex",
         alignItems: "center",
@@ -209,7 +209,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
           gap: 0,
           height: "100%",
           aspectRatio: "1",
-          marginRight: 18,
+          marginRight: 13,
           borderRadius: 12,
           position: 'relative',
           overflow: 'hidden',
@@ -223,7 +223,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
       {/* Info column (right part) */}
       <div
         style={{
-          marginTop: "6vh",
+          marginTop: "4vh",
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
@@ -238,7 +238,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         <div
           style={{
             fontWeight: 200,
-            fontSize: 19,
+            fontSize: 18,
             color: "#15803d",
             letterSpacing: 0.1,
             maxWidth: '100%',
@@ -249,11 +249,11 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         >
           {match.otherUser.name || match.otherUser.displayName}
         </div>
-        <div style={{ width: '95%', borderBottom: '1.5px solid #e5e5e5', margin: '2px 0 6px 0' }} />
+        <div style={{ width: '95%', borderBottom: '1.5px solid #e5e5e5', margin: '0px 0 0px 0' }} />
         <div
           style={{
             lineHeight: 1.3,
-            fontWeight: 150,
+            fontWeight: lastMessage.sender === currentUserId ? 100 : 150,
             fontSize: 15,
             color: "#555",
             display: 'flex',

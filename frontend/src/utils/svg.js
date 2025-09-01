@@ -66,12 +66,19 @@ export const GlobeIcon = (props) => (
   </svg>
 );
 
-// Existing icons from constants/icons.js
-export const CloseIcon = () => (
-  <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="22" cy="22" r="22" fill="#e0e0e0"/>
-    <line x1="15" y1="15" x2="29" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
-    <line x1="29" y1="15" x2="15" y2="29" stroke="#15803d" strokeWidth="3.2" strokeLinecap="round"/>
+export const CloseIcon = (props) => (
+  <svg
+    viewBox="0 0 18 18"
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    stroke="#fff"
+    strokeWidth="1.7"
+    strokeLinecap="round"
+    {...props}
+  >
+    <line x1="4.6" y1="4.6" x2="13.4" y2="13.4" />
+    <line x1="13.4" y1="4.6" x2="4.6" y2="13.4" />
   </svg>
 );
 
