@@ -12,13 +12,13 @@ class FirestoreDB:
         """
         # Get all 'like' actions by visitor_user_id
         actions_ref = self.db.collection("users").document(visitor_user_id).collection("actions")
-    liked_actions = actions_ref.where(filter=("action", "==", "like")).stream()
+        liked_actions = actions_ref.where("action", "==", "like").stream()
         liked_item_ids = [a.to_dict()["item_id"] for a in liked_actions]
         if not liked_item_ids:
             return []
         # Get all items owned by profile_user_id that are in liked_item_ids
         items_ref = self.db.collection("items")
-    items = items_ref.where(filter=("ownerId", "==", profile_user_id)).where(filter=("id", "in", liked_item_ids)).stream()
+        items = items_ref.where("ownerId", "==", profile_user_id).where("id", "in", liked_item_ids).stream()
         return [item.to_dict() for item in items]
 
     def get_all_matches_for_user(self, user_id: str):
@@ -26,7 +26,7 @@ class FirestoreDB:
         Optimized to minimize Firestore calls using collection group query (requires index).
         """
         # Fetch all 'like' actions for all users (except current) in one collection group query
-    actions_query = self.db.collection_group("actions").where(filter=("action", "==", "like"))
+        actions_query = self.db.collection_group("actions").where("action", "==", "like")
         all_actions = self._log_and_stream("get_all_matches_for_user", actions_query)
 
         # Fetch all items once for lookup
@@ -64,7 +64,7 @@ class FirestoreDB:
         if needed_user_ids:
             users_ref = self.db.collection("users")
             # Firestore batch get
-            docs = self._log_and_get("get_all_matches_for_user_users", users_ref.where(filter=("id", "in", list(needed_user_ids))))
+            docs = self._log_and_get("get_all_matches_for_user_users", users_ref.where("id", "in", list(needed_user_ids)))
             for doc in docs:
                 user_docs[doc.id] = doc.to_dict()
 
@@ -141,7 +141,7 @@ class FirestoreDB:
 
     def list_user_chats(self, user_id: str):
         # Fetch all chats where user is a participant
-    chats_query = self.db.collection("chats").where(filter=("participants", "array_contains", user_id))
+        chats_query = self.db.collection("chats").where("participants", "array_contains", user_id)
         chat_docs = self._log_and_get("list_user_chats", chats_query)
         chats = []
 
@@ -190,7 +190,7 @@ class FirestoreDB:
 
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where(filter=("item_id", "==", item_id)).where(filter=("action", "==", "like"))
+            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id).where("action", "==", "like")
             action_docs = self._log_and_get("delete_item_matches", actions_query)
             for doc in action_docs:
                 batch.delete(doc.reference)
@@ -204,7 +204,7 @@ class FirestoreDB:
 
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where(filter=("item_id", "==", item_id))
+            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id)
             action_docs = self._log_and_get("delete_item_actions", actions_query)
             for doc in action_docs:
                 batch.delete(doc.reference)
@@ -242,9 +242,9 @@ class FirestoreDB:
     def list_items(self, exclude_owner: Optional[str] = None, exclude_ids: Optional[List[str]] = None) -> List[dict]:
         query = self.db.collection("items")
         if exclude_owner:
-            query = query.where(filter=("ownerId", "!=", exclude_owner))
+            query = query.where("ownerId", "!=", exclude_owner)
         if exclude_ids and len(exclude_ids) > 0:
-            query = query.where(filter=("id", "not-in", exclude_ids))
+            query = query.where("id", "not-in", exclude_ids)
         docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_items", query)]
         return docs
 
@@ -264,13 +264,13 @@ class FirestoreDB:
         self.db.collection("items").document(item_id).delete()
 
     def list_user_items(self, user_id: str) -> List[dict]:
-    query = self.db.collection("items").where(filter=("ownerId", "==", user_id))
+        query = self.db.collection("items").where("ownerId", "==", user_id)
         docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_user_items", query)]
         return docs
 
     # --- User Actions ---
     def delete_user_action(self, user_id: str, item_id: str):
-    actions_query = self.db.collection("users").document(user_id).collection("actions").where(filter=("item_id", "==", item_id))
+        actions_query = self.db.collection("users").document(user_id).collection("actions").where("item_id", "==", item_id)
         for doc in self._log_and_stream("delete_user_action", actions_query):
             doc.reference.delete()
 
