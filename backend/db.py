@@ -12,70 +12,95 @@ class FirestoreDB:
         """
         # Get all 'like' actions by visitor_user_id
         actions_ref = self.db.collection("users").document(visitor_user_id).collection("actions")
-        liked_actions = actions_ref.where("action", "==", "like").stream()
+    liked_actions = actions_ref.where(filter=("action", "==", "like")).stream()
         liked_item_ids = [a.to_dict()["item_id"] for a in liked_actions]
         if not liked_item_ids:
             return []
         # Get all items owned by profile_user_id that are in liked_item_ids
         items_ref = self.db.collection("items")
-        items = items_ref.where("ownerId", "==", profile_user_id).where("id", "in", liked_item_ids).stream()
+    items = items_ref.where(filter=("ownerId", "==", profile_user_id)).where(filter=("id", "in", liked_item_ids)).stream()
         return [item.to_dict() for item in items]
 
     def get_all_matches_for_user(self, user_id: str):
         """
-        Returns all users who have an item liked by user_id and who have also liked one of user_id's items.
-        Returns a list of dicts with match info, grouped as in the provided logic.
         Optimized to minimize Firestore calls using collection group query (requires index).
         """
-        # Get current user's actions and items
-        my_actions = self.get_user_actions(user_id)
-        my_likes = {a["item_id"] for a in my_actions if a.get("action") == "like"}
-
-        my_items = self.list_user_items(user_id)
-        my_item_ids = {item["id"] for item in my_items}
-
         # Fetch all 'like' actions for all users (except current) in one collection group query
-        received_likes = {}  # key: (other_user_id, item_id) -> True
-        actions_query = self.db.collection_group("actions").where("action", "==", "like")
-        for act_doc in actions_query.stream():
-            act = act_doc.to_dict()
-            other_id = act.get("user_id")
-            item_id = act.get("item_id")
-            if other_id and other_id != user_id and item_id in my_item_ids:
-                received_likes[(other_id, item_id)] = True
+    actions_query = self.db.collection_group("actions").where(filter=("action", "==", "like"))
+        all_actions = self._log_and_stream("get_all_matches_for_user", actions_query)
 
         # Fetch all items once for lookup
         all_items = {i.id: i.to_dict() for i in self.db.collection("items").stream()}
 
+        # Process actions and items
+        my_items = {item["id"]: item for item in self.list_user_items(user_id)}
+        my_item_ids = set(my_items.keys())
+        my_likes = set()
+        received_likes = {}
+
+        for act_doc in all_actions:
+            act = act_doc.to_dict()
+            other_id = act.get("user_id")
+            item_id = act.get("item_id")
+
+            if other_id == user_id:
+                my_likes.add(item_id)
+            elif item_id in my_item_ids:
+                received_likes[(other_id, item_id)] = True
+
+        # Collect all their_user_ids needed
+        needed_user_ids = set()
+        for liked_item_id in my_likes - my_item_ids:
+            their_item = all_items.get(liked_item_id)
+            if not their_item:
+                continue
+            their_user_id = their_item.get("ownerId")
+            if not their_user_id or their_user_id == user_id:
+                continue
+            needed_user_ids.add(their_user_id)
+
+        # Batch fetch all needed user docs
+        user_docs = {}
+        if needed_user_ids:
+            users_ref = self.db.collection("users")
+            # Firestore batch get
+            docs = self._log_and_get("get_all_matches_for_user_users", users_ref.where(filter=("id", "in", list(needed_user_ids))))
+            for doc in docs:
+                user_docs[doc.id] = doc.to_dict()
+
         # Build matches
         grouped = {}
-        for my_item in my_items:
-            for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
-                their_item = all_items.get(liked_item_id)
-                if not their_item:
-                    continue
-                their_user_id = their_item.get("ownerId")
-                if not their_user_id or their_user_id == user_id:
-                    continue
+        for liked_item_id in my_likes - my_item_ids:  # only items not owned by user
+            their_item = all_items.get(liked_item_id)
+            if not their_item:
+                continue
+            their_user_id = their_item.get("ownerId")
+            if not their_user_id or their_user_id == user_id:
+                continue
 
-                # Check reciprocal like
-                if received_likes.get((their_user_id, my_item["id"])):
+            # Check reciprocal like
+            for my_item_id in my_item_ids:
+                if received_likes.get((their_user_id, my_item_id)):
                     key = (their_user_id, liked_item_id)
                     if key not in grouped:
-                        other_user = self.get_user(their_user_id) or {"id": their_user_id}
+                        other_user = user_docs.get(their_user_id) or {"id": their_user_id}
                         grouped[key] = {
                             "id": f"{user_id}_{their_user_id}_{liked_item_id}",
                             "otherUser": other_user,
                             "theirItem": their_item,
                             "yourItems": []
                         }
-                    grouped[key]["yourItems"].append(my_item)
+                    grouped[key]["yourItems"].append(my_items[my_item_id])
 
         return list(grouped.values())
+
     def __init__(self):
         self.read_counts = {}
         self.log_file = "firestore_read_log.json"
-        self.db = firestore.client()
+        # Ensure Firestore client is initialized once and reused
+        if not hasattr(FirestoreDB, "_db_client"):
+            FirestoreDB._db_client = firestore.client()
+        self.db = FirestoreDB._db_client
 
     def _log_read(self, function_name):
         if function_name not in self.read_counts:
@@ -115,21 +140,41 @@ class FirestoreDB:
         return result
 
     def list_user_chats(self, user_id: str):
-        chats_query = self.db.collection("chats").where("participants", "array_contains", user_id)
+        # Fetch all chats where user is a participant
+    chats_query = self.db.collection("chats").where(filter=("participants", "array_contains", user_id))
         chat_docs = self._log_and_get("list_user_chats", chats_query)
         chats = []
+
         for doc in chat_docs:
             chat = doc.to_dict()
             chat_id = chat["id"]
-            msg_query = self.db.collection("chats").document(chat_id).collection("messages").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(1)
-            last_msg_docs = self._log_and_get("list_user_chats", msg_query)
-            last_msg = list(last_msg_docs)
-            last_msg_ts = last_msg[0].to_dict()["timestamp"] if last_msg else None
+
+            # Use last_message field if available for efficiency
+            last_message = chat.get("last_message")
+            last_msg_ts = last_message["timestamp"] if last_message else None
             last_access = chat.get("last_access", {}).get(user_id)
             is_unread = last_msg_ts and last_access and last_msg_ts > last_access
+
             chat["is_unread"] = is_unread
-            chat["last_message"] = last_msg[0].to_dict() if last_msg else None
+            chat["last_message"] = last_message
+
+            # Fallback: fetch last message if not present in chat doc
+            if not last_message:
+                msg_query = (
+                    self.db.collection("chats")
+                    .document(chat_id)
+                    .collection("messages")
+                    .order_by("timestamp", direction=firestore.Query.DESCENDING)
+                    .limit(1)
+                )
+                last_msg_docs = self._log_and_get("list_user_chats_last_message", msg_query)
+                last_msg = list(last_msg_docs)
+                chat["last_message"] = last_msg[0].to_dict() if last_msg else None
+                last_msg_ts = chat["last_message"]["timestamp"] if chat["last_message"] else None
+                chat["is_unread"] = last_msg_ts and last_access and last_msg_ts > last_access
+
             chats.append(chat)
+
         return chats
 
     def update_chat_last_access(self, user1: str, user2: str, user_id: str):
@@ -141,22 +186,30 @@ class FirestoreDB:
     def delete_item_matches(self, item_id: str):
         users_query = self.db.collection("users")
         user_docs = self._log_and_get("delete_item_matches", users_query)
+        batch = self.db.batch()
+
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id).where("action", "==", "like")
+            actions_query = users_query.document(user_id).collection("actions").where(filter=("item_id", "==", item_id)).where(filter=("action", "==", "like"))
             action_docs = self._log_and_get("delete_item_matches", actions_query)
             for doc in action_docs:
-                doc.reference.delete()
+                batch.delete(doc.reference)
+
+        batch.commit()
 
     def delete_item_actions(self, item_id: str):
         users_query = self.db.collection("users")
         user_docs = self._log_and_get("delete_item_actions", users_query)
+        batch = self.db.batch()
+
         for user_doc in user_docs:
             user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id)
+            actions_query = users_query.document(user_id).collection("actions").where(filter=("item_id", "==", item_id))
             action_docs = self._log_and_get("delete_item_actions", actions_query)
             for doc in action_docs:
-                doc.reference.delete()
+                batch.delete(doc.reference)
+
+        batch.commit()
 
     def _doc_with_id(self, doc):
         data = doc.to_dict() or {}
@@ -188,11 +241,11 @@ class FirestoreDB:
 
     def list_items(self, exclude_owner: Optional[str] = None, exclude_ids: Optional[List[str]] = None) -> List[dict]:
         query = self.db.collection("items")
-        if exclude_ids and len(exclude_ids) > 0:
-            query = query.where("id", "not-in", exclude_ids)
-        docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_items", query)]
         if exclude_owner:
-            docs = [doc for doc in docs if doc.get("ownerId") != exclude_owner]
+            query = query.where(filter=("ownerId", "!=", exclude_owner))
+        if exclude_ids and len(exclude_ids) > 0:
+            query = query.where(filter=("id", "not-in", exclude_ids))
+        docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_items", query)]
         return docs
 
     def create_item(self, data: dict) -> str:
@@ -211,13 +264,13 @@ class FirestoreDB:
         self.db.collection("items").document(item_id).delete()
 
     def list_user_items(self, user_id: str) -> List[dict]:
-        query = self.db.collection("items").where("ownerId", "==", user_id)
+    query = self.db.collection("items").where(filter=("ownerId", "==", user_id))
         docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_user_items", query)]
         return docs
 
     # --- User Actions ---
     def delete_user_action(self, user_id: str, item_id: str):
-        actions_query = self.db.collection("users").document(user_id).collection("actions").where("item_id", "==", item_id)
+    actions_query = self.db.collection("users").document(user_id).collection("actions").where(filter=("item_id", "==", item_id))
         for doc in self._log_and_stream("delete_user_action", actions_query):
             doc.reference.delete()
 
@@ -236,14 +289,15 @@ class FirestoreDB:
         return actions
 
     def get_latest_user_actions(self, user_id: str) -> dict:
-        actions_query = self.db.collection("users").document(user_id).collection("actions")
+        actions_query = self.db.collection("users").document(user_id).collection("actions") \
+            .order_by("item_id") \
+            .order_by("timestamp", direction=firestore.Query.DESCENDING)
         latest = {}
         for doc in self._log_and_stream("get_latest_user_actions", actions_query):
             data = doc.to_dict()
             item_id = data["item_id"]
-            prev = latest.get(item_id)
-            if not prev or data["timestamp"] > prev["timestamp"]:
-                latest[item_id] = data
+            if item_id not in latest:
+                latest[item_id] = data  # First occurrence is the latest due to ordering
         return latest
 
     # --- Chat logic ---

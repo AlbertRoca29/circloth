@@ -5,6 +5,7 @@ import { storage } from "../utils/firebase";
 import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
+import LoadingSpinner from "./LoadingSpinner";
 import { getCategoryEmoji } from "../utils/general";
 import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
 import '../styles/buttonStyles.css';
@@ -142,22 +143,49 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
 
   useEffect(() => {
     const fetchItems = async () => {
+      // Only use cache if matching === false and from_user_matching === null
+      if (matching === false && from_user_matching === null) {
         const cachedItems = localStorage.getItem(`items_${user.id}`);
-        if (cachedItems && matching) {
-            setItems(JSON.parse(cachedItems));
-        } else {
-            try {
-                const response = await fetch(`${BACKEND_URL}/items/${user.id}`);
-                const data = await response.json();
-                setItems(data.items || []);
-                localStorage.setItem(`items_${user.id}`, JSON.stringify(data.items || []));
-            } catch (err) {
-                setItems([]);
-            }
+        if (cachedItems) {
+          setItems(JSON.parse(cachedItems));
+          return;
         }
+      }
+      // Otherwise, always fetch from backend
+      try {
+        const response = await fetch(`${BACKEND_URL}/items/${user.id}`);
+        const data = await response.json();
+        setItems(data.items);
+        // Only update cache if matching === false and from_user_matching === null
+        if (matching === false && from_user_matching === null) {
+          localStorage.setItem(`items_${user.id}`, JSON.stringify(data.items));
+        }
+      } catch (error) {
+        console.error("Failed to fetch items:", error);
+      }
     };
     fetchItems();
-}, [user, refreshSignal]);
+  }, [user.id, refreshSignal, matching, from_user_matching]);
+
+  const updateCachedItems = (updatedItems) => {
+    localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+    setItems(updatedItems);
+  };
+
+  const handleAddItem = (newItem) => {
+    const updatedItems = [...items, newItem];
+    updateCachedItems(updatedItems);
+  };
+
+  const handleEditItem = (editedItem) => {
+    const updatedItems = items.map(item => item.id === editedItem.id ? editedItem : item);
+    updateCachedItems(updatedItems);
+  };
+
+  const handleDeleteItem = (itemId) => {
+    const updatedItems = items.filter(item => item.id !== itemId);
+    updateCachedItems(updatedItems);
+  };
 
   useEffect(() => {
     if (matching) {
@@ -316,7 +344,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   }
 
   return (
-    <div style={{ width: "92%", margin: '0 auto' }}>
+  <div style={{ width: "92%", margin: '0 auto', position: 'relative' }}>
       <ConfirmDialog
         open={confirmDialog.open}
         title={confirmDialog.title}
@@ -326,6 +354,22 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
         onConfirm={confirmDialog.onConfirm}
         onCancel={confirmDialog.onCancel}
       />
+      {deletingId && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(255,255,255,0.55)',
+          zIndex: 100001,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <LoadingSpinner size={60} />
+        </div>
+      )}
       {!modalOpen && (
         <>
         <div style={{
