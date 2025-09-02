@@ -337,7 +337,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
 
   if (!items.length) {
     return (
-      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150,marginLeft:"15%", width: "70%", fontSize: "16px" }}>
+      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150, fontSize: "16px" }}>
         {/* {t('no_clothing_items_added_yet')} */}
       </p>
     );

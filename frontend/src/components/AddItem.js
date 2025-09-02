@@ -175,23 +175,24 @@ function AddItem({ user, onItemAdded }) {
 
   // Ensure the AddItem button is always fixed and independent of other elements
   const floatingButtonStyle = {
-    position: "fixed",
-    bottom: "25%",
-    right: "25%",
-    width: "60px",
-    height: "60px",
-    borderRadius: "50%",
-    backgroundColor: "#15803d", // App green color
-    color: "white",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    cursor: "pointer",
-    border: "none",
-    zIndex: 1000,
-  };
+  position: "fixed",
+  bottom: "10%", // Adjusted for better reachability on mobile
+  right: "10%",
+  width: "70px", // Increased size for touch-friendliness
+  height: "70px",
+  borderRadius: "50%",
+  backgroundColor: "#15803d",
+  color: "white",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  cursor: "pointer",
+  border: "none",
+  zIndex: 1000,
+};
 
+  // Adjust Collapse container for mobile
   return (
     <Box sx={{ mt: open ? 1 : 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 2 }}>
       {/* Toast notifications will show errors instead of inline errorMsg */}
@@ -242,283 +243,375 @@ function AddItem({ user, onItemAdded }) {
           </button>
         </div>
       )}
-      <Collapse in={open} sx={{ width: '90vw' , p:1}}>
-        <Box component="form" onSubmit={handleSubmit} sx={{ bgcolor: '#fff', p: 1.5, borderRadius: 2, boxShadow: 10, position: 'relative', border: '1px solid #22c55e' }}>
-          <Button onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 4, right: 10, minWidth: 0, fontSize: 28, p: 0, lineHeight: 1, color: '#888' }}>×</Button>
-          <Typography sx={{ mb: 1, fontWeight: 200, fontSize:14, color: '#15803d', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('add_item')}</Typography>
+      <Collapse in={open} sx={{
+  width: '90vw',
+  margin: '0 auto',
+  borderRadius: 4,
+  boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
+  bgcolor: '#fff',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+}}>
+  {/* Header */}
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#22c55e',
+    padding: '11px 0 9px 0',
+    position: 'relative',
+  }}>
+    <div style={{
+      fontWeight: 150,
+      fontSize: 18,
+      color: '#fff',
+      flex: 1,
+      textAlign: 'center',
+      letterSpacing: 0.2,
+    }}>
+      {t('add_item', 'Add Item')}
+    </div>
+    <button
+      onClick={() => setOpen(false)}
+      aria-label="Close add item view"
+      style={{
+        position: 'absolute',
+        right: 12,
+        top: 4,
+        border: 'none',
+        background: 'transparent',
+        fontSize: 26,
+        fontFamily: 'Geist',
+        fontWeight: 100,
+        cursor: 'pointer',
+        color: '#fff',
+        padding: '-1px 8px',
+        borderRadius: 8,
+        boxShadow: '0 1px 4px rgba(0, 0, 0, 0)',
+        transition: 'background 0.18s',
+      }}
+      onMouseOver={e => e.currentTarget.style.background = '#fff4'}
+      onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+    >
+      ×
+    </button>
+  </div>
 
-
-          <FormControl fullWidth sx={{ mb: 1 }}>
-            {/* <Typography sx={{ mb: 0.5, fontWeight: 600, color: '#222', fontSize: 16 }}>Category</Typography> */}
-            <Typography sx={{ mb: 0.2, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('category')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-            <Grid container spacing={0.7} sx={{ mb: 0.5, mt: 0.2, justifyContent: 'center', fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', fontWeight: 100 }}>
-              {categories.map(cat => (
-                <Grid item xs={3} key={cat.key} sx={{ textAlign: 'center' }}>
-                  <Button
-                    onClick={() => handleCategorySelect(cat.key)}
-                    sx={{
-                      flexDirection: 'column',
-                      borderRadius: 1.2,
-                      border: category === cat.key ? `2px solid ${APP_GREEN}` : '1px solid #bdbdbd',
-                      background: '#fff',
-                      mb: 0.2,
-                      minWidth: 0,
-                      minHeight: 0,
-                      width: 68,
-                      height: 68,
-                      boxShadow: category === cat.key ? `1px 1px 0px 1px ${APP_GREEN}` : 'none',
-                      p: 3,
-                      transition: 'border 0s, box-shadow 0.4s',
-                      fontSize: 22,
-                      color: '#28720dff',
-                      fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
-                      fontWeight: 100,
-                      '&:hover': { background: '#F3F4F6' },
-                    }}
-                  >
-                    <span style={{ fontSize: 18, lineHeight: 1 }}>{getCategoryEmoji(cat.key)}</span>
-                    <span style={{ fontSize: 8, color: '#666', marginTop: 4, lineHeight: 1.2 }}>{cat.label}</span>
-                  </Button>
-                </Grid>
-              ))}
-            </Grid>
-
-
-
-            {category && (
-              <>
-        <Box sx={{ mb: 1, mt: 0.5 }}>
-          <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('size')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-                    <Grid container spacing={0.6}>
-            {(sizeOptions[category] || []).map(opt => (
-              <Grid item xs={4} key={opt.key}>
-                <Button
-                  onClick={() => setSize(opt.key)}
-                  sx={{
-                    width: '100%',
-                    borderRadius: 2,
-                    height: 28,
-                    fontSize: 11.5,
-                    fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
-                    fontWeight: 150,
-                    py: 0.5,
-                    background: size === opt.key ? APP_GREEN : '#f6f6f6ff',
-                    color: size === opt.key ? '#fff' : '#166232',
-                    border: size === opt.key ? `1.5px solid ${APP_GREEN}` : '1px solid #bdbdbd',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {opt.label}
-                </Button>
-              </Grid>
-            ))}
-                    </Grid>
-                    </Box>
-
-                {/* <FormControl fullWidth sx={{ mb: 0.5 }}>
-                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 10, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('details_of_size')}</Typography>
-                  <TextField
-                    value={sizeDetails}
-                    onChange={e => setSizeDetails(e.target.value)}
-                    placeholder={t('placeholder_size_details')}
-                    fullWidth
-                    size="small"
-                    InputProps={{
-                      sx: {
-                        borderRadius: 1.2,
-                        fontSize: 11,
-                        py: 0.2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderWidth: '1px',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor:  '#bcbcbcff',
-                          borderWidth: '0.5px',
-                        },
-                      }
-                    }}
-                  />
-                </FormControl> */}
-                </>
-
-            )}
-            <Box sx={{ height: 10 }} />
-            <FormControl fullWidth sx={{ mb: 1 }}>
-              <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('item_story')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-              <TextField
-                value={itemStory}
-                onChange={e => setItemStory(e.target.value)}
-                placeholder={t('placeholder_item_story')}
-                fullWidth
-                multiline
-                minRows={2}
-                sx={{
-                    "& .MuiInputBase-inputMultiline": {
-                    padding: "3px 0px"  // top/bottom, left/right
-                    }
-                }}
-                required
-                size="small"
-                InputProps={{
-                  sx: {
-                    borderRadius: 1.2,
-                    fontSize: 12,
-                    py: 0.5,
-                    background: '#e5fbe4ff',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderWidth: '1px',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#13c70dff',
-                      borderWidth: '2px',
-                    },
-                  }
-                }}
-              />
-            </FormControl>
-
-            {/* Photos */}
-            <Box sx={{ mb: 1 }}>
-              <Typography sx={{ mb: 0.5, fontWeight: 150, color: '#222', fontSize: 12, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('photos_2_5')} <span style={{ color: 'red', marginLeft: 4 }}>*</span></Typography>
-              <Box sx={{ display: 'flex', gap: 1.75, flexWrap: 'wrap' }}>
-                {photoFiles.map((file, idx) => (
-                  <Box key={idx} sx={{ position: 'relative' }}>
-                    <img src={objectURLs[idx]} alt={`preview-${idx}`} loading="lazy" style={{ width: 50, height: 50, objectFit: "cover", borderRadius: 7, border: idx === thumbnailIdx ? "3px solid #22c55e" : "1.2px solid #222", cursor: "pointer" }} onClick={() => setThumbnailIdx(idx)} />
-                    <Button size="small" onClick={() => {
-                      const newFiles = photoFiles.filter((_, i) => i !== idx);
-                      setPhotoFiles(newFiles);
-                      if (thumbnailIdx === idx) setThumbnailIdx(0);
-                      else if (thumbnailIdx > idx) setThumbnailIdx(thumbnailIdx - 1);
-                    }} sx={{ position: "absolute", top: -10, right: -9, minWidth: 0, padding: 0, fontSize: 15, color: '#888' }}>×</Button>
-                  </Box>
-                ))}
-                {photoFiles.length < 5 && (
-                  <label style={{ display: "inline-block", cursor: "pointer" }}>
-                    <span style={{ display: "inline-block", width: 50, height: 50, borderRadius: 5, background: "#f5f5f5", color: "#22c55e", fontSize: 28, fontWeight: 200, textAlign: "center", lineHeight: "48px", border: "1.7px dashed #22c55e" }}>+</span>
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { if (!e.target.files[0]) return; setPhotoFiles([...photoFiles, e.target.files[0]]); }} />
-                  </label>
-                )}
-              </Box>
-            </Box>
-
-
-
-            <Accordion
-              expanded={showAdvanced}
-              onChange={() => setShowAdvanced(!showAdvanced)}
-              sx={{ mb: 0,  borderRadius: 1.2, boxShadow: 0, background: '#fff', border: 'none', overflow: 'hidden' }}
+  {/* Form Content */}
+  <Box component="form" onSubmit={handleSubmit} sx={{
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
+    padding: '12px 16px',
+    display: 'flex',
+    fontFamily: 'Geist',
+    flexDirection: 'column',
+    gap: 2,
+    background: '#f8f8f8',
+  }}>
+    <FormControl fullWidth>
+      <Typography sx={{
+        mb: 1,
+        fontWeight: 150,
+        fontSize: 14,
+        color: '#333',
+        fontFamily:'Geist'
+      }}>{t('category')} <span style={{ color: 'red' }}>*</span></Typography>
+      <Grid container spacing={1} sx={{ justifyContent: 'center' }}>
+        {categories.map(cat => (
+          <Grid item xs={4} key={cat.key} sx={{ textAlign: 'center' }}>
+            <Button
+              onClick={() => handleCategorySelect(cat.key)}
+              sx={{
+                flexDirection: 'column',
+                borderRadius: 1.2,
+                border: category === cat.key ? `3px solid ${APP_GREEN}` : '1px solid #ddd',
+                background: category === cat.key ? '#c8f7d6ff' : '#fdfdfd',
+                width: '22vw',
+                aspectRatio: '1.35',
+                fontSize: 15,
+                color: '#28720d',
+                '&:hover': { background: '#f3f3f3' },
+              }}
             >
-              <AccordionSummary
-                sx={{ cursor: 'pointer', px: 0.5, py: 0, background: 'transparent', borderBottom: showAdvanced ? `1px solid #e5e7eb` : 'none', display: 'flex', alignItems: 'center' }}
+              <span style={{ fontSize: 27, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
+              <span style={{ fontSize: 11.5, fontFamily:'Geist', fontWeight: category === cat.key ? 150 : 100, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
+    </FormControl>
+
+    {category && (
+      <FormControl fullWidth>
+        <Typography sx={{
+          mb: 1,
+          fontWeight: 150,
+          fontFamily: 'Geist',
+          fontSize: 14,
+          color: '#333',
+        }}>{t('size')} <span style={{ color: 'red' }}>*</span></Typography>
+        <Grid container spacing={1}>
+          {(sizeOptions[category] || []).map(opt => (
+            <Grid item xs={4} key={opt.key}>
+              <Button
+                onClick={() => setSize(opt.key)}
+                sx={{
+                  width: '100%',
+                  borderRadius: 1.5,
+                  fontFamily: 'Geist',
+                  fontWeight: 125,
+                  height: 40,
+                  fontSize: size === opt.key ? 15 : 13,
+                  background: size === opt.key ? APP_GREEN : '#f6f6f6',
+                  color: size === opt.key ? '#fff' : '#166232',
+                  border: size === opt.key ? `1.5px solid ${APP_GREEN}` : '1px solid #ddd',
+                }}
               >
-                <span style={{
-                  display: 'inline-block',
-                  transition: 'transform 0.2s',
-                  transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
-                  fontSize: 11,
-                  marginRight: 9,
-                  color: '#64748b',
-                  fontWeight: 200,
-                }}>▶</span>
-                <Typography sx={{ fontWeight: 150, color: '#545454ff', fontSize: 12, letterSpacing: 0.2, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('more_details')}</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ background: '#fff', pt: 0.7, px: 0.7, boxShadow: 'none', border: 'none' }}>
-                <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('brand')}</Typography>
-                  <TextField
-                    value={brand}
-                    onChange={e => setBrand(e.target.value)}
-                    placeholder={t('placeholder_brand')}
-                    fullWidth
-                    size="small"
-                    InputProps={{
-                      sx: {
-                        borderRadius: 1.2,
-                        fontSize: 11,
-                        py: 0.2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderWidth: '1px',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor:  '#bcbcbcff',
-                          borderWidth: '0.5px',
-                        },
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormControl fullWidth sx={{ mb: 1 }}>
-                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('material')}</Typography>
-                  <TextField
-                    value={material}
-                    onChange={e => setMaterial(e.target.value)}
-                    placeholder={t('placeholder_material')}
-                    fullWidth
-                    size="small"
-                    InputProps={{
-                      sx: {
-                        borderRadius: 1.2,
-                        fontSize: 11,
-                        py: 0.2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderWidth: '1px',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#bcbcbcff',
-                          borderWidth: '0.5px',
-                        },
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormControl fullWidth>
-                  <Typography sx={{ mb: 0.1, fontWeight: 150, color: '#222', fontSize: 11, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif' }}>{t('additional_info')}</Typography>
-                  <TextField
-                    value={additionalInfo}
-                    onChange={e => setAdditionalInfo(e.target.value)}
-                    placeholder={t('placeholder_additional_info')}
-                    fullWidth
-                    multiline
-                    sx={{
-                            "& .MuiInputBase-inputMultiline": {
-                            padding: "3px 0px"  // top/bottom, left/right
-                            }
-                        }}
-                    minRows={2}
-                    size="small"
-                    InputProps={{
-                      sx: {
-                        borderRadius: 1.2,
-                        fontSize: 11,
-                        py: 0.2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderWidth: '1px',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor:  '#bcbcbcff',
-                          borderWidth: '0.5px',
-                        },
-                      }
-                    }}
-                  />
-                </FormControl>
-              </AccordionDetails>
-            </Accordion>
-
-
-            {loading ? (
-              <Box sx={{ width: '100%', height: 32 }}>
-                <ProgressBarButton progress={progress} />
-              </Box>
-            ) : (
-              <Button type="submit" variant="contained" fullWidth sx={{ py: 0.7, fontSize: 12, borderRadius: 2, background: '#22c55e', color: '#fff', mt:1, fontWeight: 150, fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif', '&:hover': { background: '#15803d' } }}>
-                {t('submit') || 'Submit'}
+                {opt.label}
               </Button>
-            )}
+            </Grid>
+          ))}
+        </Grid>
+      </FormControl>
+    )}
 
-          </FormControl>
-        </Box>
-      </Collapse>
+    <FormControl fullWidth>
+      <Typography sx={{
+        mb: 1,
+        fontWeight: 150,
+        fontFamily: 'Geist',
+        fontSize: 14,
+        color: '#333',
+      }}>{t('item_story')} <span style={{ color: 'red' }}>*</span></Typography>
+      <TextField
+        value={itemStory}
+        onChange={e => setItemStory(e.target.value)}
+        placeholder={t('placeholder_item_story')}
+        fullWidth
+        multiline
+        minRows={3}
+        sx={{
+          fontFamily: 'Geist',
+          fontSize: 13,
+          borderRadius: 1.2,
+          background: '#f9f9f9',
+        }}
+        required
+      />
+    </FormControl>
+
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Typography sx={{
+        fontWeight: 150,
+        fontFamily: 'Geist',
+        fontSize: 14,
+        color: '#333',
+      }}>{t('photos_2_5')} <span style={{ color: 'red' }}>*</span></Typography>
+      <Box sx={{ display: 'flex', gap: 2.25, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {photoFiles.map((file, idx) => (
+          <Box key={idx} sx={{ position: 'relative' }}>
+            <img
+              src={objectURLs[idx]}
+              alt={`preview-${idx}`}
+              loading="lazy"
+              style={{
+                width: '13.5vw',
+                aspectRatio: 1,
+                objectFit: "cover",
+                borderRadius: 7,
+                border: idx === thumbnailIdx ? "3px solid #22c55e" : "1.2px solid #ddd",
+                cursor: "pointer",
+              }}
+              onClick={() => setThumbnailIdx(idx)}
+            />
+            <Button
+              size="small"
+              onClick={() => {
+                const newFiles = photoFiles.filter((_, i) => i !== idx);
+                setPhotoFiles(newFiles);
+                if (thumbnailIdx === idx) setThumbnailIdx(0);
+                else if (thumbnailIdx > idx) setThumbnailIdx(thumbnailIdx - 1);
+              }}
+              sx={{
+                position: "absolute",
+                top: -14,
+                right: -11,
+                minWidth: 0,
+                padding: 0,
+                fontSize: 18,
+                color: '#888',
+              }}
+            >×</Button>
+          </Box>
+        ))}
+        {photoFiles.length < 5 && (
+          <label style={{ display: "inline-block", cursor: "pointer" }}>
+            <span style={{
+              display: "inline-block",
+              width: '13.5vw',
+              aspectRatio: 1,
+              borderRadius: 5,
+              background: "#f5f5f5",
+              color: "#22c55e",
+              fontSize: 38,
+              fontWeight: 150,
+              textAlign: "center",
+              lineHeight: "0.65in",
+              border: "1.7px dashed #22c55e",
+            }}>+</span>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={e => {
+                if (!e.target.files[0]) return;
+                setPhotoFiles([...photoFiles, e.target.files[0]]);
+              }}
+            />
+          </label>
+        )}
+      </Box>
+    </Box>
+
+    <Accordion
+      expanded={showAdvanced}
+      onChange={() => setShowAdvanced(!showAdvanced)}
+      sx={{
+        mb: 2,
+        borderRadius: 1.2,
+        boxShadow: 0,
+        background: '#f9f9f9',
+        border: '1px solid #ddd',
+      }}
+    >
+      <AccordionSummary
+        sx={{
+          cursor: 'pointer',
+          px: 1,
+          py: 0,
+          background: 'transparent',
+          borderBottom: showAdvanced ? `1px solid #ddd` : 'none',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <span style={{
+          display: 'inline-block',
+          transition: 'transform 0.2s',
+          transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
+          fontSize: 12,
+          marginRight: 8,
+          fontWeight: 150,
+          fontFamily: 'Geist',
+          color: '#666',
+        }}>▶</span>
+        <Typography sx={{
+          fontWeight: 150,
+          fontFamily: 'Geist',
+          fontSize: 14,
+          color: '#333',
+        }}>{t('more_details')}</Typography>
+      </AccordionSummary>
+      <AccordionDetails sx={{
+        pt: 1,
+        px: 1,
+        background: '#fff',
+        borderRadius: 1.2,
+      }}>
+        <FormControl fullWidth sx={{ mb: 1 }}>
+          <Typography sx={{
+            mb: 0.5,
+            fontSize: 14,
+            fontWeight: 125,
+            fontFamily: 'Geist',
+            color: '#333',
+          }}>{t('brand')}</Typography>
+          <TextField
+            value={brand}
+            onChange={e => setBrand(e.target.value)}
+            placeholder={t('placeholder_brand')}
+            fullWidth
+            size="small"
+            sx={{
+              fontSize: 14,
+              borderRadius: 1.2,
+              background: '#f9f9f9',
+            }}
+          />
+        </FormControl>
+        <FormControl fullWidth sx={{ mb: 1 }}>
+          <Typography sx={{
+            mb: 0.5,
+            fontWeight: 125,
+            fontFamily: 'Geist',
+            fontSize: 14,
+            color: '#333',
+          }}>{t('material')}</Typography>
+          <TextField
+            value={material}
+            onChange={e => setMaterial(e.target.value)}
+            placeholder={t('placeholder_material')}
+            fullWidth
+            size="small"
+            sx={{
+              fontSize: 14,
+              borderRadius: 1.2,
+              background: '#f9f9f9',
+            }}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <Typography sx={{
+            mb: 0.5,
+            fontSize: 14,
+            fontWeight: 125,
+            fontFamily: 'Geist',
+            color: '#333',
+          }}>{t('additional_info')}</Typography>
+          <TextField
+            value={additionalInfo}
+            onChange={e => setAdditionalInfo(e.target.value)}
+            placeholder={t('placeholder_additional_info')}
+            fullWidth
+            multiline
+            minRows={2}
+            sx={{
+              fontSize: 14,
+              borderRadius: 1.2,
+              background: '#f9f9f9',
+            }}
+          />
+        </FormControl>
+      </AccordionDetails>
+    </Accordion>
+
+    {loading ? (
+      <Box sx={{ width: '100%', height: 40 }}>
+        <ProgressBarButton progress={progress} />
+      </Box>
+    ) : (
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{
+          py: 1,
+          fontSize: 14,
+          borderRadius: 2,
+          background: '#22c55e',
+          color: '#fff',
+          mt: 2,
+          '&:hover': { background: '#15803d' },
+        }}
+      >
+        {t('submit') || 'Submit'}
+      </Button>
+    )}
+  </Box>
+</Collapse>
     </Box>
   );
 }
