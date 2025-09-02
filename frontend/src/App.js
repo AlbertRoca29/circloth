@@ -8,7 +8,6 @@ import LoginPage from "./pages/LoginPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AddItem from "./components/AddItem";
 import ItemList from "./components/ItemList";
-import ProfilePage from "./pages/ProfilePage";
 import Tabs from "./components/Tabs";
 
 import Matching from "./pages/Matching";
@@ -26,7 +25,6 @@ function App() {
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
   const [appUser, setAppUser] = useState(null);           // Backend user profile
   const [loading, setLoading] = useState(true);
-  const [showProfile, setShowProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("matching");
   const [hasClothes, setHasClothes] = useState(false);
   const [refreshItems, setRefreshItems] = useState(0);
@@ -173,10 +171,18 @@ function App() {
     };
   }, [menuOpen, langDropdownOpen]);
 
-  const [showSizeSelection, setShowSizeSelection] = useState(true);
+  const [showSizeSelection, setShowSizeSelection] = useState(false);
+  // Show size selection only if user has no size_preferences
+  useEffect(() => {
+    if (appUser && ( !appUser.size_preferences || Object.keys(appUser.size_preferences).length === 0 )) {
+      setShowSizeSelection(true);
+    } else {
+      setShowSizeSelection(false);
+    }
+  }, [appUser]);
 
   const handleSizeSave = (sizes) => {
-    console.log("Selected sizes:", sizes);
+    // console.log("Selected sizes:", sizes);
     setShowSizeSelection(false);
   };
 
@@ -452,12 +458,6 @@ function App() {
         />
       )}
 
-      {showProfile && (
-        <ProfilePage
-          user={appUser}
-          onClose={() => setShowProfile(false)}
-        />
-      )}
 
       {showSizeSelection && (
         <SizeSelectionModal

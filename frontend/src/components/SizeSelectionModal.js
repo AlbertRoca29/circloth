@@ -51,8 +51,8 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       position: 'fixed',
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
+      width: '100vw',
+      height: '100vh',
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       justifyContent: 'center',
@@ -61,20 +61,33 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
     },
     content: {
       background: 'linear-gradient(135deg, #ffffff, #f0f0f0)',
-      borderRadius: '16px',
-      padding: '2vh 4vw',
-      width: '82vw',
-      maxHeight: '80%',
-      overflowY: 'auto',
+      borderRadius: '12px',
+      width: '90vw',
+      maxHeight: '80vh',
+      display: 'flex',
+      flexDirection: 'column',
       boxShadow: '0 8px 20px rgba(0, 0, 0, 0.3)',
       textAlign: 'left',
+      position: 'relative',
+      padding: 0,
     },
-    header: {
+    headerBar: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#22c55e',
+      padding: '13px 0 11px 0',
+      borderTopLeftRadius: 12,
+      borderTopRightRadius: 12,
+      position: 'relative',
+    },
+    headerTitle: {
+      fontWeight: 150,
+      fontSize: 18,
+      color: '#fff',
+      flex: 1,
       textAlign: 'center',
-      fontSize: '17px',
-      marginBottom: '1vh',
-      color: 'var(--primary-dark, #15803d)',
-      fontWeight: '200',
+      letterSpacing: 0.2,
     },
     category: {
       marginBottom: '0.5vh',
@@ -87,7 +100,7 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
     button: {
       padding: '8px',
       border: '1px solid #ddd',
-      borderRadius: '6px',
+      borderRadius: '5px',
       background: '#f9f9f9',
       cursor: 'pointer',
       textAlign: 'center',
@@ -104,24 +117,37 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
     actions: {
       display: 'flex',
       justifyContent: 'space-between',
-      marginTop: '16px',
+      gap: '30vw',
+      position: 'absolute',
+      left: 0,
+      bottom: 0,
+      width: '78vw',
+      background: 'rgba(255,255,255,0.95)',
+      padding: '2vh 6vw',
+      borderBottomLeftRadius: 12,
+      borderBottomRightRadius: 12,
+      boxShadow: '0 -2px 8px rgba(0,0,0,0.07)',
     },
     actionButton: {
-      padding: '8px 16px',
-      borderRadius: '6px',
+      padding: '2vh 0',
+      borderRadius: '8px',
       cursor: 'pointer',
-      fontWeight: 'bold',
+      fontWeight: 600,
+      fontSize: 18,
+      width: '100%',
       transition: 'background 0.3s, color 0.3s',
     },
     skipButton: {
       background: 'none',
-      border: '1px solid var(--primary-dark, #15803d)',
+      border: '2px solid var(--primary-dark, #15803d)',
       color: 'var(--primary-dark, #15803d)',
+      fontWeight: 600,
     },
     saveButton: {
       background: 'var(--primary-dark, #15803d)',
       color: '#fff',
       border: 'none',
+      fontWeight: 600,
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     },
   };
@@ -129,26 +155,32 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
   return (
     <div style={modalStyles.container}>
       <div style={modalStyles.content}>
-        <h2 style={modalStyles.header}>{t('select_sizes')}</h2>
-        {CATEGORIES.map(({ key, labelKey }) => (
-          <div key={key} style={modalStyles.category}>
-            <h3 style={{ fontWeight: 150, fontSize: '15px' }}>{t(labelKey)}</h3>
-            <div style={modalStyles.grid}>
-              {SIZE_OPTIONS[key].map((size) => (
-                <button
-                  key={size}
-                  style={{
-                    ...modalStyles.button,
-                    ...(selectedSizes[key]?.includes(size) ? modalStyles.buttonSelected : {}),
-                  }}
-                  onClick={() => handleSizeToggle(key, size)}
-                >
-                  {size}
-                </button>
-              ))}
+        {/* Header Bar like Trade View */}
+        <div style={modalStyles.headerBar}>
+          <div style={modalStyles.headerTitle}>{t('select_sizes')}</div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '2vh 4vw 90px 4vw' }}>
+          {CATEGORIES.map(({ key, labelKey }) => (
+            <div key={key} style={modalStyles.category}>
+              <h3 style={{ fontWeight: 150, fontSize: '15px' }}>{t(labelKey)}</h3>
+              <div style={modalStyles.grid}>
+                {SIZE_OPTIONS[key].map((size) => (
+                  <button
+                    key={size}
+                    style={{
+                      ...modalStyles.button,
+                      ...(selectedSizes[key]?.includes(size) ? modalStyles.buttonSelected : {}),
+                    }}
+                    onClick={() => handleSizeToggle(key, size)}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {/* Fixed Action Buttons at Bottom */}
         <div style={modalStyles.actions}>
           <button
             onClick={onClose}

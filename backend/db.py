@@ -227,7 +227,7 @@ class FirestoreDB:
         Updates the user document with the given updates.
         """
         user_ref = self.db.collection("users").document(user_id)
-        user_ref.update(updates)
+        user_ref.set(updates, merge=True)
 
     def create_user(self, user_id: str, data: dict):
         now = datetime.utcnow().isoformat() + "Z"
