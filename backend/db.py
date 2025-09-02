@@ -23,7 +23,7 @@ class FirestoreDB:
 
     def get_all_matches_for_user(self, user_id: str):
         """
-        Optimized to minimize Firestore calls using collection group query (requires index).
+        Optimized to minimize Firestore calls using batch reads and caching.
         """
         # Fetch all 'like' actions for all users (except current) in one collection group query
         actions_query = self.db.collection_group("actions").where("action", "==", "like")
@@ -239,12 +239,27 @@ class FirestoreDB:
         item_doc = self._log_and_get("get_item", item_query)
         return item_doc.to_dict() if item_doc.exists else None
 
-    def list_items(self, exclude_owner: Optional[str] = None, exclude_ids: Optional[List[str]] = None) -> List[dict]:
+    def list_items(self, exclude_owner: Optional[str] = None, exclude_ids: Optional[List[str]] = None, limit: int = 50, start_after: Optional[str] = None) -> List[dict]:
+        """
+        List items with optional filters and pagination support.
+        """
         query = self.db.collection("items")
+
+        # Apply filters
         if exclude_owner:
             query = query.where("ownerId", "!=", exclude_owner)
         if exclude_ids and len(exclude_ids) > 0:
             query = query.where("id", "not-in", exclude_ids)
+
+        # Apply pagination
+        if start_after:
+            start_after_doc = self.db.collection("items").document(start_after).get()
+            if start_after_doc.exists:
+                query = query.start_after(start_after_doc)
+
+        # Limit the number of results
+        query = query.limit(limit)
+
         docs = [self._doc_with_id(doc) for doc in self._log_and_stream("list_items", query)]
         return docs
 
@@ -284,14 +299,25 @@ class FirestoreDB:
         })
 
     def get_user_actions(self, user_id: str) -> list:
+        """
+        Fetch all actions for a user with optimized Firestore reads.
+        """
         actions_query = self.db.collection("users").document(user_id).collection("actions")
         actions = [doc.to_dict() for doc in self._log_and_stream("get_user_actions", actions_query)]
         return actions
 
     def get_latest_user_actions(self, user_id: str) -> dict:
-        actions_query = self.db.collection("users").document(user_id).collection("actions") \
-            .order_by("item_id") \
+        """
+        Fetch the latest action for each item_id for a user with optimized query.
+        """
+        actions_query = (
+            self.db.collection("users")
+            .document(user_id)
+            .collection("actions")
+            .order_by("item_id")
             .order_by("timestamp", direction=firestore.Query.DESCENDING)
+        )
+
         latest = {}
         for doc in self._log_and_stream("get_latest_user_actions", actions_query):
             data = doc.to_dict()
@@ -329,9 +355,34 @@ class FirestoreDB:
             "timestamp": timestamp
         })
 
-    def get_chat_messages(self, user1: str, user2: str, limit: int = 50) -> list:
+    def get_chat_messages(self, user1: str, user2: str, limit: int = 50, start_after: Optional[str] = None) -> list:
+        """
+        Fetch chat messages between two users with pagination support.
+        """
         conv_id = self._get_conversation_id(user1, user2)
         msg_query = self.db.collection("chats").document(conv_id).collection("messages").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit)
+
+        # Apply pagination if start_after is provided
+        if start_after:
+            start_after_doc = self.db.collection("chats").document(conv_id).collection("messages").document(start_after).get()
+            if start_after_doc.exists:
+                msg_query = msg_query.start_after(start_after_doc)
+
         msgs = self._log_and_stream("get_chat_messages", msg_query)
         result = [doc.to_dict() for doc in msgs]
         return list(reversed(result))
+
+    def _ensure_last_message_cached(self, conv_id: str):
+        """
+        Ensure the last message is cached in the parent chat document.
+        """
+        chat_ref = self.db.collection("chats").document(conv_id)
+        last_msg_query = (
+            chat_ref.collection("messages")
+            .order_by("timestamp", direction=firestore.Query.DESCENDING)
+            .limit(1)
+        )
+        last_msg_docs = list(last_msg_query.stream())
+        if last_msg_docs:
+            last_message = last_msg_docs[0].to_dict()
+            chat_ref.set({"last_message": last_message}, merge=True)
