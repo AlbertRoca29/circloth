@@ -17,6 +17,7 @@ import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
 import changeLanguage from "./utils/changeLanguage";
 import { MenuIcon, GlobeIcon } from './utils/svg';
+import SizeSelectionModal from "./components/SizeSelectionModal";
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -171,6 +172,13 @@ function App() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [menuOpen, langDropdownOpen]);
+
+  const [showSizeSelection, setShowSizeSelection] = useState(true);
+
+  const handleSizeSave = (sizes) => {
+    console.log("Selected sizes:", sizes);
+    setShowSizeSelection(false);
+  };
 
   if (loading) return null;
 
@@ -448,6 +456,14 @@ function App() {
         <ProfilePage
           user={appUser}
           onClose={() => setShowProfile(false)}
+        />
+      )}
+
+      {showSizeSelection && (
+        <SizeSelectionModal
+          onClose={() => setShowSizeSelection(false)}
+          onSave={handleSizeSave}
+          userId={appUser.id}
         />
       )}
     </>

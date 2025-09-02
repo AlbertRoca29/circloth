@@ -222,10 +222,12 @@ class FirestoreDB:
         user_doc = self._log_and_get("get_user", user_query)
         return user_doc.to_dict() if user_doc.exists else None
 
-    def update_user(self, user_id: str, data: dict):
-        # Always update last_active
-        data["last_active"] = datetime.utcnow().isoformat() + "Z"
-        self.db.collection("users").document(user_id).set(data, merge=True)
+    def update_user(self, user_id: str, updates: dict):
+        """
+        Updates the user document with the given updates.
+        """
+        user_ref = self.db.collection("users").document(user_id)
+        user_ref.update(updates)
 
     def create_user(self, user_id: str, data: dict):
         now = datetime.utcnow().isoformat() + "Z"

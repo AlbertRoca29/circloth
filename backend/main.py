@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException,Body
 from pydantic import BaseModel
 from typing import List, Optional
@@ -83,6 +82,7 @@ class UserModel(BaseModel):
     preferences: Optional[dict] = None
     notification_settings: Optional[dict] = None
     language: Optional[str] = None
+    size_preferences: Optional[dict] = None
 
 
 class MatchRequest(BaseModel):
@@ -319,6 +319,23 @@ def get_matches(user_id: str):
 def get_liked_items(profile_id: str, visitor_id: str):
     items = db.get_liked_items_of_profile_by_visitor(profile_id, visitor_id)
     return {"liked_items": items}
+
+
+# --- New endpoint: Get size preferences of a user
+@app.get("/user/{user_id}/size_preferences")
+def get_size_preferences(user_id: str):
+    user = db.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    return user.get("size_preferences", {})
+
+@app.patch("/user/{user_id}/size_preferences")
+def update_size_preferences(user_id: str, size_preferences: dict = Body(...)):
+    user = db.get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="USER_NOT_FOUND")
+    db.update_user(user_id, {"size_preferences": size_preferences})
+    return {"message_key": "SIZE_PREFERENCES_UPDATED"}
 
 
 # --- Entrypoint ---
