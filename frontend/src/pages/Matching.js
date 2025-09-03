@@ -161,11 +161,6 @@ function Matching({ user, setHasLocation }) {
       {t('error')}: {error}
     </div>
   );
-  if (!item && hasClothes) return (
-    <div style={cardStyle}>
-      {t('no_more_items')}
-    </div>
-  );
   if (item && !hasClothes) return (
     <div style={cardStyle}>
       {t('no_clothing_items_added_yet')}
@@ -187,10 +182,11 @@ function Matching({ user, setHasLocation }) {
     setShowSizeSelection(false);
   };
 
+
   return (
     <div>
       {/* Only show filter and edit size preferences if sizePreferences is not empty */}
-  <div style={{ margin: '10vh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10vw'}}>
+  <div style={{ margin: '9vh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
           {sizePreferences && Object.keys(sizePreferences).length > 0 && (
           <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
             <span style={{ fontSize: 14, fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
@@ -273,6 +269,12 @@ function Matching({ user, setHasLocation }) {
           userId={user?.id || user?.uid}
         />
       )}
+      {!item && hasClothes && (
+            <div style={cardStyle}>
+            {t('no_more_items')}
+            </div>
+        )}
+      {item && hasClothes && (
       <div {...handlers} style={tinderCardStyle}>
         <ItemDetailModal
           item={item}
@@ -306,6 +308,7 @@ function Matching({ user, setHasLocation }) {
           }
         />
       </div>
+      )}
     </div>
   );
 }

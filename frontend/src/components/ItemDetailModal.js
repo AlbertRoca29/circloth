@@ -62,7 +62,7 @@ function ItemDetailModal({
   // Modal style: absolute (popup) or relative (inline)
   const modalWrapperStyle = matching
     ? {
-        marginTop: "2.75vh",
+        marginTop: "2vh",
         background: 'transparent',
         marginLeft: "0%",
         width: '100vw',
@@ -228,8 +228,8 @@ function ItemDetailModal({
                     boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
                     background: 'rgba(255, 255, 255, 0.5)',
                     border: 'none',
-                    width: 42,
-                    height: 42,
+                    width: 45,
+                    height: 45,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -253,8 +253,8 @@ function ItemDetailModal({
                     boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
                     background: 'rgba(255,255,255,0.5)',
                     border: 'none',
-                    width: 42,
-                    height: 42,
+                    width: 45,
+                    height: 45,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
