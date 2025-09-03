@@ -182,7 +182,6 @@ function App() {
   }, [appUser]);
 
   const handleSizeSave = (sizes) => {
-    // console.log("Selected sizes:", sizes);
     setShowSizeSelection(false);
   };
 

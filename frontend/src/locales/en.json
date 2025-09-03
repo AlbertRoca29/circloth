@@ -91,5 +91,11 @@
   "their_items": "Their items",
   "trade_view_title": "Trade View",
   "show_all": "Show all",
-  "show_less": "Show less"
+  "show_less": "Show less",
+  "filter": "Filter",
+  "edit_size_preferences": "Edit Size Preferences"
+  ,
+  "select_sizes": "Select your sizes",
+  "skip": "Skip",
+  "save": "Save"
 }

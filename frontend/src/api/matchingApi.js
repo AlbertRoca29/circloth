@@ -1,11 +1,11 @@
 import BACKEND_URL from "../config";
 
 // Get next item to swipe/match
-export async function fetchMatchItem(userId) {
+export async function fetchMatchItem(userId, filterBySize = false) {
   const res = await fetch(`${BACKEND_URL}/match`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId })
+    body: JSON.stringify({ user_id: userId, filter_by_size: filterBySize })
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

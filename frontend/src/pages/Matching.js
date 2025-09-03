@@ -4,18 +4,14 @@ import { useTranslation } from "react-i18next";
 import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
+import SizeSelectionModal from "../components/SizeSelectionModal";
 import "../styles/buttonStyles.css";
+
 import BACKEND_URL from "../config";
-import { fontWeight } from "@mui/system";
+import { fontWeight, height } from "@mui/system";
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
-  useEffect(() => {
-    const original = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = original; };
-  }, []);
-
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(false);
@@ -23,6 +19,27 @@ function Matching({ user, setHasLocation }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
   const [hasClothes, setHasClothes] = useState(false);
+  const [showSizeSelection, setShowSizeSelection] = useState(false);
+  const [filterBySize, setFilterBySize] = useState(false);
+  const [sizePreferences, setSizePreferences] = useState({});
+
+  // Fetch size preferences for user
+  useEffect(() => {
+    if (!user) {
+      setSizePreferences({});
+      return;
+    }
+    fetch(`${BACKEND_URL}/user/${user.id || user.uid}/size_preferences`)
+      .then(res => res.json())
+      .then(data => setSizePreferences(data || {}))
+      .catch(() => setSizePreferences({}));
+  }, [user, showSizeSelection]);
+
+  useEffect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = original; };
+  }, []);
 
   useEffect(() => {
     if (loading) {
@@ -54,10 +71,10 @@ function Matching({ user, setHasLocation }) {
   }, [user]);
 
   // Log when matching loads a large number of matches (potential memory usage)
-  const loadNextItem = () => {
+  const loadNextItem = (filter = filterBySize) => {
     setLoading(true);
     setError(null);
-    fetchMatchItem(user.uid)
+    fetchMatchItem(user.uid, filter)
       .then((data) => setItem(data))
       .catch((e) => {
         setError(e.message + (e.stack ? "\n" + e.stack : ""));
@@ -69,7 +86,7 @@ function Matching({ user, setHasLocation }) {
   useEffect(() => {
     loadNextItem();
     // eslint-disable-next-line
-  }, [user]);
+  }, [user, filterBySize]);
 
   const handleAction = async (action) => {
     if (!item) return;
@@ -166,39 +183,129 @@ function Matching({ user, setHasLocation }) {
     zIndex: 2,
   };
 
+  const handleSizeSave = (sizes) => {
+    setShowSizeSelection(false);
+  };
+
   return (
-    <div {...handlers} style={tinderCardStyle}>
-      <ItemDetailModal
-        item={item}
-        open={true}
-        onClose={() => {}}
-        currentIdx={imgIdx}
-        setIdx={setImgIdx}
-        matching={true}
-        showNavigation={true}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 36, marginBottom: 12 }}>
-            <button
-              onClick={() => handleAction("pass")}
-              disabled={actionLoading}
-              className="common-button pass"
-              title="Pass"
-              style={{ fontSize: 32, borderRadius: '50%', width: 60, height: 60, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
-            >
-              <span role="img" aria-label="pass">❌</span>
-            </button>
-            <button
-              onClick={() => handleAction("like")}
-              disabled={actionLoading}
-              className="common-button like"
-              title="Like"
-              style={{ fontSize: 32, borderRadius: '50%', width: 60, height: 60, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
-            >
-              <span role="img" aria-label="like">❤️</span>
-            </button>
-          </div>
-        }
-      />
+    <div>
+      {/* Only show filter and edit size preferences if sizePreferences is not empty */}
+  <div style={{ margin: '10vh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10vw'}}>
+          {sizePreferences && Object.keys(sizePreferences).length > 0 && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
+            <span style={{ fontSize: 14, fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
+            <span style={{
+              position: 'relative',
+              display: 'inline-block',
+              width: 42,
+              height: 22,
+              verticalAlign: 'middle',
+            }}>
+              <input
+                type="checkbox"
+                checked={filterBySize}
+                style={{ opacity: 0, width: 0, height: 0 }}
+                onChange={e => setFilterBySize(e.target.checked)}
+              />
+              <span
+                style={{
+                  position: 'absolute',
+                  cursor: 'pointer',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: filterBySize ? '#22c55e' : '#e5e7eb',
+                  transition: 'background 0.2s',
+                  borderRadius: 22,
+                  pointerEvents: 'none',
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    height: 17,
+                    width: 17,
+                    left: filterBySize ? 21 : 3,
+                    bottom: 2.5,
+                    background: '#fff',
+                    transition: 'transform 0.2s, left 0.2s',
+                    borderRadius: '50%',
+                    boxShadow: '0 2px 8px #22c55e22',
+                  }}
+                />
+              </span>
+            </span>
+          </label>
+          )}
+          <button
+            onClick={() => setShowSizeSelection(true)}
+            style={{
+              background: '#22c55e',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 12,
+              padding: '6px 16px',
+              fontSize: 14,
+              fontFamily: 'Geist',
+              fontWeight: 100,
+              boxShadow: '0 2px 8px #22c55e22',
+              cursor: 'pointer',
+              transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = '#16a34a';
+              e.currentTarget.style.boxShadow = '0 4px 16px #22c55e33';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = '#22c55e';
+              e.currentTarget.style.boxShadow = '0 2px 8px #22c55e22';
+            }}
+          >
+            {t('edit_size_preferences')}
+          </button>
+        </div>
+
+      {showSizeSelection && (
+        <SizeSelectionModal
+          onClose={() => setShowSizeSelection(false)}
+          onSave={handleSizeSave}
+          userId={user?.id || user?.uid}
+        />
+      )}
+      <div {...handlers} style={tinderCardStyle}>
+        <ItemDetailModal
+          item={item}
+          open={true}
+          onClose={() => {}}
+          currentIdx={imgIdx}
+          setIdx={setImgIdx}
+          matching={true}
+          showNavigation={true}
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10vw', marginBottom: 0 }}>
+              <button
+                onClick={() => handleAction("pass")}
+                disabled={actionLoading}
+                className="common-button pass"
+                title="Pass"
+                style={{ fontSize: 28, borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
+              >
+                <span role="img" aria-label="pass">❌</span>
+              </button>
+              <button
+                onClick={() => handleAction("like")}
+                disabled={actionLoading}
+                className="common-button like"
+                title="Like"
+                style={{ fontSize: 28, borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
+              >
+                <span role="img" aria-label="like">❤️</span>
+              </button>
+            </div>
+          }
+        />
+      </div>
     </div>
   );
 }

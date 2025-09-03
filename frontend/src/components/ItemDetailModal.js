@@ -19,16 +19,24 @@ function ItemDetailModal({
   // Always call hooks at the top
   const images = item ? (item.photoURLs || []) : [];
   const [modalIdx, setModalIdx] = React.useState(currentIdx);
+  const [objectFit, setObjectFit] = React.useState('cover');
   React.useEffect(() => {
     setModalIdx(currentIdx);
+    setObjectFit('cover'); // Reset objectFit when changing image
   }, [currentIdx, item]);
   const handlePrev = (e) => {
     e && e.stopPropagation();
-    setModalIdx((modalIdx - 1 + images.length) % images.length);
+    setModalIdx((prevIdx) => {
+      setObjectFit('cover');
+      return (prevIdx - 1 + images.length) % images.length;
+    });
   };
   const handleNext = (e) => {
     e && e.stopPropagation();
-    setModalIdx((modalIdx + 1) % images.length);
+    setModalIdx((prevIdx) => {
+      setObjectFit('cover');
+      return (prevIdx + 1) % images.length;
+    });
   };
   const getCategoryLabel = (catKey) => {
     const cat = CATEGORIES.find((c) => c.key === catKey);
@@ -54,11 +62,11 @@ function ItemDetailModal({
   // Modal style: absolute (popup) or relative (inline)
   const modalWrapperStyle = matching
     ? {
-        marginTop: "12.5vh",
+        marginTop: "2.75vh",
         background: 'transparent',
         marginLeft: "0%",
         width: '100vw',
-        height: '72.5vh',
+        height: '73.5vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -84,7 +92,7 @@ function ItemDetailModal({
         borderRadius: 10,
         boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
         padding: 0,
-        width: '92%',
+        width: '94%',
         height: '100%',
         overflow: 'hidden',
         display: 'flex',
@@ -267,13 +275,16 @@ function ItemDetailModal({
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
+                objectFit: objectFit,
                 borderRadius: 0,
                 display: 'block',
                 background: 'transparent',
                 transition: 'none',
                 userSelect: 'none',
+                cursor: 'zoom-in',
               }}
+              onClick={() => setObjectFit((prev) => prev === 'cover' ? 'contain' : 'cover')}
+              title="Toggle image fit"
             />
           </div>
         )}
@@ -285,8 +296,8 @@ function ItemDetailModal({
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
-          gap: 8,
-          margin: "20px 0px 20px 0px"
+          gap: 4,
+          margin: "1.5vh 1vw"
         }}>
           {/* Category and emoji */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 18, fontWeight: 400, color: '#222' }}>
@@ -426,7 +437,7 @@ function ItemDetailModal({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '10px 0 18px 0',
+            padding: '1vh 0 1vh 0',
             borderTop: '1px solid #f0f0f0',
             background: '#fff',
           }}>

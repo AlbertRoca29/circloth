@@ -8,10 +8,11 @@ import math
 
 PASS_EXPIRY_SECONDS = int(os.getenv("PASS_EXPIRY_SECONDS", 60))  # default 60 seconds for testing
 
-def get_available_items_for_user(user_id: str, location: dict = None) -> List[dict]:
+def get_available_items_for_user(user_id: str, location: dict = None, filter_by_size: bool = False) -> List[dict]:
     """
     Returns items available for matching for the user, considering pass expiry.
     If location is provided, items are ordered by proximity. Otherwise, order is randomized.
+    If filter_by_size is True, only return items matching user's size_preferences.
     """
     db = FirestoreDB()
     user = db.get_user(user_id)
@@ -49,6 +50,21 @@ def get_available_items_for_user(user_id: str, location: dict = None) -> List[di
         item for item in all_items
         if item.get("ownerId") != user_id and item.get("id") not in excluded_item_ids
     ]
+
+    # Filter by size preferences if requested
+    if filter_by_size and user.get("size_preferences"):
+        size_prefs = user["size_preferences"]
+        def matches_size(item):
+            item_size = item.get("size")
+            item_category = item.get("category")
+            if not item_size or not item_category:
+                return False
+            # size_prefs is a dict of lists: {category: [sizes]}
+            allowed_sizes = size_prefs.get(item_category)
+            if allowed_sizes and isinstance(allowed_sizes, list):
+                return item_size in allowed_sizes
+            return False
+        available_items = [item for item in available_items if matches_size(item)]
 
     if location and "lat" in location and "lng" in location:
         def distance(item):

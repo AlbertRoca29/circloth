@@ -89,5 +89,11 @@
   "their_items": "Sus artículos",
   "trade_view_title": "Vista de intercambio",
   "show_all": "Ver todo",
-  "show_less": "Ver menos"
+  "show_less": "Ver menos",
+  "filter": "Filtrar",
+  "edit_size_preferences": "Editar preferencias de talla"
+  ,
+  "select_sizes": "Selecciona tus tallas",
+  "skip": "Omitir",
+  "save": "Guardar"
 }

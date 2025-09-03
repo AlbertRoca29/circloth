@@ -85,8 +85,10 @@ class UserModel(BaseModel):
     size_preferences: Optional[dict] = None
 
 
+
 class MatchRequest(BaseModel):
     user_id: str
+    filter_by_size: bool = False
 
 
 
@@ -135,6 +137,7 @@ def health():
 
 
 # Use new matching logic
+
 @app.post("/match")
 def match_items(req: MatchRequest):
     user = db.get_user(req.user_id)
@@ -144,9 +147,9 @@ def match_items(req: MatchRequest):
     location = getattr(req, "location", None)
     if location:
         db.update_user(req.user_id, {"location": {**location, "updated_at": datetime.utcnow().isoformat() + "Z"}})
-    available_items = get_available_items_for_user(req.user_id, location)
+    available_items = get_available_items_for_user(req.user_id, location, filter_by_size=req.filter_by_size)
     logging.warning(
-        f"[MATCH DEBUG] user_id={req.user_id} available_items={len(available_items)}"
+        f"[MATCH DEBUG] user_id={req.user_id} available_items={len(available_items)} filter_by_size={req.filter_by_size}"
     )
     if not available_items:
         return {"message_key": "NO_MATCHES", "item": None}

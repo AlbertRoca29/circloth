@@ -92,5 +92,11 @@
   "their_items": "Els seus articles",
   "trade_view_title": "Vista d'intercanvi",
   "show_all": "Mostra-ho tot",
-  "show_less": "Mostra'n menys"
+  "show_less": "Mostra'n menys",
+  "filter": "Filtra",
+  "edit_size_preferences": "Edita preferències de talla"
+  ,
+  "select_sizes": "Selecciona les teves talles",
+  "skip": "Omet",
+  "save": "Desa"
 }
