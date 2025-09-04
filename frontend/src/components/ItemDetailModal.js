@@ -66,7 +66,7 @@ function ItemDetailModal({
         background: 'transparent',
         marginLeft: "0%",
         width: '100vw',
-        height: '73.5vh',
+        height: '72.5vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

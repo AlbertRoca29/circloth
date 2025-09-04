@@ -17,6 +17,7 @@ import Chats from "./pages/Chats";
 import changeLanguage from "./utils/changeLanguage";
 import { MenuIcon, GlobeIcon } from './utils/svg';
 import SizeSelectionModal from "./components/SizeSelectionModal";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -281,100 +282,15 @@ function App() {
                     </div>
                   </div>
                   {/* Language Switcher - custom dropdown */}
-                  <div style={{ position: 'relative', display: "flex", alignItems: "center", gap: 8 }}>
-                    <GlobeIcon />
-                    <button
-                      onClick={() => setLangDropdownOpen((open) => !open)}
-                      style={{
-                        border: "1px solid #ddd",
-                        borderRadius: 4,
-                        padding: "4px 8px",
-                        fontSize: 14,
-                        cursor: "pointer",
-                        background: '#fff',
-                        minWidth: 90,
-                        textAlign: 'left',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8
-                      }}
-                      type="button"
-                    >
-                      {i18n.language === 'en' ? 'English' : i18n.language === 'es' ? 'Español' : 'Català'}
-                      <span style={{ fontSize: 10, marginLeft: 6 }}>▼</span>
-                    </button>
-                    {langDropdownOpen && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 34,
-                          left: 28,
-                          background: '#fff',
-                          border: '1px solid #ddd',
-                          borderRadius: 6,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                          zIndex: 200,
-                          minWidth: 110,
-                          padding: '4px 0',
-                          display: 'flex',
-                          flexDirection: 'column',
-                        }}
-                      >
-                        <button
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '8px 16px',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: 14,
-                            color: i18n.language === 'en' ? '#15803d' : '#333',
-                            fontWeight: i18n.language === 'en' ? 600 : 400,
-                          }}
-                          onClick={() => {
-                            changeLanguage('en');
-                            setLangDropdownOpen(false);
-                            setMenuOpen(false);
-                          }}
-                        >English</button>
-                        <button
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '8px 16px',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: 14,
-                            color: i18n.language === 'es' ? '#15803d' : '#333',
-                            fontWeight: i18n.language === 'es' ? 600 : 400,
-                          }}
-                          onClick={() => {
-                            changeLanguage('es');
-                            setLangDropdownOpen(false);
-                            setMenuOpen(false);
-                          }}
-                        >Español</button>
-                        <button
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '8px 16px',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: 14,
-                            color: i18n.language === 'ca' ? '#15803d' : '#333',
-                            fontWeight: i18n.language === 'ca' ? 600 : 400,
-                          }}
-                          onClick={() => {
-                            changeLanguage('ca');
-                            setLangDropdownOpen(false);
-                            setMenuOpen(false);
-                          }}
-                        >Català</button>
-                      </div>
-                    )}
-                  </div>
+                  <LanguageSwitcher
+                    position="relative"
+                    top={0}
+                    right={0}
+                    zIndex={200}
+                    dropdownStyle={{ minWidth: "150px" }}
+                    buttonStyle={{ fontSize: "0.85em" }}
+                    displayFullLanguageName={true}
+                  />
                   {/* Logout Button */}
                   <button
                     onClick={() => {

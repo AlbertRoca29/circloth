@@ -44,7 +44,6 @@ function AddItem({ user, onItemAdded }) {
   const [size, setSize] = useState('');
   const [sizeDetails, setSizeDetails] = useState('');
   const [itemStory, setItemStory] = useState('');
-  // Color state is computed from main image
   const [color, setColor] = useState('');
   const [brand, setBrand] = useState('');
   const [material, setMaterial] = useState('');
@@ -53,9 +52,7 @@ function AddItem({ user, onItemAdded }) {
   const [thumbnailIdx, setThumbnailIdx] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  // For demo: fake progress state
   const [progress, setProgress] = useState(0);
-  // const [errorMsg, setErrorMsg] = useState("");
 
   // Track object URLs for previews
   const [objectURLs, setObjectURLs] = useState([]);
@@ -145,10 +142,11 @@ function AddItem({ user, onItemAdded }) {
       });
       if (!res.ok) throw new Error("Failed to add item");
 
-      // Update cached items in localStorage
-      const cachedItems = JSON.parse(localStorage.getItem(`items_${user.id}`)) || [];
-      const updatedItems = [...cachedItems, newItem];
-      localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+    // TODO : DO THAT WELL
+    // Update cached items in localStorage
+    //   const cachedItems = JSON.parse(localStorage.getItem(`items_${user.id}`)) || [];
+    //   const updatedItems = [...cachedItems, newItem];
+    //   localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
 
   setCategory("");
   setSize("");
@@ -175,27 +173,25 @@ function AddItem({ user, onItemAdded }) {
 
   // Ensure the AddItem button is always fixed and independent of other elements
   const floatingButtonStyle = {
-  position: "fixed",
-  bottom: "10%", // Adjusted for better reachability on mobile
-  right: "10%",
-  width: "70px", // Increased size for touch-friendliness
-  height: "70px",
-  borderRadius: "50%",
-  backgroundColor: "#15803d",
-  color: "white",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  cursor: "pointer",
-  border: "none",
-  zIndex: 1000,
-};
+    position: "fixed",
+    bottom: "10%", // Adjusted for better reachability on mobile
+    right: "10%",
+    width: "70px", // Increased size for touch-friendliness
+    height: "70px",
+    borderRadius: "50%",
+    backgroundColor: "#15803d",
+    color: "white",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    cursor: "pointer",
+    border: "none",
+    zIndex: 1000,
+    };
 
-  // Adjust Collapse container for mobile
   return (
     <Box sx={{ mt: open ? 1 : 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 2 }}>
-      {/* Toast notifications will show errors instead of inline errorMsg */}
       {!open && (
         <div style={{
           display: 'flex',
@@ -244,60 +240,60 @@ function AddItem({ user, onItemAdded }) {
         </div>
       )}
       <Collapse in={open} sx={{
-  width: '90vw',
-  margin: '0 auto',
-  borderRadius: 4,
-  boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
-  bgcolor: '#fff',
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-}}>
-  {/* Header */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#22c55e',
-    padding: '11px 0 9px 0',
-    position: 'relative',
-  }}>
-    <div style={{
-      fontWeight: 150,
-      fontSize: 18,
-      color: '#fff',
-      flex: 1,
-      textAlign: 'center',
-      letterSpacing: 0.2,
-    }}>
-      {t('add_item', 'Add Item')}
-    </div>
-    <button
-      onClick={() => setOpen(false)}
-      aria-label="Close add item view"
-      style={{
-        position: 'absolute',
-        right: 12,
-        top: 4,
-        border: 'none',
-        background: 'transparent',
-        fontSize: 26,
-        fontFamily: 'Geist',
-        fontWeight: 100,
-        cursor: 'pointer',
-        color: '#fff',
-        padding: '-1px 8px',
-        borderRadius: 8,
-        boxShadow: '0 1px 4px rgba(0, 0, 0, 0)',
-        transition: 'background 0.18s',
-      }}
-      onMouseOver={e => e.currentTarget.style.background = '#fff4'}
-      onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
-    >
-      ×
-    </button>
-  </div>
+        width: '90vw',
+        margin: '0 auto',
+        borderRadius: 4,
+        boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
+        bgcolor: '#fff',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        }}>
+        {/* Header */}
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#22c55e',
+            padding: '11px 0 9px 0',
+            position: 'relative',
+        }}>
+            <div style={{
+            fontWeight: 150,
+            fontSize: 18,
+            color: '#fff',
+            flex: 1,
+            textAlign: 'center',
+            letterSpacing: 0.2,
+            }}>
+                {t('add_item', 'Add Item')}
+            </div>
+            <button
+            onClick={() => setOpen(false)}
+            aria-label="Close add item view"
+            style={{
+                position: 'absolute',
+                right: 12,
+                top: 4,
+                border: 'none',
+                background: 'transparent',
+                fontSize: 26,
+                fontFamily: 'Geist',
+                fontWeight: 100,
+                cursor: 'pointer',
+                color: '#fff',
+                padding: '-1px 8px',
+                borderRadius: 8,
+                boxShadow: '0 1px 4px rgba(0, 0, 0, 0)',
+                transition: 'background 0.18s',
+            }}
+            onMouseOver={e => e.currentTarget.style.background = '#fff4'}
+            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+            >
+            ×
+            </button>
+        </div>
 
   {/* Form Content */}
   <Box component="form" onSubmit={handleSubmit} sx={{

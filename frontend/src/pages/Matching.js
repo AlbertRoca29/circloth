@@ -56,15 +56,15 @@ function Matching({ user, setHasLocation }) {
       return;
     }
     // Fetch items from backend
-    const cachedItems = localStorage.getItem(`items_${user.uid}`);
-    if (cachedItems) {
-      setHasClothes(JSON.parse(cachedItems).length > 0);
+    // const cachedItems = localStorage.getItem(`items_${user.uid}`);
+    if (false) {
+    //   setHasClothes(JSON.parse(cachedItems).length > 0);
     } else {
       fetch(`${BACKEND_URL}/items/${user.uid}`)
         .then(res => res.json())
         .then(data => {
           setHasClothes(data.items && data.items.length > 0);
-          localStorage.setItem(`items_${user.uid}`, JSON.stringify(data.items));
+        //   localStorage.setItem(`items_${user.uid}`, JSON.stringify(data.items));
         })
         .catch(() => setHasClothes(false));
     }
@@ -93,9 +93,9 @@ function Matching({ user, setHasLocation }) {
     setActionLoading(true);
     try {
       await sendMatchAction(user.uid, item.id, action);
-      const cachedItems = JSON.parse(localStorage.getItem(`items_${user.uid}`)) || [];
-      const updatedItems = cachedItems.filter(cachedItem => cachedItem.id !== item.id);
-      localStorage.setItem(`items_${user.uid}`, JSON.stringify(updatedItems));
+    //   const cachedItems = JSON.parse(localStorage.getItem(`items_${user.uid}`)) || [];
+    //   const updatedItems = cachedItems.filter(cachedItem => cachedItem.id !== item.id);
+    //   localStorage.setItem(`items_${user.uid}`, JSON.stringify(updatedItems));
       loadNextItem();
     } catch (e) {
       setError(e.message + (e.stack ? "\n" + e.stack : ""));
