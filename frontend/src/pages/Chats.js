@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
-import { fetchMatches } from "../api/matchingApi";
+import { getCachedOrFreshMatches, fetchMatches } from "../api/matchingApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
@@ -100,7 +100,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const fetchAndSetMatchesAndChats = async () => {
     if (!user || !user.uid) return;
     const [matches, chats] = await Promise.all([
-      fetchMatches(user.uid),
+      getCachedOrFreshMatches(user.uid),
       fetchUserChats(user.uid)
     ]);
     setMatches(matches);
@@ -170,19 +170,39 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     }
   }, [isLoading, matches]);
 
-  // Update chat messages every 3 seconds when a chat is active
+  // WebSocket for real-time chat
+  const wsRef = useRef(null);
   useEffect(() => {
-    if (chattingWith) {
-      const interval = setInterval(async () => {
-        if (chattingWith && !viewingTheirProfile && !viewingTrade) {
-          const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
-          setMessages(msgs);
-        }
-      }, 3000); // Update every 3 seconds
+    if (!chattingWith || !user?.uid) return;
+    // Open WebSocket connection
+    const user1 = user.uid;
+    const user2 = chattingWith.otherUser.id;
+    // Use ws:// for local dev, wss:// for production
+    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsUrl = `${wsProtocol}://${window.location.hostname}:${window.location.port || (wsProtocol === "wss" ? "443" : "80")}/ws/chat/${user1}/${user2}`;
+    const ws = new window.WebSocket(wsUrl);
+    wsRef.current = ws;
 
-      return () => clearInterval(interval); // Cleanup on unmount or when dependencies change
-    }
-  }, [chattingWith, user, viewingTheirProfile, viewingTrade]);
+    ws.onopen = () => {
+      // Optionally, fetch initial messages
+      fetchMessages(user.uid, chattingWith.otherUser.id).then(setMessages);
+    };
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.sender && msg.receiver && msg.content) {
+          setMessages(prev => [...prev, { ...msg, timestamp: Date.now() }]);
+        }
+      } catch {}
+    };
+    ws.onerror = () => {};
+    ws.onclose = () => {};
+
+    return () => {
+      ws.close();
+      wsRef.current = null;
+    };
+  }, [chattingWith, user]);
 
 
   if (showSpinner) {

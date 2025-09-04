@@ -18,6 +18,7 @@ import changeLanguage from "./utils/changeLanguage";
 import { MenuIcon, GlobeIcon } from './utils/svg';
 import SizeSelectionModal from "./components/SizeSelectionModal";
 import LanguageSwitcher from "./components/LanguageSwitcher";
+import { fetchUserItems } from "./api/userItemsApi";
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -110,7 +111,7 @@ function App() {
       return;
     }
     // Fetch items from backend
-    fetch(`${BACKEND_URL}/items/${appUser.uid}`)
+    fetchUserItems(appUser.uid)
       .then(res => res.json())
       .then(data => setHasClothes(data.items && data.items.length > 0))
       .catch(() => setHasClothes(false));
@@ -337,6 +338,7 @@ function App() {
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
+                useLocalStorage={true}
                 onModalOpenChange={(open) => {setItemListModalOpen(open);}
             }
               />

@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import BACKEND_URL from "../config";
 import LoadingSpinner from '../components/LoadingSpinner';
 import changeLanguage from '../utils/changeLanguage';
 import { GlobeIcon, ChevronDownIcon } from '../utils/svg';
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { setItemsToLocalStorage } from '../utils/general';
+import { fetchUserProfile, createUserProfile } from "../api/authApi";
 
 function LoginPage({ firebaseUser, setAppUser }) {
   const { t, i18n } = useTranslation();
@@ -23,7 +23,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       // Try to fetch user profile from backend
-      const res = await fetch(`${BACKEND_URL}/user/${user.uid}`);
+      const res = await fetchUserProfile(user.uid);
       if (res.ok) {
         const data = await res.json();
         setAppUser({ ...user, ...data });
@@ -54,17 +54,13 @@ function LoginPage({ firebaseUser, setAppUser }) {
       };
       // Create user in backend
       const language = window.i18next?.language || 'ca';
-      const res = await fetch(`${BACKEND_URL}/user/${pendingUser.uid}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: pendingUser.uid,
-          name: localName,
-          email: pendingUser.email,
-          passed_items: [],
-          device_info: deviceInfo,
-          language
-        })
+      const res = await createUserProfile(pendingUser.uid, {
+        id: pendingUser.uid,
+        name: localName,
+        email: pendingUser.email,
+        passed_items: [],
+        device_info: deviceInfo,
+        language
       });
       if (res.ok) {
         setAppUser({ ...pendingUser, name: localName, language });

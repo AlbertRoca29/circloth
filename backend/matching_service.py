@@ -93,8 +93,3 @@ def handle_user_action(user_id: str, item_id: str, action: str):
     db.delete_user_action(user_id, item_id)
     db.save_user_action(user_id, item_id, action, now)
     # Optionally update user profile (e.g., passed_items) if needed
-
-# New: get all matches for a user (reciprocal likes)
-def get_all_matches(user_id: str):
-    db = FirestoreDB()
-    return db.get_all_matches_for_user(user_id)

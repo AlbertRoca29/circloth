@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useTranslation } from "react-i18next";
-import { fetchMatchItem, sendMatchAction } from "../api/matchingApi";
+import { fetchMatchItem, sendMatchAction, fetchUserSizePreferences} from "../api/matchingApi";
+import { fetchUserItems } from "../api/userItemsApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SizeSelectionModal from "../components/SizeSelectionModal";
 import "../styles/buttonStyles.css";
 
-import BACKEND_URL from "../config";
-import { fontWeight, height } from "@mui/system";
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/general';
 
 function Matching({ user, setHasLocation }) {
@@ -30,8 +29,7 @@ function Matching({ user, setHasLocation }) {
       setSizePreferences({});
       return;
     }
-    fetch(`${BACKEND_URL}/user/${user.id || user.uid}/size_preferences`)
-      .then(res => res.json())
+    fetchUserSizePreferences(user.id || user.uid)
       .then(data => setSizePreferences(data || {}))
       .catch(() => setSizePreferences({}));
   }, [user, showSizeSelection]);
@@ -61,8 +59,7 @@ function Matching({ user, setHasLocation }) {
     if (cachedItems.length > 0) {
       setHasClothes(true);
     } else {
-      fetch(`${BACKEND_URL}/items/${user.uid}`)
-        .then(res => res.json())
+      fetchUserItems(user.uid)
         .then(data => {
           setHasClothes(data.items && data.items.length > 0);
           setItemsToLocalStorage(user.uid, data.items);
@@ -149,7 +146,7 @@ function Matching({ user, setHasLocation }) {
     borderRadius: 14,
     boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
     padding: '5vh 6vw',
-    fontSize: '1rem',
+    fontSize: '0.95rem',
     fontWeight: 400,
     color: '#00721cff',
     fontWeight: 150,

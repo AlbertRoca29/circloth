@@ -1,5 +1,6 @@
 import { CATEGORY_EMOJI } from '../constants/categories';
 import { SIZE_OPTIONS } from '../constants/categories';
+import { fetchUserItems, fetchUserActions, syncItemsWithDB, syncActionsWithDB } from "../api/userItemsApi";
 
 export function getCategoryEmoji(category) {
   if (!category) return CATEGORY_EMOJI.other;
@@ -55,38 +56,19 @@ export function clearActionsFromLocalStorage(userId) {
   localStorage.removeItem(key);
 }
 
-export async function syncItemsWithDB(userId, backendUrl) {
-  try {
-    const response = await fetch(`${backendUrl}/items/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch items from DB');
-
-    const data = await response.json();
-    const dbItems = data.items || [];
-
-    // Update localStorage with DB items
-    setItemsToLocalStorage(userId, dbItems);
-
-    return dbItems;
-  } catch (error) {
-    console.error('Error syncing items with DB:', error);
-    return getItemsFromLocalStorage(userId); // Fallback to localStorage
-  }
+// Utility functions for managing matches cache in localStorage
+export function getMatchesCacheFromLocalStorage(userId) {
+  const key = `matches_cache_${userId}`;
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
 }
 
-export async function syncActionsWithDB(userId, backendUrl) {
-  try {
-    const response = await fetch(`${backendUrl}/actions/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch actions from DB');
+export function setMatchesCacheToLocalStorage(userId, cacheObj) {
+  const key = `matches_cache_${userId}`;
+  localStorage.setItem(key, JSON.stringify(cacheObj));
+}
 
-    const data = await response.json();
-    const dbActions = data.actions || {};
-
-    // Update localStorage with DB actions
-    setActionsToLocalStorage(userId, dbActions);
-
-    return dbActions;
-  } catch (error) {
-    console.error('Error syncing actions with DB:', error);
-    return getActionsFromLocalStorage(userId); // Fallback to localStorage
-  }
+export function clearMatchesCacheFromLocalStorage(userId) {
+  const key = `matches_cache_${userId}`;
+  localStorage.removeItem(key);
 }

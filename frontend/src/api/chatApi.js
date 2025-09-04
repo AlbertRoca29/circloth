@@ -33,3 +33,5 @@ export async function fetchMessages(user1, user2, limit = 50) {
   const data = await res.json();
   return data.messages;
 }
+
+

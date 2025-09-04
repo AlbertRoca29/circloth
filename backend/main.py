@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,Body
+from fastapi import FastAPI, HTTPException, Body, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import List, Optional
 import firebase_admin
@@ -8,13 +8,53 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from db import FirestoreDB
  # removed local messages import; use FirestoreDB for chat
-from matching_service import get_available_items_for_user, handle_user_action, get_all_matches
+from matching_service import get_available_items_for_user, handle_user_action
 
 import logging
 from datetime import datetime
 from fastapi import Query
 
 app = FastAPI()
+
+# --- WebSocket Chat State ---
+from collections import defaultdict
+import asyncio
+
+# Dict of room_id -> set of WebSocket connections
+chat_connections = defaultdict(set)
+
+def get_room_id(user1, user2):
+    # Ensure consistent room id for user pairs
+    return "__".join(sorted([user1, user2]))
+# --- Chat Endpoints using FirestoreDB ---
+@app.websocket("/ws/chat/{user1}/{user2}")
+async def chat_ws(websocket: WebSocket, user1: str, user2: str):
+    room_id = get_room_id(user1, user2)
+    await websocket.accept()
+    chat_connections[room_id].add(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            # Expect {sender, receiver, content}
+            sender = data.get("sender")
+            receiver = data.get("receiver")
+            content = data.get("content")
+            if sender and receiver and content:
+                # Save to DB (reuse REST logic)
+                db.add_chat_message(sender, receiver, content, datetime.utcnow().isoformat() + "Z")
+                # Broadcast to all clients in room
+                for conn in chat_connections[room_id]:
+                    try:
+                        await conn.send_json({"sender": sender, "receiver": receiver, "content": content})
+                    except Exception:
+                        pass
+            else:
+                await websocket.send_json({"error": "Invalid message format"})
+    except WebSocketDisconnect:
+        chat_connections[room_id].remove(websocket)
+    except Exception:
+        chat_connections[room_id].remove(websocket)
+        await websocket.close()
 
 # --- Firebase Init ---
 if not firebase_admin._apps:
@@ -314,7 +354,7 @@ def get_matches(user_id: str):
     """
     Returns all users who have an item liked by user_id and who have also liked one of user_id's items.
     """
-    matches = get_all_matches(user_id)
+    matches = db.get_all_matches_for_user(user_id)
     return {"matches": matches}
 
 # Efficient endpoint: get all items of profileUserId liked by visitorUserId

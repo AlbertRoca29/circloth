@@ -6,7 +6,6 @@ import { showToast } from "../utils/toast";
 import { storage } from "../utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
-import BACKEND_URL from "../config";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
@@ -25,6 +24,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
 import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/general';
+import { addItem } from "../api/userItemsApi";
 
 function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();
@@ -133,13 +133,15 @@ function AddItem({ user, onItemAdded }) {
         brand,
         material,
         additionalInfo,
-        photos: photoFiles,
-        thumbnailIdx,
+        photoURLs: orderedPhotoURLs
       };
+
+      await addItem(newItem);
 
       // Save to localStorage
       const existingItems = getItemsFromLocalStorage(user.id);
       const updatedItems = [...existingItems, newItem];
+      console.log('Updated items to be saved to localStorage:', updatedItems);
       setItemsToLocalStorage(user.id, updatedItems);
 
       // Notify parent component

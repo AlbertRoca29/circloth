@@ -22,9 +22,7 @@ class FirestoreDB:
         return [item.to_dict() for item in items]
 
     def get_all_matches_for_user(self, user_id: str):
-        """
-        Optimized to minimize Firestore calls using batch reads and caching.
-        """
+
         # Fetch all 'like' actions for all users (except current) in one collection group query
         actions_query = self.db.collection_group("actions").where("action", "==", "like")
         all_actions = self._log_and_stream("get_all_matches_for_user", actions_query)
