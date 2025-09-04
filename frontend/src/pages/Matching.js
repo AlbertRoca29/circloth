@@ -9,6 +9,7 @@ import "../styles/buttonStyles.css";
 
 import BACKEND_URL from "../config";
 import { fontWeight, height } from "@mui/system";
+import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/general';
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -55,16 +56,16 @@ function Matching({ user, setHasLocation }) {
       setHasClothes(false);
       return;
     }
-    // Fetch items from backend
-    // const cachedItems = localStorage.getItem(`items_${user.uid}`);
-    if (false) {
-    //   setHasClothes(JSON.parse(cachedItems).length > 0);
+
+    const cachedItems = getItemsFromLocalStorage(user.uid);
+    if (cachedItems.length > 0) {
+      setHasClothes(true);
     } else {
       fetch(`${BACKEND_URL}/items/${user.uid}`)
         .then(res => res.json())
         .then(data => {
           setHasClothes(data.items && data.items.length > 0);
-        //   localStorage.setItem(`items_${user.uid}`, JSON.stringify(data.items));
+          setItemsToLocalStorage(user.uid, data.items);
         })
         .catch(() => setHasClothes(false));
     }
@@ -141,15 +142,14 @@ function Matching({ user, setHasLocation }) {
     alignItems: 'center',
     justifyContent: 'center',
     width: '65vw',
-    marginTop: '16vh',
+    marginTop: '20vh',
     marginLeft: '11.5vw',
-    height: '35vh',
     whiteSpace: "pre-line",
     background: '#fff',
     borderRadius: 14,
     boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
-    padding: '2vh 6vw',
-    fontSize: 16,
+    padding: '5vh 6vw',
+    fontSize: '1rem',
     fontWeight: 400,
     color: '#00721cff',
     fontWeight: 150,
@@ -189,7 +189,7 @@ function Matching({ user, setHasLocation }) {
   <div style={{ margin: '9vh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
           {sizePreferences && Object.keys(sizePreferences).length > 0 && (
           <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
-            <span style={{ fontSize: 14, fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
+            <span style={{ fontSize: '0.9rem', fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
             <span style={{
               position: 'relative',
               display: 'inline-block',
@@ -242,7 +242,7 @@ function Matching({ user, setHasLocation }) {
               border: 'none',
               borderRadius: 12,
               padding: '6px 16px',
-              fontSize: 14,
+              fontSize: '0.9rem',
               fontFamily: 'Geist',
               fontWeight: 100,
               boxShadow: '0 2px 8px #22c55e22',
@@ -291,7 +291,7 @@ function Matching({ user, setHasLocation }) {
                 disabled={actionLoading}
                 className="common-button pass"
                 title="Pass"
-                style={{ fontSize: 28, borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
+                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
               >
                 <span role="img" aria-label="pass">❌</span>
               </button>
@@ -300,7 +300,7 @@ function Matching({ user, setHasLocation }) {
                 disabled={actionLoading}
                 className="common-button like"
                 title="Like"
-                style={{ fontSize: 28, borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
+                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
               >
                 <span role="img" aria-label="like">❤️</span>
               </button>

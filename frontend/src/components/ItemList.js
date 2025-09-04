@@ -9,6 +9,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
 import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
+import { getItemsFromLocalStorage, setItemsToLocalStorage, clearLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage, clearActionsFromLocalStorage, syncItemsWithDB, syncActionsWithDB } from '../utils/general';
 
 function DropdownMenu({ onEdit, onDelete, onClose, position }) {
   const menuRef = useRef(null);
@@ -68,8 +69,9 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   only_likes = false,
   maxItems = null,
   onExpand = null,
-  expanded = false })
-  {
+  expanded = false,
+  useLocalStorage = false
+}) {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,56 +99,36 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   }, [modalOpen]);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      // Only use cache if matching === false and from_user_matching === null
-      if (matching === false && from_user_matching === null) {
-        const cachedItems = localStorage.getItem(`items_${user.id}`);
+    if (useLocalStorage) {
+      const localItems = getItemsFromLocalStorage(user.id);
+      setItems(localItems);
+    } else {
+      const fetchItems = async () => {
+        const cachedItems = getItemsFromLocalStorage(user.id);
         if (cachedItems) {
-          setItems(JSON.parse(cachedItems));
+          setItems(cachedItems);
           return;
         }
-      }
-      // Otherwise, always fetch from backend
-      try {
-        const response = await fetch(`${BACKEND_URL}/items/${user.id}`);
-        const data = await response.json();
-        setItems(data.items);
-        // Only update cache if matching === false and from_user_matching === null
-        if (matching === false && from_user_matching === null) {
-          localStorage.setItem(`items_${user.id}`, JSON.stringify(data.items));
+        try {
+          const response = await fetch(`${BACKEND_URL}/items/${user.id}`);
+          const data = await response.json();
+          setItems(data.items);
+
+          setItemsToLocalStorage(user.id, data.items);
+        } catch (error) {
+          console.error("Failed to fetch items:", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch items:", error);
-      }
-    };
-    fetchItems();
-  }, [user.id, refreshSignal, matching, from_user_matching]);
+      };
+      fetchItems();
+    }
+  }, [user.id, refreshSignal, matching, from_user_matching, useLocalStorage]);
 
-  const updateCachedItems = (updatedItems) => {
-    localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
-    setItems(updatedItems);
-  };
-
-  const handleAddItem = (newItem) => {
-    const updatedItems = [...items, newItem];
-    updateCachedItems(updatedItems);
-  };
-
-  const handleEditItem = (editedItem) => {
-    const updatedItems = items.map(item => item.id === editedItem.id ? editedItem : item);
-    updateCachedItems(updatedItems);
-  };
-
-  const handleDeleteItem = (itemId) => {
-    const updatedItems = items.filter(item => item.id !== itemId);
-    updateCachedItems(updatedItems);
-  };
 
   useEffect(() => {
     if (matching) {
-      const cachedActions = localStorage.getItem(`actions_${user.id}`);
-      if (false) {
-        setUserActions(JSON.parse(cachedActions));
+      const cachedActions = getActionsFromLocalStorage(user.id);
+      if (Object.keys(cachedActions).length > 0) {
+        setUserActions(cachedActions);
       } else {
         fetchLikedItems(user.id, from_user_matching.id)
           .then(likedItems => {
@@ -155,7 +137,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               actionsMap[item.id] = true;
             });
             setUserActions(actionsMap);
-            localStorage.setItem(`actions_${user.id}`, JSON.stringify(actionsMap));
+            setActionsToLocalStorage(user.id, actionsMap);
           })
           .catch(err => {
             console.error("Error fetching liked items", err);
@@ -164,8 +146,22 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
     }
   }, [buttons, user.id, from_user_matching === null ? null : from_user_matching.id]);
 
+  useEffect(() => {
+    const syncData = async () => {
+      const syncedItems = await syncItemsWithDB(user.id, BACKEND_URL);
+      setItems(syncedItems);
+
+      if (matching) {
+        const syncedActions = await syncActionsWithDB(user.id, BACKEND_URL);
+        setUserActions(syncedActions);
+      }
+    };
+
+    syncData();
+  }, [user.id, refreshSignal, matching]);
+
   const updateCachedActions = (updatedActions) => {
-    localStorage.setItem(`actions_${user.id}`, JSON.stringify(updatedActions));
+    setActionsToLocalStorage(user.id, updatedActions);
   };
 
   const handleDelete = async (item) => {
@@ -193,25 +189,31 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               }
             }
           }
-          // Delete item from backend
-          const res = await fetch(`${BACKEND_URL}/item/${item.id}`, {
-            method: "DELETE"
-          });
-          if (!res.ok) throw new Error("Failed to delete item");
-          setItems(items => items.filter(i => i.id !== item.id));
-          // Update cached actions
-          setUserActions((prev) => {
-            const updatedActions = { ...prev };
-            delete updatedActions[item.id];
-            updateCachedActions(updatedActions);
-            return updatedActions;
-          });
-          // Update cached items in localStorage
-          setItems((prevItems) => {
-            const updatedItems = prevItems.filter(i => i.id !== item.id);
-            localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
-            return updatedItems;
-          });
+          if (useLocalStorage) {
+            const updatedItems = items.filter(i => i.id !== item.id);
+            setItemsToLocalStorage(user.id, updatedItems);
+            setItems(updatedItems);
+          } else {
+            // Delete item from backend
+            const res = await fetch(`${BACKEND_URL}/item/${item.id}`, {
+              method: "DELETE"
+            });
+            if (!res.ok) throw new Error("Failed to delete item");
+            setItems(items => items.filter(i => i.id !== item.id));
+            // Update cached actions
+            setUserActions((prev) => {
+              const updatedActions = { ...prev };
+              delete updatedActions[item.id];
+              updateCachedActions(updatedActions);
+              return updatedActions;
+            });
+            // Update cached items in localStorage
+            setItems((prevItems) => {
+              const updatedItems = prevItems.filter(i => i.id !== item.id);
+              setItemsToLocalStorage(user.id, updatedItems);
+              return updatedItems;
+            });
+          }
           // Item deleted successfully
         } catch (err) {
           // Error deleting item
@@ -292,7 +294,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
 
   if (!items.length) {
     return (
-      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150, fontSize: "16px" }}>
+      <p style={{ textAlign: 'center', color: '#13980cff', fontWeight: 150, fontSize: "1rem" }}>
         {/* {t('no_clothing_items_added_yet')} */}
       </p>
     );
@@ -412,7 +414,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                   <span style={{
                     fontWeight: 200,
-                    fontSize: 13,
+                    fontSize: '0.8rem',
                     color: '#232323',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
@@ -420,7 +422,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                     maxWidth: '30vw'
                   }}>{t(`short_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
-                    fontSize: 12,
+                    fontSize: '0.75rem',
                     color: '#888',
                     marginTop: 2
                   }}>{t('size')}: {t(item.size) || item.size || '-'}</span>
@@ -437,7 +439,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         style={{
                           background: 'none',
                           border: 'none',
-                          fontSize: 20,
+                          fontSize: '1.2rem',
                           color: '#ff004c',
                           padding: 4,
                           borderRadius: 8,
@@ -457,7 +459,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         style={{
                           background: 'none',
                           border: 'none',
-                          fontSize: 19,
+                          fontSize: '1.15rem',
                           color: '#bbb',
                           padding: 4,
                           borderRadius: 8,
@@ -486,7 +488,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                       style={{
                         background: 'none',
                         border: 'none',
-                        fontSize: 22,
+                        fontSize: '1.4rem',
                         color: '#888',
                         padding: 4,
                         borderRadius: 8,
@@ -519,7 +521,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                 border: '1.5px solid #118a3d13',
                 borderRadius: 8,
                 padding: '6.5px 18px 6.5px 12px',
-                fontSize: 14,
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 margin: '0 auto',
                 boxShadow: expanded ? '0 2px 12px #22c55e33' : '0 1px 4px #0001',

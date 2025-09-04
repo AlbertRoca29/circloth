@@ -105,7 +105,7 @@ function ItemDetailModal({
         background: '#fff',
         borderRadius: 12,
         boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
-        padding: 0,
+        padding: '0 0 1vh 0',
         width: '92%',
         height: '75vh',
         overflow: 'hidden',
@@ -300,8 +300,8 @@ function ItemDetailModal({
           margin: "1.5vh 1vw"
         }}>
           {/* Category and emoji */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 18, fontWeight: 400, color: '#222' }}>
-            <span style={{ fontSize: 15, color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '1.15rem', fontWeight: 400, color: '#222' }}>
+            <span style={{ fontSize: '0.95rem', color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
             <span>{getCategoryEmoji(item.category)}</span>
           </div>
           {/* Size */}
@@ -310,7 +310,7 @@ function ItemDetailModal({
               <span style={{
                 color: '#000000ff',
                 fontWeight: 120,
-                fontSize: 13,
+                fontSize: '0.825rem',
                 opacity: 0.65,
                 letterSpacing: 0.2,
                 display: 'inline-block',
@@ -329,7 +329,7 @@ function ItemDetailModal({
               return a < 0.5 ? '#fff' : '#232323ff';
             })()} 25%)`
           : '#8e8e8eff',
-        fontSize: 13.5,
+        fontSize: '0.85rem',
         letterSpacing: 0.6,
         fontStyle: 'italic',
         marginTop: 6,
@@ -350,7 +350,7 @@ function ItemDetailModal({
                   width: 'fit-content',
                   color: '#222',
                   fontWeight: 120,
-                  fontSize: 14,
+                  fontSize: '0.9rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -395,7 +395,7 @@ function ItemDetailModal({
                     overflowY: 'auto',
                     marginTop: 6,
                     padding: 0,
-                    fontSize: 13,
+                    fontSize: '0.8rem',
                     color: '#000',
                     background: 'none',
                     border: 'none',
@@ -451,7 +451,7 @@ function ItemDetailModal({
                   borderRadius: 8,
                   padding: '7px 18px',
                   fontWeight: 400,
-                  fontSize: 15,
+                  fontSize: '0.95rem',
                   cursor: 'pointer',
                   boxShadow: '0 1px 4px rgba(34,197,94,0.07)',
                   transition: 'background 0.18s',

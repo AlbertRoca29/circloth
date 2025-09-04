@@ -7,6 +7,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import changeLanguage from '../utils/changeLanguage';
 import { GlobeIcon, ChevronDownIcon } from '../utils/svg';
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import { setItemsToLocalStorage } from '../utils/general';
 
 function LoginPage({ firebaseUser, setAppUser }) {
   const { t, i18n } = useTranslation();
@@ -27,7 +28,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
         const data = await res.json();
         setAppUser({ ...user, ...data });
         // Save user to localStorage for language persistence
-        localStorage.setItem('appUser', JSON.stringify({ ...user, ...data }));
+        setItemsToLocalStorage('appUser', { ...user, ...data });
       } else {
         // New user → ask extra info
         setPendingUser(user);
@@ -67,7 +68,7 @@ function LoginPage({ firebaseUser, setAppUser }) {
       });
       if (res.ok) {
         setAppUser({ ...pendingUser, name: localName, language });
-        localStorage.setItem('appUser', JSON.stringify({ ...pendingUser, name: localName, language }));
+        setItemsToLocalStorage('appUser', { ...pendingUser, name: localName, language });
         setPendingUser(null);
         setNeedsExtraInfo(false);
         setLocalName("");

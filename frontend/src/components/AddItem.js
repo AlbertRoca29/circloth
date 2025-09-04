@@ -24,6 +24,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
+import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/general';
 
 function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();
@@ -132,21 +133,17 @@ function AddItem({ user, onItemAdded }) {
         brand,
         material,
         additionalInfo,
-        photoURLs: orderedPhotoURLs
+        photos: photoFiles,
+        thumbnailIdx,
       };
 
-      const res = await fetch(`${BACKEND_URL}/item`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem)
-      });
-      if (!res.ok) throw new Error("Failed to add item");
+      // Save to localStorage
+      const existingItems = getItemsFromLocalStorage(user.id);
+      const updatedItems = [...existingItems, newItem];
+      setItemsToLocalStorage(user.id, updatedItems);
 
-    // TODO : DO THAT WELL
-    // Update cached items in localStorage
-    //   const cachedItems = JSON.parse(localStorage.getItem(`items_${user.id}`)) || [];
-    //   const updatedItems = [...cachedItems, newItem];
-    //   localStorage.setItem(`items_${user.id}`, JSON.stringify(updatedItems));
+      // Notify parent component
+      onItemAdded(newItem);
 
   setCategory("");
   setSize("");
