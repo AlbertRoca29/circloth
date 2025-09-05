@@ -192,63 +192,73 @@ function AddItem({ user, onItemAdded }) {
   return (
     <Box sx={{ mt: open ? 1 : 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 2 }}>
       {!open && (
-        <div style={{
-          display: 'flex',
-          width: '10%',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: "fixed",
-          bottom: "15vh",
-          right: "12vh",
-          textAlign: 'center',
-        }}>
-          <span style={{
-            marginBottom: 4,
-            fontWeight: 150,
-            color: '#15803ca8',
-            fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
-            fontSize: 11,
-            width: '100%',
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'fixed',
+            bottom: '20vh',
+            right: '15vw',
             textAlign: 'center',
-            display: 'block',
-          }}>{t('add_item') || 'Add Item'}</span>
+            zIndex: 1000,
+            width: 'auto',
+          }}
+        >
+          <span
+            style={{
+              marginBottom: 4,
+              fontWeight: 150,
+              color: '#15803ca8',
+              fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
+              fontSize: 13,
+              width: '100%',
+              textAlign: 'center',
+              display: 'block',
+            }}
+          >
+            {t('add_item') || 'Add Item'}
+          </span>
           <button
             style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #22c55e 60%, #15803d 100%)",
-              color: "white",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              boxShadow: "0 4px 10px 0 rgba(34,197,94,0.18), 0 1px 2px 0 rgba(0,0,0,0.08)",
-              cursor: "pointer",
-              border: "none",
+              width: 60,
+              height: 60,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #22c55e 60%, #15803d 100%)',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: '0 4px 10px 0 rgba(34,197,94,0.18), 0 1px 2px 0 rgba(0,0,0,0.08)',
+              cursor: 'pointer',
+              border: 'none',
               zIndex: 1000,
-              transition: "box-shadow 0.2s, transform 0.1s, background 0.2s",
+              transition: 'box-shadow 0.2s, transform 0.1s, background 0.2s',
               outline: 'none',
             }}
             onClick={() => setOpen(true)}
-            title={t("add_item")}
+            title={t('add_item')}
             aria-label={t('add_item') || 'Add Item'}
           >
-            <PlusIcon style={{ transform: "scale(1.3)" }} />
+            <PlusIcon style={{ transform: 'scale(1.3)' }} />
           </button>
         </div>
       )}
-      <Collapse in={open} sx={{
-        width: '90vw',
-        margin: '0 auto',
-        borderRadius: 4,
-        boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
-        bgcolor: '#fff',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        }}>
+      <Collapse
+        in={open}
+        sx={theme => ({
+          width: '90vw',
+          margin: '0 auto',
+          borderRadius: 4,
+          boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
+          bgcolor: '#fff',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+        })}
+      >
         {/* Header */}
         <div style={{
             display: 'flex',

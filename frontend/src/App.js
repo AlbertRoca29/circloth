@@ -320,7 +320,7 @@ function App() {
 
       {/* Floating AddItem Button */}
   {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
-        <div style={{ height:"100%",position: "relative", width: "80%", marginLeft:"10%", display: "flex", justifyContent: "center", zIndex: 50, marginTop:"90px" }}>
+        <div style={{ height:"100%",position: "relative", width: "80%", marginLeft:"10%", display: "flex", justifyContent: "center", zIndex: 50, marginTop:"9dvh" }}>
           <AddItem
             user={appUser}
             onItemAdded={() => setRefreshItems(r => r + 1)}
