@@ -429,40 +429,49 @@ if (viewingTheirProfile) {
         </div>
       )}
       {[...groupedArr]
-        .sort((a, b) => {
-          // Find last message timestamp for each group
-          const chatA = chats.find(c => c.participants && c.participants.includes(a.otherUser.id));
-          const chatB = chats.find(c => c.participants && c.participants.includes(b.otherUser.id));
-          // Get last message timestamp or fallback to 0
-          const getLastTimestamp = chat => {
-            if (chat && Array.isArray(chat.messages) && chat.messages.length > 0) {
-              for (let i = chat.messages.length - 1; i >= 0; i--) {
-                const m = chat.messages[i];
-                if (m && m.timestamp) return m.timestamp;
-              }
-            } else if (chat && chat.last_message && chat.last_message.timestamp) {
-              return chat.last_message.timestamp;
-            }
-            return 0;
-          };
-          return getLastTimestamp(chatB) - getLastTimestamp(chatA);
-        })
-        .map((group, idx) => {
+        .map(group => {
           // Find the chat for this group
           const chat = chats.find(c => c.participants && c.participants.includes(group.otherUser.id));
           // Get last valid message with content, regardless of sender
           let lastMessage = null;
+          let lastTimestamp = 0;
           if (chat && Array.isArray(chat.messages) && chat.messages.length > 0) {
-            // Find the last message with non-empty content
             for (let i = chat.messages.length - 1; i >= 0; i--) {
               const m = chat.messages[i];
               if (m && typeof m.content === 'string' && m.content.trim() !== '') {
                 lastMessage = m;
+                lastTimestamp = m.timestamp ? Date.parse(m.timestamp) : 0;
                 break;
               }
             }
-          } else if (chat && chat.last_message && typeof chat.last_message.content === 'string' && chat.last_message.content.trim() !== '') {
-            lastMessage = chat.last_message;
+            // If no message with content, fallback to last message timestamp
+            if (!lastMessage) {
+              const m = chat.messages[chat.messages.length - 1];
+              if (m && m.timestamp) lastTimestamp = Date.parse(m.timestamp);
+            }
+          } else if (chat && chat.last_message) {
+            if (typeof chat.last_message.content === 'string' && chat.last_message.content.trim() !== '') {
+              lastMessage = chat.last_message;
+            }
+            if (chat.last_message.timestamp) lastTimestamp = Date.parse(chat.last_message.timestamp);
+          }
+          group._lastMessage = lastMessage;
+          group._lastTimestamp = lastTimestamp;
+          return group;
+        })
+        .sort((a, b) => {
+          // Sort by _lastTimestamp descending (newest first)
+          return (b._lastTimestamp || 0) - (a._lastTimestamp || 0);
+        })
+        .map((group, idx, arr) => {
+          // Debug: log the order and timestamps
+          if (idx === 0) {
+            // Only log once per render
+            console.log('Chat order debug:', arr.map(g => ({
+              name: g.otherUser?.name || g.otherUser?.displayName,
+              _lastTimestamp: g._lastTimestamp,
+              _lastMessage: g._lastMessage,
+            })));
           }
           return (
             <ChatMatchCard
@@ -471,7 +480,7 @@ if (viewingTheirProfile) {
               isUnread={group.isUnread}
               onChat={handleChatClick}
               onViewProfile={handleViewProfile}
-              lastMessage={lastMessage}
+              lastMessage={group._lastMessage}
               currentUserId={user?.uid}
             />
           );
