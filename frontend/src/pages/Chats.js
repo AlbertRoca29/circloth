@@ -190,7 +190,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.sender && msg.receiver && msg.content) {
+        if (msg && msg.sender && msg.receiver && msg.content) {
           setMessages(prev => [...prev, { ...msg, timestamp: Date.now() }]);
         }
       } catch {}
@@ -374,7 +374,7 @@ if (viewingTheirProfile) {
           {/* Chat messages */}
           <div style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
-            {messages.map((msg, i) => (
+            {messages.filter(msg => msg && msg.sender && msg.content).map((msg, i) => (
               <div key={i} style={{
                 textAlign: msg.sender === user.uid ? 'right' : 'left',
                 margin: '6px 0',
@@ -428,28 +428,54 @@ if (viewingTheirProfile) {
           {t('no_matches_cool')}
         </div>
       )}
-      {groupedArr.map((group, idx) => {
-        // Find the chat for this group
-        const chat = chats.find(c => c.participants && c.participants.includes(group.otherUser.id));
-        // Get last message if available
-        let lastMessage = null;
-        if (chat && chat.messages && chat.messages.length > 0) {
-          lastMessage = chat.messages[chat.messages.length - 1];
-        } else if (chat && chat.last_message) {
-          lastMessage = chat.last_message;
-        }
-        return (
-          <ChatMatchCard
-            key={group.matchIds.join('-')}
-            match={group}
-            isUnread={group.isUnread}
-            onChat={handleChatClick}
-            onViewProfile={handleViewProfile}
-            lastMessage={lastMessage}
-            currentUserId={user?.uid}
-          />
-        );
-      })}
+      {[...groupedArr]
+        .sort((a, b) => {
+          // Find last message timestamp for each group
+          const chatA = chats.find(c => c.participants && c.participants.includes(a.otherUser.id));
+          const chatB = chats.find(c => c.participants && c.participants.includes(b.otherUser.id));
+          // Get last message timestamp or fallback to 0
+          const getLastTimestamp = chat => {
+            if (chat && Array.isArray(chat.messages) && chat.messages.length > 0) {
+              for (let i = chat.messages.length - 1; i >= 0; i--) {
+                const m = chat.messages[i];
+                if (m && m.timestamp) return m.timestamp;
+              }
+            } else if (chat && chat.last_message && chat.last_message.timestamp) {
+              return chat.last_message.timestamp;
+            }
+            return 0;
+          };
+          return getLastTimestamp(chatB) - getLastTimestamp(chatA);
+        })
+        .map((group, idx) => {
+          // Find the chat for this group
+          const chat = chats.find(c => c.participants && c.participants.includes(group.otherUser.id));
+          // Get last valid message with content, regardless of sender
+          let lastMessage = null;
+          if (chat && Array.isArray(chat.messages) && chat.messages.length > 0) {
+            // Find the last message with non-empty content
+            for (let i = chat.messages.length - 1; i >= 0; i--) {
+              const m = chat.messages[i];
+              if (m && typeof m.content === 'string' && m.content.trim() !== '') {
+                lastMessage = m;
+                break;
+              }
+            }
+          } else if (chat && chat.last_message && typeof chat.last_message.content === 'string' && chat.last_message.content.trim() !== '') {
+            lastMessage = chat.last_message;
+          }
+          return (
+            <ChatMatchCard
+              key={group.matchIds.join('-')}
+              match={group}
+              isUnread={group.isUnread}
+              onChat={handleChatClick}
+              onViewProfile={handleViewProfile}
+              lastMessage={lastMessage}
+              currentUserId={user?.uid}
+            />
+          );
+        })}
     </div>
   );
 }

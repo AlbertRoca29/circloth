@@ -178,6 +178,10 @@ class FirestoreDB:
     def update_chat_last_access(self, user1: str, user2: str, user_id: str):
         conv_id = self._get_conversation_id(user1, user2)
         chat_ref = self.db.collection("chats").document(conv_id)
+        chat_doc = chat_ref.get()
+        if not chat_doc.exists:
+            # Ensure all mandatory fields are set if chat does not exist
+            self._ensure_chat_doc(user1, user2)
         now = datetime.utcnow().isoformat() + "Z"
         chat_ref.set({"last_access": {user_id: now}}, merge=True)
 
@@ -334,15 +338,26 @@ class FirestoreDB:
         conv_id = self._get_conversation_id(user1, user2)
         chat_query = self.db.collection("chats").document(conv_id)
         chat_doc = self._log_and_get("_ensure_chat_doc", chat_query)
+        now = datetime.utcnow().isoformat() + "Z"
+        # Prepare all mandatory fields
+        mandatory_fields = {
+            "id": conv_id,
+            "participants": [user1, user2],
+            "created_at": now,
+            "status": "active",
+            "last_access": {user1: now, user2: now}
+        }
         if not chat_doc.exists:
-            now = datetime.utcnow().isoformat() + "Z"
-            chat_query.set({
-                "id": conv_id,
-                "participants": [user1, user2],
-                "created_at": now,
-                "status": "active",
-                "last_access": {user1: now, user2: now}
-            })
+            chat_query.set(mandatory_fields)
+        else:
+            # Update any missing mandatory fields
+            update_fields = {}
+            doc_data = chat_doc.to_dict() or {}
+            for k, v in mandatory_fields.items():
+                if k not in doc_data or doc_data[k] is None:
+                    update_fields[k] = v
+            if update_fields:
+                chat_query.set(update_fields, merge=True)
 
     def add_chat_message(self, sender: str, receiver: str, content: str, timestamp: str):
         conv_id = self._get_conversation_id(sender, receiver)
@@ -354,6 +369,8 @@ class FirestoreDB:
             "content": content,
             "timestamp": timestamp
         })
+        # Always update last_message after sending
+        self._ensure_last_message_cached(conv_id)
 
     def get_chat_messages(self, user1: str, user2: str, limit: int = 50, start_after: Optional[str] = None) -> list:
         """

@@ -162,7 +162,12 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         </span>
       );
     }
-    return <span style={{ color: '#22c55e', fontWeight: 500 }}>{t('new_match', 'New match!')}</span>;
+    // If there is a lastMessage object (even if only one), but no content, show nothing
+    if (lastMessage && !lastMessage.content) {
+      return null;
+    }
+    // Otherwise, show New match!
+    return <span style={{ color: '#1cbd57ff', fontWeight: 200, marginLeft:'0.4vw' }}>{t('new_match', 'New match!')}</span>;
   }
 
   return (
@@ -253,7 +258,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         <div
           style={{
             lineHeight: 1.3,
-            fontWeight: lastMessage.sender === currentUserId ? 100 : 150,
+            fontWeight: lastMessage && lastMessage.sender === currentUserId ? 100 : 150,
             fontSize: 15,
             color: "#555",
             display: 'flex',
