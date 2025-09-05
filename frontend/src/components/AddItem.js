@@ -78,11 +78,11 @@ function AddItem({ user, onItemAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!category || !size || !itemStory.trim()) {
-  showToast(t('please_fill_required_fields'), { type: "warning" });
+      showToast(t('please_fill_required_fields'), { type: "warning" });
       return;
     }
-    if (photoFiles.length < 2) {
-  showToast(t('please_add_photos'), { type: "warning" });
+    if (photoFiles.length < 1) {
+      showToast(t('please_add_photos'), { type: "warning" });
       return;
     }
   setLoading(true);
@@ -404,7 +404,7 @@ function AddItem({ user, onItemAdded }) {
         fontFamily: 'Geist',
         fontSize: 14,
         color: '#333',
-      }}>{t('photos_2_5')} <span style={{ color: 'red' }}>*</span></Typography>
+  }}>{t('photos_1_5')} <span style={{ color: 'red' }}>*</span></Typography>
       <Box sx={{ display: 'flex', gap: 2.25, flexWrap: 'wrap', justifyContent: 'center' }}>
         {photoFiles.map((file, idx) => (
           <Box key={idx} sx={{ position: 'relative' }}>

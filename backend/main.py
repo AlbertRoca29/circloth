@@ -14,6 +14,9 @@ import logging
 from datetime import datetime
 from fastapi import Query
 
+# Import the image check function
+from image_checks import check_image
+
 app = FastAPI()
 
 # --- WebSocket Chat State ---
@@ -225,6 +228,12 @@ def create_item(item: ItemModel):
         raise HTTPException(status_code=400, detail="MISSING_REQUIRED_FIELDS")
     if not item.photoURLs or len(item.photoURLs) < 2:
         raise HTTPException(status_code=400, detail="NOT_ENOUGH_PHOTOS")
+    # Check each image using the modular check_image function
+    for url in item.photoURLs:
+        result = check_image(url)
+        if result is not True:
+            # result is a string error code/message
+            raise HTTPException(status_code=400, detail=str(result))
     item_dict = item.dict(exclude_unset=True)
     item_id = db.create_item(item_dict)
     return {"id": item_id}
