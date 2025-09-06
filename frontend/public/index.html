@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Circloth is a platform for sustainable clothing exchange. Discover, match, and swap clothes with others in your community. Join the circular fashion movement!"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <!-- Geist font from Vercel CDN -->
@@ -27,9 +27,23 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Circloth</title>
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "application",
+        "name": "Circloth",
+        "url": "https://circloth.com",
+        "description": "Circloth is a platform for sustainable clothing exchange."
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- Circloth Logo for SEO and visibility -->
+    <div style="text-align:center; margin-top: 30px;">
+      <img src="logo transparent.png" alt="Circloth Logo" style="max-width:200px; width:100%; height:auto;" />
+    </div>
     <div id="root"></div>
     <!--
       This HTML file is a template.
