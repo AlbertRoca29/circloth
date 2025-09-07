@@ -457,10 +457,13 @@ if (viewingTheirProfile) {
           }
           group._lastMessage = lastMessage;
           group._lastTimestamp = lastTimestamp;
+          group._isNew = !chat; // Mark as new if no chat exists
           return group;
         })
         .sort((a, b) => {
-          // Sort by _lastTimestamp descending (newest first)
+          // Sort by new matches first, then by _lastTimestamp descending (newest first)
+          if (a._isNew && !b._isNew) return -1;
+          if (!a._isNew && b._isNew) return 1;
           return (b._lastTimestamp || 0) - (a._lastTimestamp || 0);
         })
         .map((group, idx, arr) => {
@@ -471,6 +474,7 @@ if (viewingTheirProfile) {
               name: g.otherUser?.name || g.otherUser?.displayName,
               _lastTimestamp: g._lastTimestamp,
               _lastMessage: g._lastMessage,
+              _isNew: g._isNew,
             })));
           }
           return (
