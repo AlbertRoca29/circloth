@@ -341,7 +341,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               key={item.id}
               style={{
                 display: !userLiked(item.id) && only_likes===true ? 'none' : 'flex',
-                border: userLiked(item.id) && only_likes===false && buttons!="like_pass" ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
+                border: userLiked(item.id) && only_likes===false && buttons==="like_pass" ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
                 aspectRatio: 0.9,
                 background: "#fff",
                 borderRadius: 9,

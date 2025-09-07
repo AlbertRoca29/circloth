@@ -7,7 +7,7 @@
 }
 /* Tabs bar compact and Geist font */
 .tab-btn {
-  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Geist';
   font-weight: 100;
   padding: 4px 0 2px 0 !important;
   min-width: 0;
@@ -35,7 +35,7 @@
   width: 100%;
   box-sizing: border-box;
   background: none;
-  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Geist';
   transition: transform 0.1s;
 }
 /* Common styles for Circloth app */
@@ -58,7 +58,7 @@
 
 body {
   background: linear-gradient(120deg, var(--primary-light) 0%, var(--gray-bg) 100%);
-  font-family: 'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Geist';
   margin: 0;
   color: #222;
   min-height: 100vh;

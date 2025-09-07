@@ -211,7 +211,6 @@ function AddItem({ user, onItemAdded }) {
               marginBottom: 4,
               fontWeight: 150,
               color: '#15803ca8',
-              fontFamily: 'Geist, Geist Sans, Segoe UI, Arial, sans-serif',
               fontSize: 13,
               width: '100%',
               textAlign: 'center',
@@ -250,8 +249,7 @@ function AddItem({ user, onItemAdded }) {
         sx={theme => ({
           position: 'fixed',
           top: '10dvh',
-          left: '2.5vw',
-          width: '100vw',
+          width: '90vw',
           height: '100%',
           zIndex: 1200,
           display: 'flex',
@@ -266,8 +264,8 @@ function AddItem({ user, onItemAdded }) {
           background: '#fff',
           borderRadius: 12,
           boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
-          width: '92vw',
-          maxWidth: 480,
+          width: '100%',
+          maxWidth: 580,
           height: '78vh',
           minHeight: 420,
           overflow: 'hidden',
@@ -305,7 +303,6 @@ function AddItem({ user, onItemAdded }) {
                 border: 'none',
                 background: 'transparent',
                 fontSize: 26,
-                fontFamily: 'Geist',
                 fontWeight: 100,
                 cursor: 'pointer',
                 color: '#fff',
@@ -328,7 +325,6 @@ function AddItem({ user, onItemAdded }) {
     overflowY: 'auto',
     padding: '12px 16px',
     display: 'flex',
-    fontFamily: 'Geist',
     flexDirection: 'column',
     gap: 2,
     background: '#f8f8f8',
@@ -341,7 +337,6 @@ function AddItem({ user, onItemAdded }) {
         fontWeight: 150,
         fontSize: 14,
         color: '#333',
-        fontFamily:'Geist'
       }}>{t('category')} <span style={{ color: 'red' }}>*</span></Typography>
       <Grid container spacing={1} sx={{ justifyContent: 'center' }}>
         {categories.map(cat => (
@@ -361,7 +356,7 @@ function AddItem({ user, onItemAdded }) {
               }}
             >
               <span style={{ fontSize: 27, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
-              <span style={{ fontSize: 11.5, fontFamily:'Geist', fontWeight: category === cat.key ? 150 : 100, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
+              <span style={{ fontSize: 11.5, fontWeight: category === cat.key ? 150 : 100, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
             </Button>
           </Grid>
         ))}
@@ -373,7 +368,6 @@ function AddItem({ user, onItemAdded }) {
         <Typography sx={{
           mb: 1,
           fontWeight: 150,
-          fontFamily: 'Geist',
           fontSize: 14,
           color: '#333',
         }}>{t('size')} <span style={{ color: 'red' }}>*</span></Typography>
@@ -385,7 +379,6 @@ function AddItem({ user, onItemAdded }) {
                 sx={{
                   width: '100%',
                   borderRadius: 1.5,
-                  fontFamily: 'Geist',
                   fontWeight: 125,
                   height: 40,
                   fontSize: size === opt.key ? 15 : 13,
@@ -406,7 +399,6 @@ function AddItem({ user, onItemAdded }) {
       <Typography sx={{
         mb: 1,
         fontWeight: 150,
-        fontFamily: 'Geist',
         fontSize: 14,
         color: '#333',
       }}>{t('item_story')} <span style={{ color: 'red' }}>*</span></Typography>
@@ -418,7 +410,6 @@ function AddItem({ user, onItemAdded }) {
         multiline
         minRows={3}
         sx={{
-          fontFamily: 'Geist',
           fontSize: '0.8125rem', // Converted from 13px
           borderRadius: 1.2,
           background: '#f9f9f9',
@@ -430,7 +421,6 @@ function AddItem({ user, onItemAdded }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
       <Typography sx={{
         fontWeight: 150,
-        fontFamily: 'Geist',
         fontSize: 14,
         color: '#333',
   }}>{t('photos_1_5')} <span style={{ color: 'red' }}>*</span></Typography>
@@ -529,12 +519,10 @@ function AddItem({ user, onItemAdded }) {
           fontSize: 12,
           marginRight: 8,
           fontWeight: 150,
-          fontFamily: 'Geist',
           color: '#666',
         }}>▶</span>
         <Typography sx={{
           fontWeight: 150,
-          fontFamily: 'Geist',
           fontSize: 14,
           color: '#333',
         }}>{t('more_details')}</Typography>
@@ -550,7 +538,6 @@ function AddItem({ user, onItemAdded }) {
             mb: 0.5,
             fontSize: 14,
             fontWeight: 125,
-            fontFamily: 'Geist',
             color: '#333',
           }}>{t('brand')}</Typography>
           <TextField
@@ -570,7 +557,6 @@ function AddItem({ user, onItemAdded }) {
           <Typography sx={{
             mb: 0.5,
             fontWeight: 125,
-            fontFamily: 'Geist',
             fontSize: 14,
             color: '#333',
           }}>{t('material')}</Typography>
@@ -592,7 +578,6 @@ function AddItem({ user, onItemAdded }) {
             mb: 0.5,
             fontSize: 14,
             fontWeight: 125,
-            fontFamily: 'Geist',
             color: '#333',
           }}>{t('additional_info')}</Typography>
           <TextField

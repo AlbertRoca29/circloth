@@ -217,7 +217,7 @@ function App() {
             width: "100%",
             background: "var(--primary-light)",
             boxShadow: "0 8px 19px var(--shadow)",
-            padding: "2.5vh 0 2vh 0",
+            padding: "2.25vh 0 1.45vh 0",
             zIndex: 500,
             margin: "0",
             display: "flex",
@@ -231,8 +231,7 @@ function App() {
                 fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
                 margin: 0,
                 marginLeft: "5vw",
-                letterSpacing: "0.04em",
-                fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif"
+                letterSpacing: "0.04em"
               }}>
                 Circloth
               </h1>
@@ -266,7 +265,7 @@ function App() {
                   style={{
                     position: "absolute",
                     top: 36,
-                    right: 0,
+                    right: '5vw',
                     background: "#fff",
                     border: "1px solid var(--primary-dark, #15803d)",
                     borderRadius: 9,
@@ -280,9 +279,9 @@ function App() {
                   }}
                 >
                   {/* User Info */}
-                  <div style={{ marginBottom: 8, fontWeight: 150 }}>
-                    <div style={{ fontSize: 15, color: "#333" }}>{appUser?.name || "User"}</div>
-                    <div style={{ fontSize: 13, color: "#9b9b9bff" }}>
+                  <div style={{ marginBottom: 5 }}>
+                    <div style={{ fontSize: '0.9rem', color: "#333", fontWeight: 150 }}>{appUser?.name || "User"}</div>
+                    <div style={{ fontSize: '0.75rem', color: "#9b9b9bff", fontFamily: 'Geist Mono', fontWeight: 400 }}>
                       {(() => {
                         const email = appUser?.email || "user@example.com";
                         const maxLen = 20;
@@ -297,7 +296,7 @@ function App() {
                     right={0}
                     zIndex={200}
                     dropdownStyle={{ minWidth: "150px" }}
-                    buttonStyle={{ fontSize: "0.85em" }}
+                    buttonStyle={{ fontSize: "0.82rem" }}
                     displayFullLanguageName={true}
                   />
                   {/* Logout Button */}
@@ -328,7 +327,7 @@ function App() {
 
       {/* Floating AddItem Button */}
   {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
-        <div style={{ height:"100%",position: "relative", display: "flex", zIndex: 50, marginTop:"9dvh" }}>
+        <div style={{ height:"100%",position: "relative", display: "flex", zIndex: 50, marginTop:"9dvh", justifyContent: "center", alignItems: "center" }}>
           <AddItem
             user={appUser}
             onItemAdded={() => setRefreshItems(r => r + 1)}
@@ -346,7 +345,7 @@ function App() {
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
-                useLocalStorage={true}
+                useLocalStorage={false}
                 onModalOpenChange={(open) => {setItemListModalOpen(open);}
             }
               />

@@ -183,7 +183,7 @@ function Matching({ user, setHasLocation }) {
   return (
     <div>
       {/* Only show filter and edit size preferences if sizePreferences is not empty */}
-  <div style={{ margin: '9vh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
+  <div style={{ margin: '9.5dvh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
           {sizePreferences && Object.keys(sizePreferences).length > 0 && (
           <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
             <span style={{ fontSize: '0.9rem', fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
