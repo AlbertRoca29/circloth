@@ -224,17 +224,25 @@ function App() {
             justifyContent: "space-between",
             alignItems: "center",
           }}>
-            <h1 style={{
-              color: "var(--primary-dark, #15803d)",
-              fontWeight: 600,
-              fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
-              margin: 0,
-              marginLeft: "5vw",
-              letterSpacing: "0.04em",
-              fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif"
-            }}>
-              Circloth
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <h1 style={{
+                color: "var(--primary-dark, #15803d)",
+                fontWeight: 600,
+                fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
+                margin: 0,
+                marginLeft: "5vw",
+                letterSpacing: "0.04em",
+                fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif"
+              }}>
+                Circloth
+              </h1>
+              <img
+                src={process.env.PUBLIC_URL + '/logo transparent.png'}
+                alt="Circloth Logo"
+                style={{ height: '2.5rem', marginLeft: '1vw', objectFit: 'contain', userSelect: 'none' }}
+                draggable={false}
+              />
+            </div>
             <div style={{ position: "relative" }}>
               <button
                 ref={menuButtonRef}
@@ -320,7 +328,7 @@ function App() {
 
       {/* Floating AddItem Button */}
   {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
-        <div style={{ height:"100%",position: "relative", width: "80%", marginLeft:"10%", display: "flex", justifyContent: "center", zIndex: 50, marginTop:"9dvh" }}>
+        <div style={{ height:"100%",position: "relative", display: "flex", justifyContent: "center", zIndex: 50 }}>
           <AddItem
             user={appUser}
             onItemAdded={() => setRefreshItems(r => r + 1)}

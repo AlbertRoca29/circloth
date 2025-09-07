@@ -248,17 +248,34 @@ function AddItem({ user, onItemAdded }) {
       <Collapse
         in={open}
         sx={theme => ({
-          width: '90vw',
-          margin: '0 auto',
-          borderRadius: 4,
+          position: 'fixed',
+          top: '10dvh',
+          left: '2.5vw',
+          width: '100vw',
+          height: '100%',
+          zIndex: 1200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(0,0,0,0.04)',
+          m: 0,
+          p: 0,
+        })}
+      >
+        <div style={{
+          background: '#fff',
+          borderRadius: 12,
           boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
-          bgcolor: '#fff',
+          width: '95vw',
+          maxWidth: 480,
+          height: '78vh',
+          minHeight: 420,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-        })}
-      >
+          top: 0
+        }}>
         {/* Header */}
         <div style={{
             display: 'flex',
@@ -315,6 +332,8 @@ function AddItem({ user, onItemAdded }) {
     flexDirection: 'column',
     gap: 2,
     background: '#f8f8f8',
+    height: '100%',
+    maxHeight: 'calc(78vh - 56px)',
   }}>
     <FormControl fullWidth>
       <Typography sx={{
@@ -334,7 +353,7 @@ function AddItem({ user, onItemAdded }) {
                 borderRadius: 1.2,
                 border: category === cat.key ? `3px solid ${APP_GREEN}` : '1px solid #ddd',
                 background: category === cat.key ? '#c8f7d6ff' : '#fdfdfd',
-                width: '22vw',
+                width: '25vw',
                 aspectRatio: '1.35',
                 fontSize: 15,
                 color: '#28720d',
@@ -400,7 +419,7 @@ function AddItem({ user, onItemAdded }) {
         minRows={3}
         sx={{
           fontFamily: 'Geist',
-          fontSize: 13,
+          fontSize: '0.8125rem', // Converted from 13px
           borderRadius: 1.2,
           background: '#f9f9f9',
         }}
@@ -616,7 +635,8 @@ function AddItem({ user, onItemAdded }) {
       </Button>
     )}
   </Box>
-</Collapse>
+    </div>
+  </Collapse>
     </Box>
   );
 }

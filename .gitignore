@@ -19,3 +19,6 @@ build/
 
 # PyCharm
 .idea/
+
+# VSCode
+.vscode/
