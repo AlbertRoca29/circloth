@@ -238,75 +238,75 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   // Trade view main
   if (viewingTrade) {
     // If viewing their profile from trade view, show only their items with bigger font and an exit profile view button
-    if (viewingTheirProfile) {
-      return (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
-          <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '90vw', height: '78vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top: "-1vh" }}>
-            {/* App-like header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#22c55e', padding: '11px 0 9px 0', position: 'relative' }}>
-              <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>
-                {t('trade_view_title', 'Trade View')}
-              </div>
-              <button
-                onClick={() => setViewingTrade(null)}
-                aria-label="Close trade view"
-                style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
-                onMouseOver={e => e.currentTarget.style.background = '#fff4'}
-                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
-              >
-                ×
-              </button>
-            </div>
-            {/* Profile view: only their items, bigger font, exit profile view button */}
-            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '32px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: '#f8f8f8', height: '100%' }}>
-              <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ color: '#15803d', fontWeight: 200, fontSize: 18, letterSpacing: 0.5 }}>{t('their_items', 'Their items')}</span>
-                <button
-                  onClick={() => setviewingTheirProfile(null)}
-                  style={{
-                    fontFamily: 'Geist',
-                    background: '#f87171', // red-400
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 18px',
-                    fontWeight: 500,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                    marginLeft: 6,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.18)',
-                    transition: 'background 0.18s',
-                    outline: 'none',
-                  }}
-                  title={t('exit_profile_view', 'Exit profile view')}
-                  onMouseOver={e => e.currentTarget.style.background = '#dc2626'} // red-600
-                  onMouseOut={e => e.currentTarget.style.background = '#f87171'}
-                >
-                  {t('exit_profile_view', 'Exit profile view')}
-                </button>
-              </div>
-              <ItemList
-                user={viewingTheirProfile}
-                onModalOpenChange={() => {}}
-                buttons="like_pass"
-                matching={true}
-                from_user_matching={user}
-                maxItems={4}
-                expanded={true}
-                // No expand/collapse in profile view
-              />
-            </div>
-          </div>
-        </div>
-      );
-    }
-    // Normal trade view (not in profile view)
+    // if (viewingTheirProfile) {
+    //   return (
+    //     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
+    //       <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '90vw', height: '78vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top: "-1vh" }}>
+    //         {/* App-like header */}
+    //         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#22c55e', padding: '11px 0 9px 0', position: 'relative' }}>
+    //           <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>
+    //             {t('trade_view_title', 'Trade View')}
+    //           </div>
+    //           <button
+    //             onClick={() => setViewingTrade(null)}
+    //             aria-label="Close trade view"
+    //             style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
+    //             onMouseOver={e => e.currentTarget.style.background = '#fff4'}
+    //             onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+    //           >
+    //             ×
+    //           </button>
+    //         </div>
+    //         {/* Profile view: only their items, bigger font, exit profile view button */}
+    //         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '32px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: '#f8f8f8', height: '100%' }}>
+    //           <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+    //             <span style={{ color: '#15803d', fontWeight: 200, fontSize: 18, letterSpacing: 0.5 }}>{t('their_items', 'Their items')}</span>
+    //             <button
+    //               onClick={() => setviewingTheirProfile(null)}
+    //               style={{
+    //                 fontFamily: 'Geist',
+    //                 background: '#f87171', // red-400
+    //                 color: '#fff',
+    //                 border: 'none',
+    //                 borderRadius: 8,
+    //                 padding: '8px 18px',
+    //                 fontWeight: 500,
+    //                 fontSize: 15,
+    //                 cursor: 'pointer',
+    //                 marginLeft: 6,
+    //                 display: 'flex',
+    //                 alignItems: 'center',
+    //                 gap: 6,
+    //                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.18)',
+    //                 transition: 'background 0.18s',
+    //                 outline: 'none',
+    //               }}
+    //               title={t('exit_profile_view', 'Exit profile view')}
+    //               onMouseOver={e => e.currentTarget.style.background = '#dc2626'} // red-600
+    //               onMouseOut={e => e.currentTarget.style.background = '#f87171'}
+    //             >
+    //               {t('exit_profile_view', 'Exit profile view')}
+    //             </button>
+    //           </div>
+    //           <ItemList
+    //             user={viewingTheirProfile}
+    //             onModalOpenChange={() => {}}
+    //             buttons="like_pass"
+    //             matching={true}
+    //             from_user_matching={user}
+    //             maxItems={4}
+    //             expanded={true}
+    //             // No expand/collapse in profile view
+    //           />
+    //         </div>
+    //       </div>
+    //     </div>
+    //   );
+    // }
+    // Trade view
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '90vw',height: '78vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top:"-1vh" }}>
+        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '94vw',height: '78dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top:"-1vh" }}>
           {/* App-like header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#22c55e', padding: '11px 0 9px 0', position: 'relative' }}>
             <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>
@@ -394,7 +394,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     return (
          <div style={{ position: 'fixed', top: '9%', width: '100%', height: '79vh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
 
-  <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '95%', height: '90%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
+  <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '96%', height: '90%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
           {/* Name at the top */}
           <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
             <div style={{ fontWeight: 500, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'left' }}>
