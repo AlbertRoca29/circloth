@@ -266,7 +266,7 @@ function AddItem({ user, onItemAdded }) {
           background: '#fff',
           borderRadius: 12,
           boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
-          width: '95vw',
+          width: '92vw',
           maxWidth: 480,
           height: '78vh',
           minHeight: 420,
