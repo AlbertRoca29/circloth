@@ -1,5 +1,6 @@
 import BACKEND_URL from "../config";
-import { getActionsFromLocalStorage, setActionsToLocalStorage } from "../utils/general";
+import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage } from "../utils/general";
+
 
 // Fetch user actions
 export async function fetchUserActions(userId) {
@@ -22,9 +23,6 @@ export async function syncActionsWithDB(userId, backendUrl) {
     return getActionsFromLocalStorage(userId);
   }
 }
-import BACKEND_URL from "../config";
-import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, getActionsFromLocalStorage } from "../utils/general";
-
 // Get next item to swipe/match
 export async function fetchMatchItem(userId, filterBySize = false) {
   const res = await fetch(`${BACKEND_URL}/match`, {
