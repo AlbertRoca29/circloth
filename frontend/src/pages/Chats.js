@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
-import { getCachedOrFreshMatches, fetchMatches } from "../api/matchingApi";
+import { getCachedOrFreshMatches, fetchMatches } from "../api/matchApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
@@ -439,7 +439,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                   wordBreak: 'break-word',
                   fontSize: 15,
                 }}>{msg.content}</span>
-                <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                <div style={{ fontSize: 10, color: '#aaa', marginTop: 2 }}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</div>
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -471,7 +471,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
 
 
   return (
-  <div style={{ width: '80%', margin: '90px 0 0 10%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <div style={{ width: '80%', margin: '90px 0 0 10%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       {matches.length === 0 && !isLoading && (
         <div className="card" style={{ textAlign: 'center', color: '#469061ff', fontSize: '1.2rem', marginTop: 40, fontWeight: 150, lineHeight: "1.45em" }}>
           {t('no_matches_cool')}

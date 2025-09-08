@@ -92,4 +92,3 @@ def handle_user_action(user_id: str, item_id: str, action: str):
     # Remove previous actions for this item (if any)
     db.delete_user_action(user_id, item_id)
     db.save_user_action(user_id, item_id, action, now)
-    # Optionally update user profile (e.g., passed_items) if needed

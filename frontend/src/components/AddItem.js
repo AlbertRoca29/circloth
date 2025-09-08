@@ -24,7 +24,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
 import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/general';
-import { addItem } from "../api/userItemsApi";
+import { addItem } from "../api/itemApi";
 
 function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();

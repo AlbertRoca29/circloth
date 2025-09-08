@@ -10,21 +10,18 @@ class FirestoreDB:
         """
         Returns all items of profile_user_id that were liked by visitor_user_id.
         """
-        # Get all 'like' actions by visitor_user_id
-        actions_ref = self.db.collection("users").document(visitor_user_id).collection("actions")
-        liked_actions = actions_ref.where("action", "==", "like").stream()
+        actions_ref = self.db.collection("actions")
+        liked_actions = actions_ref.where("user_id", "==", visitor_user_id).where("action", "==", "like").stream()
         liked_item_ids = [a.to_dict()["item_id"] for a in liked_actions]
         if not liked_item_ids:
             return []
-        # Get all items owned by profile_user_id that are in liked_item_ids
         items_ref = self.db.collection("items")
         items = items_ref.where("ownerId", "==", profile_user_id).where("id", "in", liked_item_ids).stream()
         return [item.to_dict() for item in items]
 
     def get_all_matches_for_user(self, user_id: str):
-
-        # Fetch all 'like' actions for all users (except current) in one collection group query
-        actions_query = self.db.collection_group("actions").where("action", "==", "like")
+        # Fetch all 'like' actions from the global actions collection
+        actions_query = self.db.collection("actions").where("action", "==", "like")
         all_actions = self._log_and_stream("get_all_matches_for_user", actions_query)
 
         # Fetch all items once for lookup
@@ -186,31 +183,19 @@ class FirestoreDB:
         chat_ref.set({"last_access": {user_id: now}}, merge=True)
 
     def delete_item_matches(self, item_id: str):
-        users_query = self.db.collection("users")
-        user_docs = self._log_and_get("delete_item_matches", users_query)
         batch = self.db.batch()
-
-        for user_doc in user_docs:
-            user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id).where("action", "==", "like")
-            action_docs = self._log_and_get("delete_item_matches", actions_query)
-            for doc in action_docs:
-                batch.delete(doc.reference)
-
+        actions_query = self.db.collection("actions").where("item_id", "==", item_id).where("action", "==", "like")
+        action_docs = self._log_and_get("delete_item_matches", actions_query)
+        for doc in action_docs:
+            batch.delete(doc.reference)
         batch.commit()
 
     def delete_item_actions(self, item_id: str):
-        users_query = self.db.collection("users")
-        user_docs = self._log_and_get("delete_item_actions", users_query)
         batch = self.db.batch()
-
-        for user_doc in user_docs:
-            user_id = user_doc.id
-            actions_query = users_query.document(user_id).collection("actions").where("item_id", "==", item_id)
-            action_docs = self._log_and_get("delete_item_actions", actions_query)
-            for doc in action_docs:
-                batch.delete(doc.reference)
-
+        actions_query = self.db.collection("actions").where("item_id", "==", item_id)
+        action_docs = self._log_and_get("delete_item_actions", actions_query)
+        for doc in action_docs:
+            batch.delete(doc.reference)
         batch.commit()
 
     def _doc_with_id(self, doc):
@@ -289,12 +274,12 @@ class FirestoreDB:
 
     # --- User Actions ---
     def delete_user_action(self, user_id: str, item_id: str):
-        actions_query = self.db.collection("users").document(user_id).collection("actions").where("item_id", "==", item_id)
+        actions_query = self.db.collection("actions").where("user_id", "==", user_id).where("item_id", "==", item_id)
         for doc in self._log_and_stream("delete_user_action", actions_query):
             doc.reference.delete()
 
     def save_user_action(self, user_id: str, item_id: str, action_type: str, timestamp):
-        actions_ref = self.db.collection("users").document(user_id).collection("actions")
+        actions_ref = self.db.collection("actions")
         actions_ref.add({
             "user_id": user_id,
             "item_id": item_id,
@@ -304,20 +289,19 @@ class FirestoreDB:
 
     def get_user_actions(self, user_id: str) -> list:
         """
-        Fetch all actions for a user with optimized Firestore reads.
+        Fetch all actions for a user from the global actions collection.
         """
-        actions_query = self.db.collection("users").document(user_id).collection("actions")
+        actions_query = self.db.collection("actions").where("user_id", "==", user_id)
         actions = [doc.to_dict() for doc in self._log_and_stream("get_user_actions", actions_query)]
         return actions
 
     def get_latest_user_actions(self, user_id: str) -> dict:
         """
-        Fetch the latest action for each item_id for a user with optimized query.
+        Fetch the latest action for each item_id for a user from the global actions collection.
         """
         actions_query = (
-            self.db.collection("users")
-            .document(user_id)
-            .collection("actions")
+            self.db.collection("actions")
+            .where("user_id", "==", user_id)
             .order_by("item_id")
             .order_by("timestamp", direction=firestore.Query.DESCENDING)
         )
@@ -403,3 +387,49 @@ class FirestoreDB:
         if last_msg_docs:
             last_message = last_msg_docs[0].to_dict()
             chat_ref.set({"last_message": last_message}, merge=True)
+
+
+# # --- Custom Admin Logic ---
+#     def delete_passed_items_field(self, user_id: str):
+#         """
+#         Deletes the 'passed_items' field from the user document for the given user_id.
+#         """
+#         user_ref = self.db.collection("users").document(user_id)
+#         user_ref.update({"passed_items": firestore.DELETE_FIELD})
+
+#     def delete_passed_items_field_all_users(self):
+#         """
+#         Deletes the 'passed_items' field from all user documents.
+#         """
+#         users_ref = self.db.collection("users")
+#         user_docs = users_ref.stream()
+#         print(user_docs)
+#         batch = self.db.batch()
+#         for user_doc in user_docs:
+#             print(f"Deleting 'passed_items' for user {user_doc.id}")
+#             batch.update(user_doc.reference, {"passed_items": firestore.DELETE_FIELD})
+#         batch.commit()
+
+#     def copy_all_user_actions_to_global(self):
+#         """
+#         Copies all documents from each user's 'actions' subcollection to a global 'actions' collection.
+#         Uses the same document ID as the original action document.
+#         """
+#         users_ref = self.db.collection("users")
+#         user_docs = list(users_ref.stream())
+#         actions_ref = self.db.collection("actions")
+#         total_users = len(user_docs)
+#         total_actions = 0
+#         print(f"[DEBUG] Found {total_users} users.")
+#         for idx, user_doc in enumerate(user_docs):
+#             user_id = user_doc.id
+#             print(f"[DEBUG] Processing user {idx+1}/{total_users}: {user_id}")
+#             actions_sub = list(users_ref.document(user_id).collection("actions").stream())
+#             print(f"[DEBUG]   Found {len(actions_sub)} actions for user {user_id}.")
+#             for action_doc in actions_sub:
+#                 data = action_doc.to_dict()
+#                 # Ensure user_id is present in the action data
+#                 data["user_id"] = user_id
+#                 actions_ref.document(action_doc.id).set(data)
+#                 total_actions += 1
+#         print(f"[DEBUG] Finished copying. Total actions copied: {total_actions}")

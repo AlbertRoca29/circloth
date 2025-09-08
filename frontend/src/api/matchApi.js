@@ -1,3 +1,24 @@
+// Fetch user actions
+export async function fetchUserActions(userId) {
+  const res = await fetch(`${BACKEND_URL}/actions/${userId}`);
+  if (!res.ok) throw new Error('Failed to fetch user actions');
+  return res.json();
+}
+
+// Sync actions with DB
+export async function syncActionsWithDB(userId, backendUrl) {
+  try {
+    const response = await fetch(`${backendUrl}/actions/${userId}`);
+    if (!response.ok) throw new Error('Failed to fetch actions from DB');
+    const data = await response.json();
+    const dbActions = data.actions || {};
+    setActionsToLocalStorage(userId, dbActions);
+    return dbActions;
+  } catch (error) {
+    console.error('Error syncing actions with DB:', error);
+    return getActionsFromLocalStorage(userId);
+  }
+}
 import BACKEND_URL from "../config";
 import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, getActionsFromLocalStorage } from "../utils/general";
 
@@ -37,7 +58,6 @@ export async function sendMatchAction(userId, itemId, action) {
   return res.json();
 }
 
-
 // Get all matches for user (reciprocal likes, efficient)
 export async function fetchMatches(userId) {
   const res = await fetch(`${BACKEND_URL}/matches/${userId}`);
@@ -62,11 +82,8 @@ export async function fetchLikedItems(profileUserId, visitorUserId) {
 
 // Cached matches logic
 export async function getCachedOrFreshMatches(userId) {
-  // Get cache from localStorage
   const cache = getMatchesCacheFromLocalStorage(userId);
-  // Get latest user actions from localStorage
   const actionsObj = getActionsFromLocalStorage(userId);
-  // Find latest action timestamp (like or pass)
   let latestActionTs = null;
   if (actionsObj && typeof actionsObj === 'object') {
     Object.values(actionsObj).forEach(action => {
@@ -76,7 +93,6 @@ export async function getCachedOrFreshMatches(userId) {
     });
   }
   const now = Date.now();
-  // If cache exists, is less than 3 min old, and lastAction matches, use cache
   if (
     cache &&
     Array.isArray(cache.matches) &&
@@ -85,10 +101,8 @@ export async function getCachedOrFreshMatches(userId) {
     latestActionTs === cache.lastAction &&
     now - cache.lastFetched < 3 * 60 * 1000
   ) {
-    // Use cached matches, even if empty
     return cache.matches;
   }
-  // Otherwise, fetch fresh matches
   const matches = await fetchMatches(userId);
   setMatchesCacheToLocalStorage(userId, {
     matches: Array.isArray(matches) ? matches : [],

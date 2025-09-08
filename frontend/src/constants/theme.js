@@ -64,4 +64,4 @@ export const COLOR_PALETTE = [
   "#E57373", "#B91C1C", "#F472B6", "#FFD54F", "#F9A825", "#FF8A65", "#BA68C8"
 ];
 
-export const FONT_FAMILY = "'Geist', 'Geist Sans', 'Segoe UI', Arial, sans-serif";
+export const FONT_FAMILY = "Geist"

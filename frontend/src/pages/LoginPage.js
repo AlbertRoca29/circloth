@@ -7,7 +7,7 @@ import changeLanguage from '../utils/changeLanguage';
 import { GlobeIcon, ChevronDownIcon } from '../utils/svg';
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import { setItemsToLocalStorage } from '../utils/general';
-import { fetchUserProfile, createUserProfile } from "../api/authApi";
+import { fetchUserProfile, createUserProfile } from "../api/userApi";
 
 function LoginPage({ firebaseUser, setAppUser }) {
   const { t, i18n } = useTranslation();
@@ -27,8 +27,6 @@ function LoginPage({ firebaseUser, setAppUser }) {
       if (res.ok) {
         const data = await res.json();
         setAppUser({ ...user, ...data });
-        // Save user to localStorage for language persistence
-        setItemsToLocalStorage('appUser', { ...user, ...data });
       } else {
         // New user → ask extra info
         setPendingUser(user);
@@ -58,13 +56,11 @@ function LoginPage({ firebaseUser, setAppUser }) {
         id: pendingUser.uid,
         name: localName,
         email: pendingUser.email,
-        passed_items: [],
         device_info: deviceInfo,
         language
       });
       if (res.ok) {
         setAppUser({ ...pendingUser, name: localName, language });
-        setItemsToLocalStorage('appUser', { ...pendingUser, name: localName, language });
         setPendingUser(null);
         setNeedsExtraInfo(false);
         setLocalName("");

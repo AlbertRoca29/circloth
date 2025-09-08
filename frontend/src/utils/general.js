@@ -1,6 +1,7 @@
 import { CATEGORY_EMOJI } from '../constants/categories';
 import { SIZE_OPTIONS } from '../constants/categories';
-import { fetchUserItems, fetchUserActions, syncItemsWithDB, syncActionsWithDB } from "../api/userItemsApi";
+import { fetchUserItems, syncItemsWithDB } from "../api/itemApi";
+import { fetchUserActions, syncActionsWithDB } from "../api/matchApi";
 
 export function getCategoryEmoji(category) {
   if (!category) return CATEGORY_EMOJI.other;

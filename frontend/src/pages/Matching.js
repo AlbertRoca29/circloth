@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useTranslation } from "react-i18next";
-import { fetchMatchItem, sendMatchAction, fetchUserSizePreferences} from "../api/matchingApi";
-import { fetchUserItems } from "../api/userItemsApi";
+import { fetchMatchItem, sendMatchAction } from "../api/matchApi";
+import { fetchUserSizePreferences } from "../api/userApi";
+import { fetchUserItems } from "../api/itemApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SizeSelectionModal from "../components/SizeSelectionModal";

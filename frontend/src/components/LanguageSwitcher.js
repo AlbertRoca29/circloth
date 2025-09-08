@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { GlobeIcon, ChevronDownIcon } from "../utils/svg";
 import changeLanguage from "../utils/changeLanguage";
 
-function LanguageSwitcher({ position = "fixed", top = 22, right = 22, zIndex = 1000, dropdownStyle = {}, buttonStyle = {}, displayFullLanguageName = false }) {
+function LanguageSwitcher({ position = "fixed", top = 22, right = 22, zIndex = 1000, dropdownStyle = {}, buttonStyle = {}, displayFullLanguageName = false, appUser = null }) {
   const { i18n } = useTranslation();
   const [langDropdown, setLangDropdown] = useState(false);
   const langRef = useRef();
@@ -87,7 +87,7 @@ function LanguageSwitcher({ position = "fixed", top = 22, right = 22, zIndex = 1
             <div
               key={l.code}
               onClick={() => {
-                changeLanguage(l.code);
+                changeLanguage(l.code, appUser);
                 setLangDropdown(false);
               }}
               style={{

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SIZE_OPTIONS, CATEGORIES } from '../constants/categories';
 import { useTranslation } from 'react-i18next';
 import BACKEND_URL from '../config';
+import { FONT_FAMILY } from '../constants/theme';
 
 const SizeSelectionModal = ({ userId, onClose, onSave }) => {
   const { t } = useTranslation();
@@ -48,6 +49,7 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
 
   const modalStyles = {
     container: {
+      fontFamily: FONT_FAMILY,
       position: 'fixed',
       top: 0,
       left: 0,
@@ -63,6 +65,7 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       background: 'linear-gradient(135deg, #ffffff, #f0f0f0)',
       borderRadius: '12px',
       width: '90vw',
+      fontFamily: FONT_FAMILY,
       maxHeight: '80vh',
       display: 'flex',
       flexDirection: 'column',
@@ -82,31 +85,35 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       position: 'relative',
     },
     headerTitle: {
+      fontFamily: FONT_FAMILY,
       fontWeight: 150,
-      fontSize: 18,
+      fontSize: '1.1rem',
       color: '#fff',
       flex: 1,
       textAlign: 'center',
       letterSpacing: 0.2,
     },
     category: {
-      marginBottom: '0.5vh',
+      marginBottom: '2.6vh',
     },
     grid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 18vw))',
-      gap: '8px',
+      marginTop: '0.75vh',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 17vw))',
+      gap: '10px',
     },
     button: {
-      padding: '8px',
+      padding: '10px',
+      fontFamily: FONT_FAMILY,
+      fontWeight: 100,
       border: '1px solid #ddd',
       borderRadius: '5px',
       background: '#f9f9f9',
       cursor: 'pointer',
       textAlign: 'center',
-      fontSize: '13.5px',
+      fontSize: '0.85rem',
       transition: 'background 0.3s, transform 0.2s',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     buttonSelected: {
       background: 'var(--primary-dark, #15803d)',
@@ -121,19 +128,20 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       position: 'absolute',
       left: 0,
       bottom: 0,
-      width: '78vw',
-      background: 'rgba(255,255,255,0.95)',
-      padding: '2vh 6vw',
+      width: '79.5vw',
+      background: 'rgba(255,255,255,1)',
+      padding: '1.75vh 5vw',
       borderBottomLeftRadius: 12,
       borderBottomRightRadius: 12,
       boxShadow: '0 -2px 8px rgba(0,0,0,0.07)',
     },
     actionButton: {
-      padding: '2vh 0',
+      padding: '1.75vh 0',
       borderRadius: '8px',
       cursor: 'pointer',
-      fontWeight: 600,
-      fontSize: 18,
+      fontFamily: FONT_FAMILY,
+      fontWeight: 175,
+      fontSize: '1.05rem',
       width: '100%',
       transition: 'background 0.3s, color 0.3s',
     },
@@ -141,16 +149,42 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       background: 'none',
       border: '2px solid var(--primary-dark, #15803d)',
       color: 'var(--primary-dark, #15803d)',
-      fontWeight: 600,
     },
     saveButton: {
       background: 'var(--primary-dark, #15803d)',
       color: '#fff',
       border: 'none',
-      fontWeight: 600,
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     },
   };
+
+  // Handler for select-all bubble
+  const handleSelectAll = (categoryKey) => {
+    const allSizes = SIZE_OPTIONS[categoryKey];
+    setSelectedSizes((prev) => {
+      // If all sizes are already selected, deselect all
+      const alreadyAll = allSizes.every(size => prev[categoryKey]?.includes(size));
+      return {
+        ...prev,
+        [categoryKey]: alreadyAll ? [] : [...allSizes],
+      };
+    });
+  };
+
+  // Style for select-all bubble
+  const selectAllBubbleStyle = (allSelected) => ({
+    display: 'inline-block',
+    width: 18,
+    height: 18,
+    borderRadius: '50%',
+    border: `2px solid ${allSelected ? '#22c55e' : '#bbb'}`,
+    background: allSelected ? '#22c55e' : '#fff',
+    marginLeft: 10,
+    cursor: 'pointer',
+    verticalAlign: 'middle',
+    boxShadow: allSelected ? '0 0 0 2px #22c55e33' : 'none',
+    transition: 'background 0.2s, border 0.2s',
+  });
 
   return (
     <div style={modalStyles.container}>
@@ -160,25 +194,35 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
           <div style={modalStyles.headerTitle}>{t('select_sizes')}</div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: '2vh 4vw 90px 4vw' }}>
-          {CATEGORIES.map(({ key, labelKey }) => (
-            <div key={key} style={modalStyles.category}>
-              <h3 style={{ fontWeight: 150, fontSize: '15px' }}>{t(labelKey)}</h3>
-              <div style={modalStyles.grid}>
-                {SIZE_OPTIONS[key].map((size) => (
-                  <button
-                    key={size}
-                    style={{
-                      ...modalStyles.button,
-                      ...(selectedSizes[key]?.includes(size) ? modalStyles.buttonSelected : {}),
-                    }}
-                    onClick={() => handleSizeToggle(key, size)}
-                  >
-                    {size}
-                  </button>
-                ))}
+          {CATEGORIES.map(({ key, labelKey }) => {
+            const allSelected = SIZE_OPTIONS[key].every(size => selectedSizes[key]?.includes(size));
+            return (
+              <div key={key} style={modalStyles.category}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <h3 style={{ fontWeight: 150, fontSize: '0.92rem', fontFamily: FONT_FAMILY, margin: 0 }}>{t(labelKey)}</h3>
+                  <span
+                    style={selectAllBubbleStyle(allSelected)}
+                    onClick={() => handleSelectAll(key)}
+                    title={allSelected ? t('deselect_all') : t('select_all')}
+                  />
+                </div>
+                <div style={modalStyles.grid}>
+                  {SIZE_OPTIONS[key].map((size) => (
+                    <button
+                      key={size}
+                      style={{
+                        ...modalStyles.button,
+                        ...(selectedSizes[key]?.includes(size) ? modalStyles.buttonSelected : {}),
+                      }}
+                      onClick={() => handleSizeToggle(key, size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {/* Fixed Action Buttons at Bottom */}
         <div style={modalStyles.actions}>

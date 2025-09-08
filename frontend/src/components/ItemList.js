@@ -6,8 +6,9 @@ import { ref, deleteObject } from "firebase/storage";
 import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
 import LoadingSpinner from "./LoadingSpinner";
-import { fetchUserItems, fetchUserActions, syncItemsWithDB, syncActionsWithDB } from '../api/userItemsApi';
-import { sendMatchAction, fetchLikedItems } from "../api/matchingApi";
+import { fetchUserItems, syncItemsWithDB, deleteItem } from '../api/itemApi';
+import { fetchUserActions, syncActionsWithDB } from '../api/matchApi';
+import { sendMatchAction, fetchLikedItems } from "../api/matchApi";
 import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
 import { getItemsFromLocalStorage, setItemsToLocalStorage, clearLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage, clearActionsFromLocalStorage } from '../utils/general';
@@ -199,7 +200,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
             setItems(updatedItems);
           } else {
             // Delete item from backend
-            const res = await fetchUserItems(user.id); // Replace with a delete function in userItemsApi if needed
+            const res = await deleteItem(item.id);
             if (!res.ok) throw new Error("Failed to delete item");
             setItems(items => items.filter(i => i.id !== item.id));
             // Update cached actions
@@ -216,9 +217,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               return updatedItems;
             });
           }
-          // Item deleted successfully
         } catch (err) {
-          // Error deleting item
           console.error("Error deleting item", err);
         }
         setDeletingId(null);
@@ -378,7 +377,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                 <div style={{
                   position: 'relative',
                   width: '100%',
-                  height: "75%",
+                  height: "85%",
                   background: '#f6f6f6',
                   overflow: 'hidden',
                   transition: 'transform 0.25s ease-in-out',
@@ -404,7 +403,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '10px 12px 7px 11px',
+                padding: '8px 12px 10px 11px',
                 background: 'rgba(255,255,255,0.98)',
                 borderBottomLeftRadius: 16,
                 borderBottomRightRadius: 16,

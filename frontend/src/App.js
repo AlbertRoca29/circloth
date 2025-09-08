@@ -18,9 +18,11 @@ import changeLanguage from "./utils/changeLanguage";
 import { MenuIcon, GlobeIcon } from './utils/svg';
 import SizeSelectionModal from "./components/SizeSelectionModal";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { fetchUserItems } from "./api/userItemsApi";
+import { fetchUserItems } from "./api/itemApi";
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+
+import Run from "./Run";
 
 function App() {
   const { i18n, t } = useTranslation();
@@ -298,6 +300,7 @@ function App() {
                     dropdownStyle={{ minWidth: "150px" }}
                     buttonStyle={{ fontSize: "0.82rem" }}
                     displayFullLanguageName={true}
+                    appUser={appUser}
                   />
                   {/* Logout Button */}
                   <button
