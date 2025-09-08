@@ -1,3 +1,6 @@
+import BACKEND_URL from "../config";
+import { getActionsFromLocalStorage, setActionsToLocalStorage } from "../utils/general";
+
 // Fetch user actions
 export async function fetchUserActions(userId) {
   const res = await fetch(`${BACKEND_URL}/actions/${userId}`);

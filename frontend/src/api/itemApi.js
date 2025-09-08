@@ -1,5 +1,5 @@
 import BACKEND_URL from "../config";
-import { setItemsToLocalStorage, getItemsFromLocalStorage, setActionsToLocalStorage, getActionsFromLocalStorage } from "../utils/general";
+import { setItemsToLocalStorage, getItemsFromLocalStorage } from "../utils/general";
 
 // Add item
 export async function addItem(itemData) {
