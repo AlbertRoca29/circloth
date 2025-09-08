@@ -6,7 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import changeLanguage from '../utils/changeLanguage';
 import { GlobeIcon, ChevronDownIcon } from '../utils/svg';
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import { setItemsToLocalStorage } from '../utils/general';
+import { setItemsToLocalStorage } from '../utils/localStorage';
 import { fetchUserProfile, createUserProfile } from "../api/userApi";
 
 function LoginPage({ firebaseUser, setAppUser }) {

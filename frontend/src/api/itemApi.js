@@ -1,5 +1,5 @@
 import BACKEND_URL from "../config";
-import { setItemsToLocalStorage, getItemsFromLocalStorage } from "../utils/general";
+import { setItemsToLocalStorage, getItemsFromLocalStorage } from "../utils/localStorage";
 
 // Add item
 export async function addItem(itemData) {
@@ -28,9 +28,9 @@ export async function fetchUserItems(userId) {
 }
 
 // Sync items with DB
-export async function syncItemsWithDB(userId, backendUrl) {
+export async function syncItemsWithDB(userId) {
   try {
-    const response = await fetch(`${backendUrl}/items/${userId}`);
+    const response = await fetch(`${BACKEND_URL}/items/${userId}`);
     if (!response.ok) throw new Error('Failed to fetch items from DB');
     const data = await response.json();
     const dbItems = data.items || [];

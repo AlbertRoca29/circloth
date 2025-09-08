@@ -5,12 +5,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { showToast } from "../utils/toast";
 import { storage } from "../utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import imageCompression from "browser-image-compression";
 import { getCategoryEmoji } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
 import { COLORS } from "../constants/theme";
-import { FastAverageColor } from 'fast-average-color';
 import Button from "@mui/material/Button";
 import { PlusIcon } from '../utils/svg';
 import ProgressBarButton from "./ProgressBarButton";
@@ -23,8 +21,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import FormControl from "@mui/material/FormControl";
 import Collapse from "@mui/material/Collapse";
-import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/general';
+import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/localStorage';
 import { addItem } from "../api/itemApi";
+import { compressImage, getAverageColorFromImage } from "../utils/imageUtils";
 
 function AddItem({ user, onItemAdded }) {
   const { t } = useTranslation();
@@ -92,8 +91,7 @@ function AddItem({ user, onItemAdded }) {
       for (let i = 0; i < photoFiles.length; i++) {
         setProgress(Math.round(((i + 1) / photoFiles.length) * 80)); // Simulate progress
         const file = photoFiles[i];
-        const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
-        const compressedFile = await imageCompression(file, options);
+        const compressedFile = await compressImage(file);
         const ext = file.name.split('.').pop() || 'jpg';
         const imageId = `photo${i+1}`;
         const photoRef = ref(storage, `items/${user.uid}/${Date.now()}_${imageId}.${ext}`);
@@ -104,23 +102,7 @@ function AddItem({ user, onItemAdded }) {
       const orderedPhotoURLs = [photoURLs[thumbnailIdx], ...photoURLs.filter((_, i) => i !== thumbnailIdx)];
 
       // Compute main color from the main image (thumbnail)
-      let mainColor = '';
-      try {
-        const fac = new FastAverageColor();
-        // Create a temporary image element to read the color
-        const img = document.createElement('img');
-        img.crossOrigin = 'Anonymous';
-        img.src = objectURLs[thumbnailIdx];
-        // Wait for image to load
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-        });
-        const colorObj = fac.getColor(img);
-        mainColor = colorObj.hex;
-      } catch (err) {
-        mainColor = '#cccccc'; // fallback color
-      }
+      let mainColor = await getAverageColorFromImage(objectURLs[thumbnailIdx]);
 
       const newItem = {
         id: uuidv4(),

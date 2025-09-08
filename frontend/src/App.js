@@ -228,7 +228,7 @@ function App() {
               <h1 style={{
                 color: "var(--primary-dark, #15803d)",
                 fontWeight: 600,
-                fontSize: "clamp(1.66rem, 1.5vw, 2.5rem)",
+                fontSize: "1.45rem",
                 margin: 0,
                 marginLeft: "5vw",
                 letterSpacing: "0.04em"
@@ -337,7 +337,17 @@ function App() {
       )}
 
       {/* Main content container, with margin for header and tabs */}
-      <div className="main-container">
+      <div style={{
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            fontWeight: 100,
+            width: "100%",
+            boxSizing: "border-box",
+            background: "none",
+            fontFamily: 'Geist',
+            transition: "transform 0.1s",
+        }}>
 
         {/* Scrollable content */}
         {activeTab === "clothes" && (

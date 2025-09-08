@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 
 import { storage } from "../utils/firebase";
 import { ref, deleteObject } from "firebase/storage";
-import BACKEND_URL from "../config";
 import ItemDetailModal from "./ItemDetailModal";
 import LoadingSpinner from "./LoadingSpinner";
 import { fetchUserItems, syncItemsWithDB, deleteItem } from '../api/itemApi';
@@ -11,7 +10,7 @@ import { fetchUserActions, syncActionsWithDB } from '../api/matchApi';
 import { sendMatchAction, fetchLikedItems } from "../api/matchApi";
 import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
-import { getItemsFromLocalStorage, setItemsToLocalStorage, clearLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage, clearActionsFromLocalStorage } from '../utils/general';
+import { getItemsFromLocalStorage, setItemsToLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage } from '../utils/localStorage';
 
 function DropdownMenu({ onEdit, onDelete, onClose, position }) {
   const menuRef = useRef(null);
@@ -119,7 +118,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
         console.error("Error fetching items:", error);
       }
     };
-
     fetchItems();
   }, [user.id, refreshSignal, matching, from_user_matching, useLocalStorage]);
 
@@ -149,12 +147,10 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   useEffect(() => {
     const handlePageLoad = () => {
       const syncData = async () => {
-        const syncedItems = await syncItemsWithDB(user.id, BACKEND_URL);
-        setItems(syncedItems);
+        await syncItemsWithDB(user.id);
 
         if (matching) {
-          const syncedActions = await syncActionsWithDB(user.id, BACKEND_URL);
-          setUserActions(syncedActions);
+          await syncActionsWithDB(user.id);
         }
       };
       syncData();

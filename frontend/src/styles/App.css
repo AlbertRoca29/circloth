@@ -1,28 +1,3 @@
-/* Chat card bottom right button */
-.chat-bottom-btn {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  z-index: 2;
-}
-/* Tabs bar compact and Geist font */
-.tab-btn {
-  font-family: 'Geist';
-  font-weight: 100;
-  padding: 4px 0 2px 0 !important;
-  min-width: 0;
-  border-radius: 10px;
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
-  transition: all 0.22s;
-}
-.tab-btn-active {
-  font-weight: 150 !important;
-  letter-spacing: 0.01em;
-}
-
-
-
 /* Main centered container for desktop */
 /* Main centered container for desktop, more spacious */
 /* Main centered container for desktop, more spacious, with margin for all screens */

@@ -9,7 +9,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import SizeSelectionModal from "../components/SizeSelectionModal";
 import "../styles/buttonStyles.css";
 
-import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/general';
+import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -55,7 +55,7 @@ function Matching({ user, setHasLocation }) {
       setHasClothes(false);
       return;
     }
-
+    // Check if user has clothes in localStorage first
     const cachedItems = getItemsFromLocalStorage(user.uid);
     if (cachedItems.length > 0) {
       setHasClothes(true);

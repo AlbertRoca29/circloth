@@ -1,5 +1,5 @@
 import BACKEND_URL from "../config";
-import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage } from "../utils/general";
+import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, getActionsFromLocalStorage, setActionsToLocalStorage } from "../utils/localStorage";
 
 
 // Fetch user actions
@@ -10,9 +10,9 @@ export async function fetchUserActions(userId) {
 }
 
 // Sync actions with DB
-export async function syncActionsWithDB(userId, backendUrl) {
+export async function syncActionsWithDB(userId) {
   try {
-    const response = await fetch(`${backendUrl}/actions/${userId}`);
+    const response = await fetch(`${BACKEND_URL}/actions/${userId}`);
     if (!response.ok) throw new Error('Failed to fetch actions from DB');
     const data = await response.json();
     const dbActions = data.actions || {};

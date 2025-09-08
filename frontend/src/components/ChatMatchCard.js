@@ -30,6 +30,7 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
     objectFit: "cover",
     border,
     cursor: "pointer",
+    boxSizing: 'border-box',
   };
 
   if (items.length === 1) {
@@ -45,6 +46,7 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
       />
     );
   } else if (items.length === 2) {
+    // Add green border between the two images
     return items.map((item, i) => (
       <ItemImage
         key={item.id || i}
@@ -54,10 +56,12 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
           ...baseStyle,
           gridColumn: i === 0 ? '1' : '2',
           gridRow: '1 / span 2',
+          borderRight: i === 0 ? '0px solid #ffffffff' : undefined,
         }}
       />
     ));
   } else if (items.length === 3) {
+    // Top image spans two columns, bottom two images have green border between them
     return (
       <>
         <ItemImage
@@ -68,6 +72,7 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
             ...baseStyle,
             gridColumn: '1 / span 2',
             gridRow: '1',
+            borderBottom: '0px solid #22c55e',
           }}
         />
         <ItemImage
@@ -78,6 +83,7 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
             ...baseStyle,
             gridColumn: '1',
             gridRow: '2',
+            borderRight: '0px solid #22c55e',
           }}
         />
         <ItemImage
@@ -93,24 +99,44 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
       </>
     );
   } else if (items.length === 4) {
-    return items.slice(0, 4).map((item, i) => (
-      <ItemImage
-        key={item.id || i}
-        item={item}
-        alt={`item ${i + 1}`}
-        style={baseStyle}
-      />
-    ));
-  } else if (items.length > 4) {
-    return [
-      ...items.slice(0, 3).map((item, i) => (
+    // 2x2 grid, add green border between images
+    return items.slice(0, 4).map((item, i) => {
+      // 0 | 1
+      // 2 | 3
+      let style = { ...baseStyle };
+      // Right border for left column
+      if (i % 2 === 0) style.borderRight = '3px solid #22c55e';
+      // Bottom border for top row
+      if (i < 2) style.borderBottom = '3px solid #22c55e';
+      return (
         <ItemImage
           key={item.id || i}
           item={item}
           alt={`item ${i + 1}`}
-          style={baseStyle}
+          style={style}
         />
-      )),
+      );
+    });
+  } else if (items.length > 4) {
+    // 2x2 grid, last cell is "+N" overlay, add green border between images
+    return [
+      ...items.slice(0, 3).map((item, i) => {
+        // 0 | 1
+        // 2 | +N
+        let style = { ...baseStyle };
+        // Right border for left column
+        if (i % 2 === 0) style.borderRight = '3px solid #22c55e';
+        // Bottom border for top row
+        if (i < 2) style.borderBottom = '3px solid #22c55e';
+        return (
+          <ItemImage
+            key={item.id || i}
+            item={item}
+            alt={`item ${i + 1}`}
+            style={style}
+          />
+        );
+      }),
       <div
         key="plus"
         style={{
@@ -122,6 +148,10 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
           justifyContent: 'center',
           fontSize,
           fontWeight: 700,
+          // Right border for left column
+          borderRight: '3px solid #22c55e',
+          // Bottom border for top row
+          borderBottom: '3px solid #22c55e',
         }}
       >
         +{items.length - 3}
@@ -143,7 +173,22 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
       if (lastMessage.timestamp) {
         let dateObj = typeof lastMessage.timestamp === 'string' ? new Date(lastMessage.timestamp) : new Date(Number(lastMessage.timestamp));
         if (!isNaN(dateObj.getTime())) {
-          timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+          const now = new Date();
+          const isToday = dateObj.getDate() === now.getDate() && dateObj.getMonth() === now.getMonth() && dateObj.getFullYear() === now.getFullYear();
+          const yesterday = new Date(now);
+          yesterday.setDate(now.getDate() - 1);
+          const isYesterday = dateObj.getDate() === yesterday.getDate() && dateObj.getMonth() === yesterday.getMonth() && dateObj.getFullYear() === yesterday.getFullYear();
+          if (isToday) {
+            timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+          } else if (isYesterday) {
+            timeStr = 'yesterday';
+          } else {
+            // Format as dd/mm/yy
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const year = String(dateObj.getFullYear()).slice(-2);
+            timeStr = `${day}/${month}/${year}`;
+          }
         }
       }
       return (
@@ -180,8 +225,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
         borderRadius: 13,
         boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
         marginBottom: 0,
-        height: "16vh",
-        width: "89vw",
+        height: "16.5vh",
+        width: "90vw",
         display: "flex",
         alignItems: "center",
         position: "relative",

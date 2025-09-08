@@ -22,54 +22,16 @@ export function getSizeOptions(t) {
   return result;
 }
 
-// Utility functions for managing localStorage
-export function getItemsFromLocalStorage(userId) {
-  const key = `items_${userId}`;
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : [];
-}
 
-export function setItemsToLocalStorage(userId, items) {
-  const key = `items_${userId}`;
-  localStorage.removeItem(key);
-  localStorage.setItem(key, JSON.stringify(items));
-}
-
-export function clearLocalStorage(userId) {
-  const key = `items_${userId}`;
-  localStorage.removeItem(key);
-}
-
-// Utility functions for managing actions in localStorage
-export function getActionsFromLocalStorage(userId) {
-  const key = `actions_${userId}`;
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : {};
-}
-
-export function setActionsToLocalStorage(userId, actions) {
-  const key = `actions_${userId}`;
-  localStorage.setItem(key, JSON.stringify(actions));
-}
-
-export function clearActionsFromLocalStorage(userId) {
-  const key = `actions_${userId}`;
-  localStorage.removeItem(key);
-}
-
-// Utility functions for managing matches cache in localStorage
-export function getMatchesCacheFromLocalStorage(userId) {
-  const key = `matches_cache_${userId}`;
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : null;
-}
-
-export function setMatchesCacheToLocalStorage(userId, cacheObj) {
-  const key = `matches_cache_${userId}`;
-  localStorage.setItem(key, JSON.stringify(cacheObj));
-}
-
-export function clearMatchesCacheFromLocalStorage(userId) {
-  const key = `matches_cache_${userId}`;
-  localStorage.removeItem(key);
-}
+// Re-export localStorage utilities from localStorage.js for backward compatibility
+export {
+  getItemsFromLocalStorage,
+  setItemsToLocalStorage,
+  clearLocalStorage,
+  getActionsFromLocalStorage,
+  setActionsToLocalStorage,
+  clearActionsFromLocalStorage,
+  getMatchesCacheFromLocalStorage,
+  setMatchesCacheToLocalStorage,
+  clearMatchesCacheFromLocalStorage
+} from './localStorage';
