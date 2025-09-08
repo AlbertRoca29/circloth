@@ -14,8 +14,7 @@ import Matching from "./pages/Matching";
 import "./styles/App.css";
 import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
-import changeLanguage from "./utils/changeLanguage";
-import { MenuIcon, GlobeIcon } from './utils/svg';
+import { MenuIcon } from './utils/svg';
 import SizeSelectionModal from "./components/SizeSelectionModal";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import { fetchUserItems } from "./api/itemApi";
@@ -69,9 +68,9 @@ function App() {
 
   // Scroll to top and refresh unread when switching to Matching or Chats tab
   useEffect(() => {
-    if (activeTab === "matching" || activeTab === "chats") {
+    if (activeTab === "chats") {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      setRefreshUnread(r => r + 1);
+    //   setRefreshUnread(r => r + 1);
     }
   }, [activeTab]);
   // Listen to Firebase auth state

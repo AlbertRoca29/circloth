@@ -8,6 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
 import { HeartIcon } from '../utils/svg';
+import { ref } from "firebase/storage";
 // IoSend icon for send button
 
 
@@ -116,10 +117,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
       setIsLoading(false);
     };
     fetchData();
-    // Optionally poll for unread status
-    // const interval = setInterval(fetchAndSetMatchesAndChats, 5000);
-    // return () => clearInterval(interval);
-  }, [user, refreshUnread]);
+  }, [user.id]);
 
   // Call onChatClose when chat is closed
   useEffect(() => {
@@ -294,7 +292,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                 buttons="like_pass"
                 matching={true}
                 from_user_matching={user}
-                maxItems={4}
+                maxItems={16}
                 expanded={true}
                 // No expand/collapse in profile view
               />
@@ -517,15 +515,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
         })
         .map((group, idx, arr) => {
           // Debug: log the order and timestamps
-          if (idx === 0) {
-            // Only log once per render
-            console.log('Chat order debug:', arr.map(g => ({
-              name: g.otherUser?.name || g.otherUser?.displayName,
-              _lastTimestamp: g._lastTimestamp,
-              _lastMessage: g._lastMessage,
-              _isNew: g._isNew,
-            })));
-          }
+
           return (
             <ChatMatchCard
               key={group.matchIds.join('-')}

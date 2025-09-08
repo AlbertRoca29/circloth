@@ -60,13 +60,22 @@ export async function sendMatchAction(userId, itemId, action) {
 }
 
 // Get all matches for user (reciprocal likes, efficient)
+// Throttle fetchMatches to max once every 30 seconds per user (frontend-enforced)
 export async function fetchMatches(userId) {
+  const throttleKey = `matches_last_fetch_${userId}`;
+  const lastFetch = parseInt(localStorage.getItem(throttleKey), 10) || 0;
+  const now = Date.now();
+  if (now - lastFetch < 20 * 1000) {
+    // Too soon, return null to indicate no fetch
+    return null;
+  }
   const res = await fetch(`${BACKEND_URL}/matches/${userId}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to fetch matches");
   }
   const data = await res.json();
+  localStorage.setItem(throttleKey, now.toString());
   return data.matches || [];
 }
 
@@ -104,7 +113,12 @@ export async function getCachedOrFreshMatches(userId) {
   ) {
     return cache.matches;
   }
+  // Try to fetch new matches, but only if 30s have passed
   const matches = await fetchMatches(userId);
+  if (matches === null) {
+    // Throttled, return cache if available
+    return cache && Array.isArray(cache.matches) ? cache.matches : [];
+  }
   setMatchesCacheToLocalStorage(userId, {
     matches: Array.isArray(matches) ? matches : [],
     lastFetched: now,
