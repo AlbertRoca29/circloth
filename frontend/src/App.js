@@ -22,8 +22,6 @@ import { fetchUserItems } from "./api/itemApi";
 
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
 
-import Run from "./Run";
-
 function App() {
   const { i18n, t } = useTranslation();
   const [firebaseUser, setFirebaseUser] = useState(null); // Firebase auth user
