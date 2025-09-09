@@ -83,12 +83,15 @@ def get_available_items_for_user(user_id: str, location: dict = None, filter_by_
         random.shuffle(available_items)
     return available_items
 
-def handle_user_action(user_id: str, item_id: str, action: str):
+def handle_user_action(user_id: str, item_id: str, action: str, last_like: int = None):
     """
-    Save or overwrite the user's action for an item.
+    Save or overwrite the user's action for an item. Optionally update last_like.
     """
     db = FirestoreDB()
     now = datetime.utcnow().isoformat() + "Z"
     # Remove previous actions for this item (if any)
     db.delete_user_action(user_id, item_id)
     db.save_user_action(user_id, item_id, action, now)
+    # Optionally update last_like field on user if action is like
+    if action == "like" and last_like is not None:
+        db.update_user(user_id, {"last_like": last_like})

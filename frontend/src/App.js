@@ -355,7 +355,6 @@ function App() {
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
-                useLocalStorage={false}
                 onModalOpenChange={(open) => {setItemListModalOpen(open);}
             }
               />

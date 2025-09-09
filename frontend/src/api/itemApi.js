@@ -2,42 +2,67 @@ import BACKEND_URL from "../config";
 import { setItemsToLocalStorage, getItemsFromLocalStorage } from "../utils/localStorage";
 
 // Add item
-export async function addItem(itemData) {
+// Optionally pass contextId for matching
+export async function addItem(itemData, userId, contextId = null) {
   const res = await fetch(`${BACKEND_URL}/item`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(itemData)
   });
   if (!res.ok) throw new Error('Failed to add item');
-  return res.json();
+  const newItem = await res.json();
+  // Update local storage
+  if (userId) {
+    const items = getItemsFromLocalStorage(userId, contextId) || [];
+    setItemsToLocalStorage(userId, [...items, newItem], contextId);
+  }
+  return newItem;
 }
 
 // Delete item
-export async function deleteItem(itemId) {
+// Optionally pass contextId for matching
+export async function deleteItem(itemId, userId, contextId = null) {
   const res = await fetch(`${BACKEND_URL}/item/${itemId}`, {
     method: 'DELETE',
   });
+  if (userId) {
+    const items = getItemsFromLocalStorage(userId, contextId) || [];
+    const updatedItems = items.filter(i => i.id !== itemId);
+    setItemsToLocalStorage(userId, updatedItems, contextId);
+  }
   return res;
 }
 
-// Fetch user items
-export async function fetchUserItems(userId) {
+// Fetch user items (with cache/localStorage logic inside)
+// Optionally pass contextId for matching
+export async function fetchUserItems(userId, useLocalStorage = false, contextId = null) {
+  if (useLocalStorage) {
+    const cachedItems = getItemsFromLocalStorage(userId, contextId);
+    if (cachedItems && cachedItems.length > 0) {
+      return { items: cachedItems };
+    }
+  }
   const res = await fetch(`${BACKEND_URL}/items/${userId}`);
   if (!res.ok) throw new Error('Failed to fetch user items');
-  return res.json();
+  const data = await res.json();
+  if (useLocalStorage) {
+    setItemsToLocalStorage(userId, data.items, contextId);
+  }
+  return data;
 }
 
 // Sync items with DB
-export async function syncItemsWithDB(userId) {
+// Optionally pass contextId for matching
+export async function syncItemsWithDB(userId, contextId = null) {
   try {
     const response = await fetch(`${BACKEND_URL}/items/${userId}`);
     if (!response.ok) throw new Error('Failed to fetch items from DB');
     const data = await response.json();
     const dbItems = data.items || [];
-    setItemsToLocalStorage(userId, dbItems);
+  setItemsToLocalStorage(userId, dbItems, contextId);
     return dbItems;
   } catch (error) {
     console.error('Error syncing items with DB:', error);
-    return getItemsFromLocalStorage(userId);
+  return getItemsFromLocalStorage(userId, contextId);
   }
 }

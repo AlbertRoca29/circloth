@@ -93,6 +93,7 @@ class ActionRequest(BaseModel):
     user_id: str
     item_id: str
     action: str  # "like" or "pass"
+    last_like: Optional[int] = None  # ms timestamp
     device_info: Optional[dict] = None
     location: Optional[dict] = None
 
@@ -263,7 +264,8 @@ def match_items(req: MatchRequest):
 
 @app.post("/action")
 def handle_action(req: ActionRequest):
-    handle_user_action(req.user_id, req.item_id, req.action)
+    # Pass last_like to handler if present
+    handle_user_action(req.user_id, req.item_id, req.action, last_like=req.last_like)
     return {"message_key": "ACTION_HANDLED"}
 
 @app.delete("/match/{user_id}/{other_user_id}/{item_id}/{your_item_id}")

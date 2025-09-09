@@ -92,9 +92,6 @@ function Matching({ user, setHasLocation }) {
     setActionLoading(true);
     try {
       await sendMatchAction(user.uid, item.id, action);
-    //   const cachedItems = JSON.parse(localStorage.getItem(`items_${user.uid}`)) || [];
-    //   const updatedItems = cachedItems.filter(cachedItem => cachedItem.id !== item.id);
-    //   localStorage.setItem(`items_${user.uid}`, JSON.stringify(updatedItems));
       loadNextItem();
     } catch (e) {
       setError(e.message + (e.stack ? "\n" + e.stack : ""));

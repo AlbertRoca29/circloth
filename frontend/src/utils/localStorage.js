@@ -1,17 +1,25 @@
+// Removes all data from localStorage
+export function clearAllLocalStorage() {
+  localStorage.clear();
+}
 // Item storage
-export function getItemsFromLocalStorage(userId) {
-  const key = `items_${userId}`;
+
+// Accepts userId and optionally a contextId (e.g. for matching)
+export function getItemsFromLocalStorage(userId, contextId = null) {
+  const key = contextId ? `items_${userId}_${contextId}` : `items_${userId}`;
   return getFromLocalStorage(key) || [];
 }
 
-export function setItemsToLocalStorage(userId, items) {
-  const key = `items_${userId}`;
+
+export function setItemsToLocalStorage(userId, items, contextId = null) {
+  const key = contextId ? `items_${userId}_${contextId}` : `items_${userId}`;
   removeFromLocalStorage(key);
   setToLocalStorage(key, items);
 }
 
-export function clearLocalStorage(userId) {
-  const key = `items_${userId}`;
+
+export function clearLocalStorage(userId, contextId = null) {
+  const key = contextId ? `items_${userId}_${contextId}` : `items_${userId}`;
   removeFromLocalStorage(key);
 }
 

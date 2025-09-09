@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { fetchMessages, sendMessage, fetchUserChats } from "../api/chatApi";
 import ChatMatchCard from "../components/ChatMatchCard";
 import ItemList from "../components/ItemList";
-import { getCachedOrFreshMatches, fetchMatches } from "../api/matchApi";
+import { fetchMatches } from "../api/matchApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { CloseIcon, BackIcon } from '../constants/icons';
@@ -101,7 +101,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const fetchAndSetMatchesAndChats = async () => {
     if (!user || !user.uid) return;
     const [matches, chats] = await Promise.all([
-      getCachedOrFreshMatches(user.uid),
+      fetchMatches(user.uid),
       fetchUserChats(user.uid)
     ]);
     setMatches(matches);
@@ -111,13 +111,14 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   // Fetch unread/matches when user or refreshUnread changes
   useEffect(() => {
     if (!user || !user.uid) return;
+    console.log("YUYUYU")
     const fetchData = async () => {
       setIsLoading(true);
       await fetchAndSetMatchesAndChats();
       setIsLoading(false);
     };
     fetchData();
-  }, [user.id]);
+  }, [user?.uid]);
 
   // Call onChatClose when chat is closed
   useEffect(() => {
@@ -294,7 +295,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                 from_user_matching={user}
                 maxItems={16}
                 expanded={true}
-                // No expand/collapse in profile view
+                useLocalStorage={true}
               />
             </div>
           </div>
@@ -365,6 +366,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               maxItems={2}
               expanded={expandTheir}
               onExpand={() => setExpandTheir(e => !e)}
+              useLocalStorage={true}
             />
             {/* Your Items */}
             <div style={{ width: '92%', display: 'flex', alignItems: 'center', marginBottom: 4 }}>
@@ -379,6 +381,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               maxItems={2}
               expanded={expandYours}
               onExpand={() => setExpandYours(e => !e)}
+              useLocalStorage={true}
             />
           </div>
         </div>
