@@ -25,7 +25,7 @@ import { setItemsToLocalStorage, getItemsFromLocalStorage } from '../utils/local
 import { addItem } from "../api/itemApi";
 import { compressImage, getAverageColorFromImage } from "../utils/imageUtils";
 
-function AddItem({ user, onItemAdded }) {
+function AddItem({ user, onItemAdded, open, setOpen }) {
   const { t } = useTranslation();
   // Use global categories and size options
   const categories = CATEGORIES.map(cat => ({ key: cat.key, label: t(cat.labelKey) }));
@@ -38,7 +38,7 @@ function AddItem({ user, onItemAdded }) {
       opts.map(opt => ({ key: opt, label: opt }))
     ])
   );
-  const [open, setOpen] = useState(false);
+  // open and setOpen are now controlled from parent
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [category, setCategory] = useState('');
   const [size, setSize] = useState('');
@@ -152,25 +152,6 @@ function AddItem({ user, onItemAdded }) {
     }
   }
 
-  // Ensure the AddItem button is always fixed and independent of other elements
-  const floatingButtonStyle = {
-    position: "fixed",
-    bottom: "10%", // Adjusted for better reachability on mobile
-    right: "10%",
-    width: "70px", // Increased size for touch-friendliness
-    height: "70px",
-    borderRadius: "50%",
-    backgroundColor: "#15803d",
-    color: "white",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    cursor: "pointer",
-    border: "none",
-    zIndex: 1000,
-    };
-
   return (
     <Box sx={{ mt: open ? 1 : 0, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 2 }}>
       {!open && (
@@ -254,7 +235,7 @@ function AddItem({ user, onItemAdded }) {
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-          top: 0
+          top: 0,
         }}>
         {/* Header */}
         <div style={{
@@ -268,6 +249,7 @@ function AddItem({ user, onItemAdded }) {
             <div style={{
             fontWeight: 150,
             fontSize: 18,
+            fontFamily: 'Geist',
             color: '#fff',
             flex: 1,
             textAlign: 'center',
@@ -308,6 +290,7 @@ function AddItem({ user, onItemAdded }) {
     padding: '12px 16px',
     display: 'flex',
     flexDirection: 'column',
+    fontFamily: 'Geist',
     gap: 2,
     background: '#f8f8f8',
     height: '100%',
@@ -316,8 +299,9 @@ function AddItem({ user, onItemAdded }) {
     <FormControl fullWidth>
       <Typography sx={{
         mb: 1,
-        fontWeight: 150,
         fontSize: 14,
+        fontFamily: 'Geist',
+        fontWeight: 150,
         color: '#333',
       }}>{t('category')} <span style={{ color: 'red' }}>*</span></Typography>
       <Grid container spacing={1} sx={{ justifyContent: 'center' }}>
@@ -329,16 +313,18 @@ function AddItem({ user, onItemAdded }) {
                 flexDirection: 'column',
                 borderRadius: 1.2,
                 border: category === cat.key ? `3px solid ${APP_GREEN}` : '1px solid #ddd',
-                background: category === cat.key ? '#c8f7d6ff' : '#fdfdfd',
+                background: category === cat.key ? '#e4f7e9ff' : '#fdfdfd',
                 width: '25vw',
                 aspectRatio: '1.35',
+                fontFamily: 'Geist',
+                fontWeight: 150,
                 fontSize: 15,
                 color: '#28720d',
                 '&:hover': { background: '#f3f3f3' },
               }}
             >
               <span style={{ fontSize: 27, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
-              <span style={{ fontSize: 11.5, fontWeight: category === cat.key ? 150 : 100, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
+              <span style={{ fontSize: 11.5, fontWeight: category === cat.key ? 135 : 95, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
             </Button>
           </Grid>
         ))}
@@ -349,6 +335,7 @@ function AddItem({ user, onItemAdded }) {
       <FormControl fullWidth>
         <Typography sx={{
           mb: 1,
+          fontFamily: 'Geist',
           fontWeight: 150,
           fontSize: 14,
           color: '#333',
@@ -361,7 +348,8 @@ function AddItem({ user, onItemAdded }) {
                 sx={{
                   width: '100%',
                   borderRadius: 1.5,
-                  fontWeight: 125,
+                  fontWeight: size === opt.key ? 120 : 100,
+                  fontFamily: 'Geist',
                   height: 40,
                   fontSize: size === opt.key ? 15 : 13,
                   background: size === opt.key ? APP_GREEN : '#f6f6f6',
@@ -382,6 +370,7 @@ function AddItem({ user, onItemAdded }) {
         mb: 1,
         fontWeight: 150,
         fontSize: 14,
+        fontFamily: 'Geist',
         color: '#333',
       }}>{t('item_story')} <span style={{ color: 'red' }}>*</span></Typography>
       <TextField
@@ -391,10 +380,16 @@ function AddItem({ user, onItemAdded }) {
         fullWidth
         multiline
         minRows={3}
-        sx={{
-          fontSize: '0.8125rem', // Converted from 13px
-          borderRadius: 1.2,
-          background: '#f9f9f9',
+        InputProps={{
+          sx: {
+            '& textarea': {
+              fontFamily: 'Geist',
+              borderRadius: 0,
+              fontSize: '0.9rem',
+              fontWeight: 110,
+              background: '#f9f9f9',
+            }
+          }
         }}
         required
       />
@@ -403,29 +398,66 @@ function AddItem({ user, onItemAdded }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
       <Typography sx={{
         fontWeight: 150,
-        fontSize: 14,
-        color: '#333',
-  }}>{t('photos_1_5')} <span style={{ color: 'red' }}>*</span></Typography>
-      <Box sx={{ display: 'flex', gap: 2.25, flexWrap: 'wrap', justifyContent: 'center' }}>
+        fontFamily: 'Geist',
+        fontSize: 16,
+        color: '#222',
+        mb: 0.5,
+        letterSpacing: 0.1,
+      }}>{t('photos_1_5')} <span style={{ color: 'red' }}>*</span></Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 2.2,
+          width: '100%',
+          overflowX: 'auto',
+          pb: 1,
+          mb: 1,
+          px: 0.5,
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin',
+        }}
+      >
         {photoFiles.map((file, idx) => (
-          <Box key={idx} sx={{ position: 'relative' }}>
+          <Box key={idx} sx={{
+            position: 'relative',
+            minWidth: 92,
+            width: 92,
+            height: 92,
+            maxWidth: '28vw',
+            maxHeight: '28vw',
+            aspectRatio: '1',
+            borderRadius: 3,
+            overflow: 'visible',
+            boxShadow: idx === thumbnailIdx ? '0 0 0 3px #22c55e' : '0 0 0 1.5px #ddd',
+            border: idx === thumbnailIdx ? '3px solid #22c55e' : '1.5px solid #ddd',
+            transition: 'box-shadow 0.18s, border 0.18s',
+            background: '#fafafa',
+            cursor: 'pointer',
+            flex: '0 0 auto',
+            marginTop: '6px', // add space for border
+          }}>
             <img
               src={objectURLs[idx]}
               alt={`preview-${idx}`}
               loading="lazy"
               style={{
-                width: '13.5vw',
-                aspectRatio: 1,
+                width: '100%',
+                height: '100%',
                 objectFit: "cover",
-                borderRadius: 7,
-                border: idx === thumbnailIdx ? "3px solid #22c55e" : "1.2px solid #ddd",
-                cursor: "pointer",
+                borderRadius: 12,
+                filter: idx === thumbnailIdx ? 'brightness(1.05)' : 'brightness(0.98)',
+                border: 'none',
+                transition: 'filter 0.18s',
+                boxShadow: idx === thumbnailIdx ? '0 0 0 3px #22c55e' : 'none',
               }}
               onClick={() => setThumbnailIdx(idx)}
             />
+            {/* Remove button */}
             <Button
               size="small"
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 const newFiles = photoFiles.filter((_, i) => i !== idx);
                 setPhotoFiles(newFiles);
                 if (thumbnailIdx === idx) setThumbnailIdx(0);
@@ -433,30 +465,61 @@ function AddItem({ user, onItemAdded }) {
               }}
               sx={{
                 position: "absolute",
-                top: -14,
-                right: -11,
+                top: -10,
+                right: -10,
                 minWidth: 0,
-                padding: 0,
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.7)',
+                color: '#e11d48',
+                fontWeight: 900,
                 fontSize: 18,
-                color: '#888',
+                boxShadow: '0 1px 4px #0001',
+                zIndex: 3,
+                p: 0,
+                lineHeight: 1,
+                transition: 'background 0.15s',
+                '&:hover': { background: '#fee2e2cc' },
               }}
+              aria-label={t('remove_photo') || 'Remove photo'}
             >×</Button>
           </Box>
         ))}
         {photoFiles.length < 5 && (
-          <label style={{ display: "inline-block", cursor: "pointer" }}>
+          <label style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 92,
+            width: 92,
+            height: 92,
+            maxWidth: '28vw',
+            maxHeight: '28vw',
+            aspectRatio: 1,
+            borderRadius: 12,
+            background: "#f5f5f5",
+            color: "#22c55e",
+            fontSize: 44,
+            fontWeight: 200,
+            border: "2.5px dashed #22c55e",
+            cursor: "pointer",
+            boxShadow: '0 1px 4px #22c55e11',
+            transition: 'background 0.15s, border 0.15s',
+            position: 'relative',
+            overflow: 'hidden',
+            flex: '0 0 auto',
+          }}>
             <span style={{
-              display: "inline-block",
-              width: '13.5vw',
-              aspectRatio: 1,
-              borderRadius: 5,
-              background: "#f5f5f5",
-              color: "#22c55e",
-              fontSize: 38,
-              fontWeight: 150,
-              textAlign: "center",
-              lineHeight: "0.65in",
-              border: "1.7px dashed #22c55e",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: '100%',
+              height: '100%',
+              fontSize: 40,
+              color: '#22c55e',
+              opacity: 0.85,
+              userSelect: 'none',
             }}>+</span>
             <input
               type="file"
@@ -470,6 +533,15 @@ function AddItem({ user, onItemAdded }) {
           </label>
         )}
       </Box>
+      <Typography sx={{
+        fontSize: 12,
+        color: '#888',
+        fontWeight: 120,
+        textAlign: 'center',
+        mt: 0.5,
+        mb: 0,
+        letterSpacing: 0.1,
+      }}>{t('tap_to_select_main_photo') || 'Tap a photo to select as main'}</Typography>
     </Box>
 
     <Accordion
@@ -500,10 +572,10 @@ function AddItem({ user, onItemAdded }) {
           transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
           fontSize: 12,
           marginRight: 8,
-          fontWeight: 150,
           color: '#666',
         }}>▶</span>
         <Typography sx={{
+          fontFamily: 'Geist',
           fontWeight: 150,
           fontSize: 14,
           color: '#333',
@@ -519,6 +591,7 @@ function AddItem({ user, onItemAdded }) {
           <Typography sx={{
             mb: 0.5,
             fontSize: 14,
+            fontFamily: 'Geist',
             fontWeight: 125,
             color: '#333',
           }}>{t('brand')}</Typography>
@@ -528,16 +601,23 @@ function AddItem({ user, onItemAdded }) {
             placeholder={t('placeholder_brand')}
             fullWidth
             size="small"
-            sx={{
-              fontSize: 14,
-              borderRadius: 1.2,
-              background: '#f9f9f9',
+            InputProps={{
+                sx: {
+                    '& input': {
+                        fontSize: 14,
+                        fontFamily: 'Geist',
+                        fontWeight: 100,
+                        borderRadius: 0,
+                        background: '#f9f9f9'
+                    }
+                }
             }}
           />
         </FormControl>
         <FormControl fullWidth sx={{ mb: 1 }}>
           <Typography sx={{
             mb: 0.5,
+            fontFamily: 'Geist',
             fontWeight: 125,
             fontSize: 14,
             color: '#333',
@@ -548,10 +628,16 @@ function AddItem({ user, onItemAdded }) {
             placeholder={t('placeholder_material')}
             fullWidth
             size="small"
-            sx={{
-              fontSize: 14,
-              borderRadius: 1.2,
-              background: '#f9f9f9',
+            InputProps={{
+                sx: {
+                    '& input': {
+                        fontSize: 14,
+                        fontFamily: 'Geist',
+                        fontWeight: 100,
+                        borderRadius: 0,
+                        background: '#f9f9f9'
+                    }
+                }
             }}
           />
         </FormControl>
@@ -559,6 +645,7 @@ function AddItem({ user, onItemAdded }) {
           <Typography sx={{
             mb: 0.5,
             fontSize: 14,
+            fontFamily: 'Geist',
             fontWeight: 125,
             color: '#333',
           }}>{t('additional_info')}</Typography>
@@ -569,10 +656,16 @@ function AddItem({ user, onItemAdded }) {
             fullWidth
             multiline
             minRows={2}
-            sx={{
-              fontSize: 14,
-              borderRadius: 1.2,
-              background: '#f9f9f9',
+            style={{ background: '#f9f9f9' }}
+            InputProps={{
+                sx: {
+                    '& textarea': {
+                        fontSize: 14,
+                        fontFamily: 'Geist',
+                        fontWeight: 100,
+                        borderRadius: 0,
+                    }
+                }
             }}
           />
         </FormControl>

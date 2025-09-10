@@ -118,6 +118,8 @@ function App() {
 
   // Track if ItemList modal is open
   const [itemListModalOpen, setItemListModalOpen] = useState(false);
+  // Track if AddItem is open
+  const [addItemOpen, setAddItemOpen] = useState(false);
   useEffect(() => {
     window.onItemListModalOpen = setItemListModalOpen;
     return () => { window.onItemListModalOpen = undefined; };
@@ -326,11 +328,13 @@ function App() {
       )}
 
       {/* Floating AddItem Button */}
-  {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
+      {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
         <div style={{ height:"100%",position: "relative", display: "flex", zIndex: 50, marginTop:"9dvh", justifyContent: "center", alignItems: "center" }}>
           <AddItem
             user={appUser}
             onItemAdded={() => setRefreshItems(r => r + 1)}
+            open={addItemOpen}
+            setOpen={setAddItemOpen}
           />
         </div>
       )}
@@ -349,16 +353,15 @@ function App() {
         }}>
 
         {/* Scrollable content */}
-        {activeTab === "clothes" && (
+        {activeTab === "clothes" && !addItemOpen && (
           <>
-            {true && (
+            {
               <ItemList
                 user={appUser}
                 refreshSignal={refreshItems}
-                onModalOpenChange={(open) => {setItemListModalOpen(open);}
-            }
+                onModalOpenChange={(open) => {setItemListModalOpen(open);}}
               />
-            )}
+            }
           </>
         )}
         {activeTab === "matching" && (
