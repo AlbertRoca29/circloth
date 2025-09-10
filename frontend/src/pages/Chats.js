@@ -155,6 +155,19 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     // Refresh messages
     const msgs = await fetchMessages(user.uid, chattingWith.otherUser.id);
     setMessages(msgs);
+    // Update chats state so ChatMatchCard gets latest lastMessage
+    setChats(prevChats => {
+      return prevChats.map(chat => {
+        if (chat.participants && chat.participants.includes(chattingWith.otherUser.id)) {
+          return {
+            ...chat,
+            messages: msgs,
+            last_message: msgs.length > 0 ? msgs[msgs.length - 1] : chat.last_message,
+          };
+        }
+        return chat;
+      });
+    });
   }
 
 
@@ -191,6 +204,20 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
         const msg = JSON.parse(event.data);
         if (msg && msg.sender && msg.receiver && msg.content) {
           setMessages(prev => [...prev, { ...msg, timestamp: Date.now() }]);
+          // Update chats state so ChatMatchCard gets latest lastMessage
+          setChats(prevChats => {
+            return prevChats.map(chat => {
+              if (chat.participants && chat.participants.includes(msg.sender) && chat.participants.includes(msg.receiver)) {
+                const newMessages = [...(chat.messages || []), { ...msg, timestamp: Date.now() }];
+                return {
+                  ...chat,
+                  messages: newMessages,
+                  last_message: msg,
+                };
+              }
+              return chat;
+            });
+          });
         }
       } catch {}
     };
@@ -238,6 +265,12 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   if (viewingTrade) {
     // If viewing their profile from trade view, show only their items with bigger font and an exit profile view button
     if (viewingTheirProfile) {
+      // Helper to close trade view and fetch matches
+      const handleCloseTradeView = async () => {
+        setViewingTrade(null);
+        setviewingTheirProfile(null);
+        await fetchAndSetMatchesAndChats();
+      };
       return (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
           <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '90vw', height: '78vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top: "-1vh" }}>
@@ -247,7 +280,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                 {t('trade_view_title', 'Trade View')}
               </div>
               <button
-                onClick={() => setViewingTrade(null)}
+                onClick={handleCloseTradeView}
                 aria-label="Close trade view"
                 style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
                 onMouseOver={e => e.currentTarget.style.background = '#fff4'}
@@ -303,6 +336,12 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
       );
     }
     // Trade view
+    // Helper to close trade view and fetch matches
+    const handleCloseTradeView = async () => {
+      setViewingTrade(null);
+      setviewingTheirProfile(null);
+      await fetchAndSetMatchesAndChats();
+    };
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
         <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '94vw',height: '78dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top:"-1vh" }}>
@@ -312,7 +351,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               {t('trade_view_title', 'Trade View')}
             </div>
             <button
-              onClick={() => setViewingTrade(null)}
+              onClick={handleCloseTradeView}
               aria-label="Close trade view"
               style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
               onMouseOver={e => e.currentTarget.style.background = '#fff4'}
