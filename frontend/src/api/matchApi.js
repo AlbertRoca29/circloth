@@ -1,18 +1,16 @@
 import BACKEND_URL from "../config";
-import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage } from "../utils/localStorage";
+import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, clearAllLocalStorage } from "../utils/localStorage";
 
-// --- NEW Local Storage Action Utilities ---
-const LAST_LIKE_KEY_PREFIX = "last_like_";
 
 // Get last like timestamp for a user
 export function getLastLikeFromLocalStorage(userId) {
-  const ts = localStorage.getItem(LAST_LIKE_KEY_PREFIX + userId);
+  const ts = localStorage.getItem("last_like_" + userId);
   return ts ? parseInt(ts, 10) : null;
 }
 
 // Set last like timestamp for a user
 export function setLastLikeToLocalStorage(userId, timestamp) {
-  localStorage.setItem(LAST_LIKE_KEY_PREFIX + userId, timestamp.toString());
+  localStorage.setItem("last_like_" + userId, timestamp.toString());
 }
 const ACTIONS_KEY_PREFIX = "user_actions_";
 
@@ -107,7 +105,7 @@ export async function fetchMatchItem(userId, filterBySize = false) {
 }
 
 // Record user action on an item
-export async function sendMatchAction(userId, itemId, action) {
+export async function sendMatchAction(userId, itemId, action, itemData, otherUserId) {
   const now = new Date();
   const nowIso = now.toISOString();
   const nowMs = now.getTime();
@@ -127,12 +125,34 @@ export async function sendMatchAction(userId, itemId, action) {
   // Save action to localStorage
   const actionObj = { action, item_id: itemId, timestamp: nowIso, user_id: userId };
   upsertActionToLocalStorage(userId, actionObj);
-  // Update last_like in localStorage if like
-  if (action === "like") {
-    setLastLikeToLocalStorage(userId, nowMs);
+  // Update matches cache in localStorage
+  let cache = getMatchesCacheFromLocalStorage(userId) || { matches: [], lastFetch: nowMs };
+  let updated = false;
+  if (action === "pass") {
+    // Remove item from matches if present
+    const before = cache.matches.length;
+    cache.matches = cache.matches.filter(m => m.theirItem && m.theirItem.id !== itemId);
+    if (cache.matches.length !== before) {
+      updated = true;
+    }
+  } else if (action === "like" && itemData && otherUserId && otherUserId !== userId) {
+    // Find a match with otherUser.id === otherUserId
+    const existingMatch = cache.matches.find(m => m.otherUser && m.otherUser.id === otherUserId);
+    if (existingMatch) {
+      // Clone the match, but replace theirItem with itemData
+      const newMatch = { ...existingMatch, theirItem: itemData };
+      cache.matches.push(newMatch);
+      updated = true;
+    } else {
+      setLastLikeToLocalStorage(userId, nowMs);
+    }
+  }
+  if (updated) {
+    cache.lastFetch = nowMs;
+    setMatchesCacheToLocalStorage(userId, cache);
+    console.debug('[matches-cache] Updated matches cache after action:', cache);
   }
   // Update lastAction timestamp in matches cache (for cache logic)
-  const cache = getMatchesCacheFromLocalStorage(userId);
   if (cache) {
     cache.lastAction = nowIso;
     setMatchesCacheToLocalStorage(userId, cache);
@@ -144,16 +164,18 @@ export async function fetchMatches(userId) {
   const throttleKey = `matches_last_fetch_${userId}`;
   const lastFetch = parseInt(localStorage.getItem(throttleKey), 10) || 0;
   const now = Date.now();
-
   // Throttle if less than 30s since last fetch
-  if (now - lastFetch < 30 * 1000 ) {
+  if (now - lastFetch < 30 * 1000) {
     const lastLike = getLastLikeFromLocalStorage(userId);
-    if (lastLike && now - lastLike > 30 * 1000) {
+    if (lastLike < lastFetch || lastLike === null) {
         const cache = getMatchesCacheFromLocalStorage(userId);
-        return cache && Array.isArray(cache.matches) ? cache.matches : [];
+        if (cache && Array.isArray(cache.matches) && cache.matches.length > 0) {
+          return cache.matches;
+        } else {
+          return [];
+        }
     }
   }
-
   const res = await fetch(`${BACKEND_URL}/matches/${userId}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -161,6 +183,13 @@ export async function fetchMatches(userId) {
   }
   const data = await res.json();
   localStorage.setItem(throttleKey, now.toString());
+  // Update matches cache in localStorage
+  if (Array.isArray(data.matches)) {
+    const cacheObj = { matches: data.matches, lastFetch: now };
+    setMatchesCacheToLocalStorage(userId, cacheObj);
+  } else {
+    console.log('[matches-cache] No matches array in backend response:', data);
+  }
   return data.matches || [];
 }
 
@@ -220,10 +249,10 @@ export async function getCachedOrFreshMatches(userId) {
   }
   // Try to fetch new matches, but only if 30s have passed
   const matches = await fetchMatches(userId);
-  if (matches === null) {
-    // Throttled, return cache if available
-    return cache && Array.isArray(cache.matches) ? cache.matches : [];
-  }
+  // if (matches === null) {
+  //   // Throttled, return cache if available
+  //   return cache && Array.isArray(cache.matches) ? cache.matches : [];
+  // }
   setMatchesCacheToLocalStorage(userId, {
     matches: Array.isArray(matches) ? matches : [],
     lastFetched: now,

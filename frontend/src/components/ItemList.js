@@ -132,8 +132,8 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   useEffect(() => {
     const handlePageLoad = () => {
       const syncData = async () => {
-  const contextId = matching && from_user_matching ? from_user_matching.id : null;
-  await syncItemsWithDB(user.id, contextId);
+        const contextId = matching && from_user_matching ? from_user_matching.id : null;
+        await syncItemsWithDB(user.id, contextId);
 
         if (matching) {
           await syncActionsWithDB(user.id);
@@ -234,7 +234,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   // Helper for like/pass actions
   const doAction = async (item, action) => {
     try {
-      await sendMatchAction(from_user_matching.id, item.id, action);
+      await sendMatchAction(from_user_matching.id, item.id, action, item, item.ownerId);
       setUserActions((prev) => {
         const updatedActions = { ...prev, [item.id]: action === "like" ? !prev[item.id] : false };
         return updatedActions;
@@ -306,6 +306,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               key={item.id}
               style={{
                 display: !userLiked(item.id) && only_likes===true ? 'none' : 'flex',
+                // display: 'flex',
                 border: userLiked(item.id) && only_likes===false && buttons==="like_pass" ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
                 aspectRatio: 0.9,
                 background: "#fff",

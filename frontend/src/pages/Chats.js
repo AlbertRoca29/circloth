@@ -111,7 +111,6 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   // Fetch unread/matches when user or refreshUnread changes
   useEffect(() => {
     if (!user || !user.uid) return;
-    console.log("YUYUYU")
     const fetchData = async () => {
       setIsLoading(true);
       await fetchAndSetMatchesAndChats();
@@ -427,8 +426,6 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
       </div>
     );
   }
-
-  // ...existing code...
 
   if (chattingWith) {
     return (

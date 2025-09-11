@@ -48,6 +48,7 @@ export function getMatchesCacheFromLocalStorage(userId) {
 export function setMatchesCacheToLocalStorage(userId, cacheObj) {
   const key = `matches_cache_${userId}`;
   setToLocalStorage(key, cacheObj);
+  console.debug(`[matches-cache] setMatchesCacheToLocalStorage for user ${userId}:`, cacheObj);
 }
 
 export function clearMatchesCacheFromLocalStorage(userId) {

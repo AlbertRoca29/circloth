@@ -35,7 +35,7 @@ export async function deleteItem(itemId, userId, contextId = null) {
 
 // Fetch user items (with cache/localStorage logic inside)
 // Optionally pass contextId for matching
-export async function fetchUserItems(userId, useLocalStorage = false, contextId = null) {
+export async function fetchUserItems(userId, useLocalStorage = true, contextId = null) {
   if (useLocalStorage) {
     const cachedItems = getItemsFromLocalStorage(userId, contextId);
     if (cachedItems && cachedItems.length > 0) {

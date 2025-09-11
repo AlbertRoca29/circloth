@@ -123,7 +123,6 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
       // Save to localStorage
       const existingItems = getItemsFromLocalStorage(user.id);
       const updatedItems = [...existingItems, newItem];
-      console.log('Updated items to be saved to localStorage:', updatedItems);
       setItemsToLocalStorage(user.id, updatedItems);
 
       // Notify parent component

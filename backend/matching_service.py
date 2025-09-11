@@ -6,7 +6,7 @@ import random
 import math
 
 
-PASS_EXPIRY_SECONDS = int(os.getenv("PASS_EXPIRY_SECONDS", 60))  # default 60 seconds for testing
+PASS_EXPIRY_SECONDS = int(os.getenv("PASS_EXPIRY_SECONDS", 120))  # default 60 seconds for testing
 
 def get_available_items_for_user(user_id: str, location: dict = None, filter_by_size: bool = False) -> List[dict]:
     """

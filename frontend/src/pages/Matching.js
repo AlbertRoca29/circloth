@@ -91,7 +91,7 @@ function Matching({ user, setHasLocation }) {
     if (!item) return;
     setActionLoading(true);
     try {
-      await sendMatchAction(user.uid, item.id, action);
+      await sendMatchAction(user.uid, item.id, action, item, item.ownerId);
       loadNextItem();
     } catch (e) {
       setError(e.message + (e.stack ? "\n" + e.stack : ""));
