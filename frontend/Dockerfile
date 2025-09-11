@@ -10,3 +10,5 @@ RUN npm run build
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/build /usr/share/nginx/html
+# Remove default site config (not used) to avoid confusion
+RUN rm -f /etc/nginx/conf.d/default.conf || true
