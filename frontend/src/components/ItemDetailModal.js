@@ -216,56 +216,91 @@ function ItemDetailModal({
             {/* Minimalistic triangular SVG arrows */}
             {showNavigation && images.length > 1 && (
               <>
-                <button
+        <div
+                  role="button"
+                  tabIndex={0}
                   onClick={handlePrev}
-                  className="common-button"
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handlePrev(); } }}
                   style={{
                     position: 'absolute',
                     left: "5%",
                     top: '50%',
-                    transform: 'translateY(-50%)',
+          transform: 'translateY(-50%)',
                     zIndex: 4,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
-                    background: 'rgba(255, 255, 255, 0.5)',
-                    border: 'none',
-                    width: 45,
-                    height: 45,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    width: 120,
+                    height: 120,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+                    cursor: 'pointer',
+                    // hit area is larger but visually unchanged
+                    background: 'transparent',
                     padding: 0,
                     outline: 'none',
-                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
-                  aria-label="Previous image"
                 >
-                  <ArrowLeftIcon style={{ width: 30, height: 30 }} />
-                </button>
-                <button
+          <button
+                    className="common-button"
+                    style={{
+            boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+            background: 'rgba(255, 255, 255, 0.5)',
+            border: 'none',
+            width: 45,
+            height: 45,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            outline: 'none',
+            transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <ArrowLeftIcon style={{ width: 30, height: 30 }} />
+                  </button>
+                </div>
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={handleNext}
-                  className="common-button"
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNext(); } }}
                   style={{
                     position: 'absolute',
                     right: "5%",
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 4,
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
-                    background: 'rgba(255,255,255,0.5)',
-                    border: 'none',
-                    width: 45,
-                    height: 45,
+                    width: 120,
+                    height: 120,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'flex-end',
+                    cursor: 'pointer',
+                    background: 'transparent',
                     padding: 0,
                     outline: 'none',
-                    transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
                   }}
-                  aria-label="Next image"
                 >
-                  <ArrowRightIcon style={{ width: 30, height: 30 }} />
-                </button>
+                  <button
+                    className="common-button"
+                    style={{
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+                      background: 'rgba(255,255,255,0.5)',
+                      border: 'none',
+                      width: 45,
+                      height: 45,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                      outline: 'none',
+                      transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <ArrowRightIcon style={{ width: 30, height: 30 }} />
+                  </button>
+                </div>
               </>
             )}
             <img

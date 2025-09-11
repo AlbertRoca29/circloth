@@ -86,6 +86,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
     }
   setLoading(true);
   setProgress(0);
+    let success = false;
     try {
       const photoURLs = [];
       for (let i = 0; i < photoFiles.length; i++) {
@@ -126,27 +127,31 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
       setItemsToLocalStorage(user.id, updatedItems);
 
       // Notify parent component
-      onItemAdded(newItem);
-
-  setCategory("");
-  setSize("");
-  setSizeDetails("");
-  setItemStory("");
-  setColor("");
-  setBrand("");
-  setMaterial("");
-  setAdditionalInfo("");
-  setPhotoFiles([]);
-  setThumbnailIdx(0);
-  setOpen(false);
-      if (onItemAdded) onItemAdded();
+      onItemAdded && onItemAdded(newItem);
+      // mark success so we can close/reset after loading completes
+      success = true;
     } catch (error) {
       console.error("Error adding clothing item: ", error);
     } finally {
       setProgress(100);
       setTimeout(() => {
+        // stop loading and reset progress
         setLoading(false);
         setProgress(0);
+        // only clear/close form if the submission succeeded
+        if (success) {
+          setCategory("");
+          setSize("");
+          setSizeDetails("");
+          setItemStory("");
+          setColor("");
+          setBrand("");
+          setMaterial("");
+          setAdditionalInfo("");
+          setPhotoFiles([]);
+          setThumbnailIdx(0);
+          setOpen(false);
+        }
       }, 500);
     }
   }
@@ -211,7 +216,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
         sx={theme => ({
           position: 'fixed',
           top: '10dvh',
-          width: '90vw',
+          width: '94vw',
           height: '100%',
           zIndex: 1200,
           display: 'flex',
@@ -237,7 +242,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
           top: 0,
         }}>
         {/* Header */}
-        <div style={{
+  <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -257,7 +262,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 {t('add_item', 'Add Item')}
             </div>
             <button
-            onClick={() => setOpen(false)}
+            onClick={() => { if (!loading) setOpen(false); }}
             aria-label="Close add item view"
             style={{
                 position: 'absolute',
@@ -313,16 +318,16 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 borderRadius: 1.2,
                 border: category === cat.key ? `3px solid ${APP_GREEN}` : '1px solid #ddd',
                 background: category === cat.key ? '#e4f7e9ff' : '#fdfdfd',
-                width: '25vw',
-                aspectRatio: '1.35',
+                width: '26vw',
+                aspectRatio: '1.1',
                 fontFamily: 'Geist',
                 fontWeight: 150,
-                fontSize: 15,
+                fontSize: '0.1rem',
                 color: '#28720d',
                 '&:hover': { background: '#f3f3f3' },
               }}
             >
-              <span style={{ fontSize: 27, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
+              <span style={{ fontSize: 26, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
               <span style={{ fontSize: 11.5, fontWeight: category === cat.key ? 135 : 95, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
             </Button>
           </Grid>
@@ -398,7 +403,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
       <Typography sx={{
         fontWeight: 150,
         fontFamily: 'Geist',
-        fontSize: 16,
+        fontSize: 14,
         color: '#222',
         mb: 0.5,
         letterSpacing: 0.1,
@@ -513,9 +518,10 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              marginTop: '-10px',
               width: '100%',
               height: '100%',
-              fontSize: 40,
+              fontSize: 50,
               color: '#22c55e',
               opacity: 0.85,
               userSelect: 'none',
@@ -672,8 +678,10 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
     </Accordion>
 
     {loading ? (
-      <Box sx={{ width: '100%', height: 40 }}>
-        <ProgressBarButton progress={progress} />
+      <Box sx={{ width: '100%', height: 44 }}>
+        <ProgressBarButton progress={progress}>
+          {progress < 100 ? `${t('uploading') || 'Uploading'} ${progress}%` : t('finalizing') || 'Finalizing...'}
+        </ProgressBarButton>
       </Box>
     ) : (
       <Button

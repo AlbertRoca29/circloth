@@ -125,6 +125,13 @@ function App() {
     return () => { window.onItemListModalOpen = undefined; };
   }, []);
 
+  // Close AddItem form when switching to another tab
+  useEffect(() => {
+    if (activeTab !== 'clothes' && addItemOpen) {
+      setAddItemOpen(false);
+    }
+  }, [activeTab, addItemOpen]);
+
   // Track if Chats modal is open
   const [chatsModalOpen, setChatsModalOpen] = useState(false);
   // Track if any chat is unread
@@ -237,7 +244,7 @@ function App() {
                 Circloth
               </h1>
               <img
-                src={process.env.PUBLIC_URL + '/logo transparent.png'}
+                src={process.env.PUBLIC_URL + '/logo512.png'}
                 alt="Circloth Logo"
                 style={{ height: '2.5rem', marginLeft: '1vw', objectFit: 'contain', userSelect: 'none' }}
                 draggable={false}
