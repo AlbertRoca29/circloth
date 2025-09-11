@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="title desc">
+  <title id="title">Circloth logo</title>
+  <desc id="desc">Bright-green outer C with a square gap at the right, dark-green inner ring and matching stem; transparent background.</desc>
+
+  <!-- Parameters:
+       cx = 256 (centered horizontally)
+       cy = 244 (slightly up)
+       strokeW = 56 (shared thickness)
+       r_outer = 178
+       r_inner = 84
+       gapSquare centered at (cx + r_outer, cy) with size strokeW x strokeW
+  -->
+  <defs>
+    <!-- mask: everything visible except a square at the outer-right to form the gap -->
+    <mask id="mask-gap">
+      <rect width="100%" height="100%" fill="white"/>
+      <!-- square gap -->
+      <rect x="386" y="180" width="86" height="108" fill="black" />
+    </mask>
+  </defs>
+
+  <!-- Outer bright ring (stroke-only) -->
+  <circle cx="256" cy="234" r="172"
+          fill="none" stroke="#12E86A" stroke-width="56" stroke-linecap="butt"
+          mask="url(#mask-gap)"/>
+
+  <!-- Inner dark ring (stroke-only) -->
+  <circle cx="256" cy="234" r="78"
+          fill="none" stroke="#04683a" stroke-width="56" stroke-linecap="butt"/>
+
+  <!-- Stem (same thickness as stroke), centered horizontally -->
+  <rect x="228" y="324" width="56" height="172" rx="3" fill="#04683a"/>
+
+</svg>
