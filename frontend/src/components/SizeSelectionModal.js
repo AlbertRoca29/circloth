@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SIZE_OPTIONS, CATEGORIES } from '../constants/categories';
+import { getSizeOptions } from '../utils/general';
+import { CATEGORIES, SIZE_OPTIONS } from '../constants/categories';
 import { useTranslation } from 'react-i18next';
 import BACKEND_URL from '../config';
 import { FONT_FAMILY } from '../constants/theme';
@@ -7,6 +8,14 @@ import { FONT_FAMILY } from '../constants/theme';
 const SizeSelectionModal = ({ userId, onClose, onSave }) => {
   const { t } = useTranslation();
   const [selectedSizes, setSelectedSizes] = useState({});
+
+  const rawSizeOptions = getSizeOptions(t);
+  const sizeOptions = Object.fromEntries(
+      Object.entries(rawSizeOptions).map(([cat, opts]) => [
+      cat,
+      opts.map(opt => ({ key: opt, label: opt }))
+      ])
+  );
 
   useEffect(() => {
     const fetchPreferences = async () => {
@@ -98,12 +107,12 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
     },
     grid: {
       display: 'grid',
-      marginTop: '0.75vh',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 17vw))',
+      marginTop: '1.5vh',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 17.5vw))',
       gap: '10px',
     },
     button: {
-      padding: '10px',
+      padding: '9px',
       fontFamily: FONT_FAMILY,
       fontWeight: 100,
       border: '1px solid #ddd',
@@ -116,9 +125,9 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     buttonSelected: {
-      background: 'var(--primary-dark, #15803d)',
+      background: '#22c55e',
       color: '#fff',
-      borderColor: 'var(--primary-dark, #15803d)',
+      borderColor: '#22c55e',
       transform: 'scale(1.05)',
     },
     actions: {
@@ -147,11 +156,11 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
     },
     skipButton: {
       background: 'none',
-      border: '2px solid var(--primary-dark, #15803d)',
-      color: 'var(--primary-dark, #15803d)',
+      border: '2px solid  #22c55e',
+      color: ' #22c55e',
     },
     saveButton: {
-      background: 'var(--primary-dark, #15803d)',
+      background: '#22c55e',
       color: '#fff',
       border: 'none',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
@@ -174,15 +183,15 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
   // Style for select-all bubble
   const selectAllBubbleStyle = (allSelected) => ({
     display: 'inline-block',
-    width: 18,
-    height: 18,
+    width: 17,
+    height: 17,
     borderRadius: '50%',
-    border: `2px solid ${allSelected ? '#22c55e' : '#bbb'}`,
+    border: `1px solid ${allSelected ? '#22c55e' : '#bbb'}`,
     background: allSelected ? '#22c55e' : '#fff',
     marginLeft: 10,
     cursor: 'pointer',
     verticalAlign: 'middle',
-    boxShadow: allSelected ? '0 0 0 2px #22c55e33' : 'none',
+    boxShadow: allSelected ? '0 0 0 2px #22c55e' : 'none',
     transition: 'background 0.2s, border 0.2s',
   });
 
@@ -207,16 +216,16 @@ const SizeSelectionModal = ({ userId, onClose, onSave }) => {
                   />
                 </div>
                 <div style={modalStyles.grid}>
-                  {SIZE_OPTIONS[key].map((size) => (
+                  {sizeOptions[key].map((size) => (
                     <button
-                      key={size}
+                      key={size.key}
                       style={{
                         ...modalStyles.button,
-                        ...(selectedSizes[key]?.includes(size) ? modalStyles.buttonSelected : {}),
+                        ...(selectedSizes[key]?.includes(size.key) ? modalStyles.buttonSelected : {}),
                       }}
-                      onClick={() => handleSizeToggle(key, size)}
+                      onClick={() => handleSizeToggle(key, size.key)}
                     >
-                      {size}
+                      {size.label}
                     </button>
                   ))}
                 </div>

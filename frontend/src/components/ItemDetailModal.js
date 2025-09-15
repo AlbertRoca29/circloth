@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, CloseIcon } from "../utils/svg";
 import { useTranslation } from "react-i18next";
-import { getCategoryEmoji } from "../utils/general";
+import { CategoryIcon } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import "../styles/buttonStyles.css";
 
@@ -66,7 +66,7 @@ function ItemDetailModal({
         background: 'transparent',
         marginLeft: "0%",
         width: '100vw',
-        height: '72.5dvh',
+        height: '75.5dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -92,7 +92,7 @@ function ItemDetailModal({
         borderRadius: 10,
         boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
         padding: 0,
-        width: '94%',
+        width: '100%',
         height: '100%',
         overflow: 'hidden',
         display: 'flex',
@@ -337,7 +337,9 @@ function ItemDetailModal({
           {/* Category and emoji */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '1.15rem', fontWeight: 400, color: '#222' }}>
             <span style={{ fontSize: '0.95rem', color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
-            <span>{getCategoryEmoji(item.category)}</span>
+            {/* <span style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>
+                <CategoryIcon category={item.category} />
+            </span> */}
           </div>
           {/* Size */}
           {showSize && (

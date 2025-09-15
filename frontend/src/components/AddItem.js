@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { showToast } from "../utils/toast";
 import { storage } from "../utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getCategoryEmoji } from "../utils/general";
+import { getCategoryEmoji, CategoryIcon } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
 import { COLORS } from "../constants/theme";
@@ -166,8 +166,8 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             alignItems: 'center',
             justifyContent: 'center',
             position: 'fixed',
-            bottom: '20vh',
-            right: '15vw',
+            bottom: '18vh',
+            right: '17vw',
             textAlign: 'center',
             zIndex: 1000,
             width: 'auto',
@@ -176,9 +176,9 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
           <span
             style={{
               marginBottom: 4,
-              fontWeight: 150,
+              fontWeight: 175,
               color: '#15803ca8',
-              fontSize: 13,
+              fontSize: 13.5,
               width: '100%',
               textAlign: 'center',
               display: 'block',
@@ -188,13 +188,14 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
           </span>
           <button
             style={{
-              width: 60,
-              height: 60,
+              width: 62,
+              height: 62,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #22c55e 60%, #15803d 100%)',
               color: 'white',
               display: 'flex',
               justifyContent: 'center',
+              margin: 5,
               alignItems: 'center',
               boxShadow: '0 4px 10px 0 rgba(34,197,94,0.18), 0 1px 2px 0 rgba(0,0,0,0.08)',
               cursor: 'pointer',
@@ -321,14 +322,17 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 width: '26vw',
                 aspectRatio: '1.1',
                 fontFamily: 'Geist',
+                paddingTop: '10px',
                 fontWeight: 150,
                 fontSize: '0.1rem',
                 color: '#28720d',
                 '&:hover': { background: '#f3f3f3' },
               }}
             >
-              <span style={{ fontSize: 26, textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>{getCategoryEmoji(cat.key)}</span>
-              <span style={{ fontSize: 11.5, fontWeight: category === cat.key ? 135 : 95, color: '#555', marginTop: 1, lineHeight: 1.3, height: '46%' }}>{cat.label}</span>
+              <span style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8)' }}>
+                <CategoryIcon category={cat.key} />
+              </span>
+              <span style={{ fontSize: '0.65rem', fontWeight: category === cat.key ? 135 : 95, color: '#555', marginTop: '10px', lineHeight: 1.25, height: '46%' }}>{cat.label}</span>
             </Button>
           </Grid>
         ))}

@@ -429,9 +429,9 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
 
   if (chattingWith) {
     return (
-         <div style={{ position: 'fixed', top: '9%', width: '100%', height: '79vh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
+         <div style={{ position: 'fixed', top: '10%', width: '100%', height: '76dvh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
 
-  <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '96%', height: '90%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
+  <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '96%', height: '100%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
           {/* Name at the top */}
           <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
             <div style={{ fontWeight: 500, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'left' }}>
