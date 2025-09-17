@@ -59,7 +59,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
           zIndex: 200,
           padding: "0px 30%",
-          gap: "2.5vw",
+          gap: "3.5vw",
         }}
       >
         <TabButton

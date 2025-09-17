@@ -164,6 +164,10 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
 function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, currentUserId }) {
   const { t } = useTranslation();
 
+  // Count bubbles: big = their items, small = your items
+  const theirItemsCount = match?.theirItems?.length || 0;
+  const yourItemsCount = match?.yourItems?.length || 0;
+
   // Helper: render last message or New match! Now also renders time if present
   function renderLastMessage() {
     if (lastMessage && lastMessage.content) {
@@ -273,16 +277,17 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
       {/* Info column (right part) */}
       <div
         style={{
-          marginTop: "4vh",
+          marginTop: "22px",
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
-          minWidth: 0,
-          gap: 13,
+          minWidth: '30vw',
+          gap: 10,
           height: '100%',
-          padding: '2vh 0vh 1.5vh 1.5vw', // more padding, no left padding to keep close to image
+          padding: '1.5vh 0vh 0.5vh 1.5vw',
+          position: 'relative',
         }}
       >
         <div
@@ -290,14 +295,69 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
             fontWeight: 175,
             fontSize: '1.05rem',
             color: "#15803d",
-            letterSpacing: 0.1,
-            maxWidth: '100%',
+            letterSpacing: 0.2,
+            lineHeight: 1.7,
+            minWidth: '100%',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
           }}
         >
           {match.otherUser.name || match.otherUser.displayName}
+          {/* Bubbles: big (their items), small (your items), side by side, big overlaps small, much more to the right */}
+          {(theirItemsCount > 0 || yourItemsCount > 0) && (
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              right: '10vw',
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+            }}>
+              {/* Small bubble: your items */}
+              {yourItemsCount > 0 && (
+                <span style={{
+                  background: '#15803d',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  width: 18,
+                  height: 18,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 175,
+                  fontSize: 10,
+                  boxShadow: '0 1.5px 5px #0002',
+                  border: '2px solid #fff',
+                  zIndex: 20,
+                  marginRight: -30,
+                }}>{yourItemsCount}</span>
+              )}
+              {/* Big bubble: their items, overlaps small */}
+              {theirItemsCount > 0 && (
+                <span style={{
+                  background: '#22c55e',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  width: 25,
+                  height: 25,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 175,
+                  fontSize: 13,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0)',
+                  border: '2.5px solid #fff',
+                  zIndex: 30,
+                  marginLeft: -20,
+                }}>{theirItemsCount}</span>
+              )}
+            </span>
+          )}
         </div>
         <div style={{ width: '95%', borderBottom: '1.5px solid #e5e5e5', margin: '0px 0 0px 0' }} />
         <div

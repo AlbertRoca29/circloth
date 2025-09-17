@@ -362,8 +362,45 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
           {/* Main trade content: two ItemLists stacked vertically */}
           <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '12px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, background: '#f8f8f8', height: '100%' }}>
             {/* Their Items */}
-            <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, position: 'relative' }}>
               <span style={{ color: '#15803d', fontWeight: 400, fontSize: 15 }}>{t('their_items', 'Their items')}</span>
+              {/* Bubbles for total and liked items */}
+              {Array.isArray(viewingTrade.theirItems) && viewingTrade.theirItems.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'absolute', left: 110, top: '50%', transform: 'translateY(-50%)' }}>
+                  {/* Medium bubble: total items */}
+                  <div style={{
+                    background: '#22c55e',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: 32,
+                    height: 32,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 600,
+                    fontSize: 17,
+                    boxShadow: '0 2px 8px #0002',
+                    border: '2.5px solid #fff',
+                  }}>{viewingTrade.theirItems.length}</div>
+                  {/* Small bubble: liked items */}
+                  {viewingTrade.theirItems.filter(i => i.liked).length > 0 && (
+                    <div style={{
+                      background: '#15803d',
+                      color: '#fff',
+                      borderRadius: '50%',
+                      width: 18,
+                      height: 18,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 600,
+                      fontSize: 11,
+                      boxShadow: '0 1.5px 5px #0002',
+                      border: '2px solid #fff',
+                    }}>{viewingTrade.theirItems.filter(i => i.liked).length}</div>
+                  )}
+                </div>
+              )}
               <button
                 onClick={() => setviewingTheirProfile(viewingTrade.otherUser)}
                 style={{
@@ -447,8 +484,8 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                 x
             </button>
           </div>
-          {/* Button below name */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5' }}>
+          {/* Button below name with bubbles to the right (copied style from ChatMatchCard) */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5', position: 'relative' }}>
             <div
               onClick={() => handleViewTrade(chattingWith)}
               style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
@@ -456,6 +493,57 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               <HeartIcon style={{ marginRight: 6, verticalAlign: 'middle' }} />
               {t('look_at_the_trade', 'Look at the trade')}
             </div>
+            {/* Bubbles: big (their items), small (your items), side by side, big overlaps small, right of button, style matches ChatMatchCard */}
+            {(chattingWith?.theirItems?.length > 0 || chattingWith?.yourItems?.length > 0) && (
+              <span style={{
+                display: 'flex',
+                alignItems: 'center',
+                right: '10vw',
+                position: 'absolute',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+              }}>
+                {/* Small bubble: your items */}
+                {chattingWith?.yourItems?.length > 0 && (
+                  <span style={{
+                    background: '#15803d',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: 18,
+                    height: 18,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 175,
+                    fontSize: 10,
+                    boxShadow: '0 1.5px 5px #0002',
+                    border: '2px solid #fff',
+                    zIndex: 20,
+                    marginRight: -30,
+                  }}>{chattingWith.yourItems.length}</span>
+                )}
+                {/* Big bubble: their items, overlaps small */}
+                {chattingWith?.theirItems?.length > 0 && (
+                  <span style={{
+                    background: '#22c55e',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: 25,
+                    height: 25,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 175,
+                    fontSize: 13,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0)',
+                    border: '2.5px solid #fff',
+                    zIndex: 30,
+                    marginLeft: -20,
+                  }}>{chattingWith.theirItems.length}</span>
+                )}
+              </span>
+            )}
           </div>
           {/* Chat messages */}
           <div style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
