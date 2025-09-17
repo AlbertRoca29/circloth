@@ -36,7 +36,7 @@ export async function deleteItem(itemId, userId, contextId = null) {
 // Fetch user items (with cache/localStorage logic inside)
 // Optionally pass contextId for matching
 export async function fetchUserItems(userId, useLocalStorage = true, contextId = null) {
-  if (useLocalStorage) {
+  if (false) {
     const cachedItems = getItemsFromLocalStorage(userId, contextId);
     if (cachedItems && cachedItems.length > 0) {
       return { items: cachedItems };
@@ -45,9 +45,8 @@ export async function fetchUserItems(userId, useLocalStorage = true, contextId =
   const res = await fetch(`${BACKEND_URL}/items/${userId}`);
   if (!res.ok) throw new Error('Failed to fetch user items');
   const data = await res.json();
-  if (useLocalStorage) {
-    setItemsToLocalStorage(userId, data.items, contextId);
-  }
+  console.log('Fetched items from backend for user', userId, ':', data.items);
+  setItemsToLocalStorage(userId, data.items, contextId);
   return data;
 }
 

@@ -1,3 +1,4 @@
+import { use } from "react";
 import BACKEND_URL from "../config";
 import { getMatchesCacheFromLocalStorage, setMatchesCacheToLocalStorage, clearAllLocalStorage } from "../utils/localStorage";
 
@@ -12,11 +13,10 @@ export function getLastLikeFromLocalStorage(userId) {
 export function setLastLikeToLocalStorage(userId, timestamp) {
   localStorage.setItem("last_like_" + userId, timestamp.toString());
 }
-const ACTIONS_KEY_PREFIX = "user_actions_";
 
-// Get all actions for a user (array of {action, item_id, timestamp, user_id})
-export function getActionsFromLocalStorage(userId) {
-  const raw = localStorage.getItem(ACTIONS_KEY_PREFIX + userId);
+// Get liked items for a user (array of {id})
+export function getLikedItemsFromLocalStorage(userId) {
+  const raw = localStorage.getItem("liked_items_" + userId);
   if (!raw) return [];
   try {
     const arr = JSON.parse(raw);
@@ -27,66 +27,26 @@ export function getActionsFromLocalStorage(userId) {
   }
 }
 
-// Save all actions for a user (array of {action, item_id, timestamp, user_id})
-export function setActionsToLocalStorage(userId, actionsArr) {
-  if (!Array.isArray(actionsArr)) return;
-  localStorage.setItem(ACTIONS_KEY_PREFIX + userId, JSON.stringify(actionsArr));
+// Save liked items for a user (array of {id})
+export function setLikedItemsToLocalStorage(userId, likedArr) {
+  if (!Array.isArray(likedArr)) return;
+  localStorage.setItem("liked_items_" + userId, JSON.stringify(likedArr));
 }
 
-// Add or update a single action (by item_id) for a user
-export function upsertActionToLocalStorage(userId, actionObj) {
-  if (!actionObj || !actionObj.item_id) return;
-  let actions = getActionsFromLocalStorage(userId);
-  const idx = actions.findIndex(a => a.item_id === actionObj.item_id);
-  if (idx !== -1) {
-    actions[idx] = actionObj;
-  } else {
-    actions.push(actionObj);
-  }
-  setActionsToLocalStorage(userId, actions);
-}
-
-// Remove all actions for a user
-export function clearActionsFromLocalStorage(userId) {
-  localStorage.removeItem(ACTIONS_KEY_PREFIX + userId);
-}
-
-// Get liked items for a user (array of item_id)
-export function getLikedItemsFromLocalStorage(userId) {
-  const actions = getActionsFromLocalStorage(userId);
-  return actions.filter(a => a.action === "like").map(a => ({ id: a.item_id }));
-}
-
-
-// Fetch user actions (with cache/localStorage logic inside)
-export async function fetchUserActions(userId, useLocalStorage = false) {
-  if (useLocalStorage) {
-    const cachedActions = getActionsFromLocalStorage(userId);
-    if (cachedActions && cachedActions.length > 0) {
-      return cachedActions;
-    }
-  }
-  const res = await fetch(`${BACKEND_URL}/actions/${userId}`);
-  if (!res.ok) throw new Error('Failed to fetch user actions');
-  const data = await res.json();
-  if (useLocalStorage && Array.isArray(data.actions)) {
-    setActionsToLocalStorage(userId, data.actions);
-  }
-  return data.actions;
-}
-
-// Sync actions with DB
-export async function syncActionsWithDB(userId) {
+export async function fetchUserLikes(userId) {
   try {
-    const response = await fetch(`${BACKEND_URL}/actions/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch actions from DB');
+    const response = await fetch(`${BACKEND_URL}/user/${userId}/actions`);
+    if (!response.ok) throw new Error('Failed to fetch user actions');
     const data = await response.json();
-    const dbActions = Array.isArray(data.actions) ? data.actions : [];
-    setActionsToLocalStorage(userId, dbActions);
-    return dbActions;
+    // Only keep actions with action === 'like'
+    const liked = Array.isArray(data.actions)
+      ? data.actions.filter(a => a.action === 'like').map(a => ({ id: a.item_id }))
+      : [];
+    setLikedItemsToLocalStorage(userId, liked);
+    return liked;
   } catch (error) {
-    console.error('Error syncing actions with DB:', error);
-    return getActionsFromLocalStorage(userId);
+    console.error('Error fetching user likes:', error);
+    return getLikedItemsFromLocalStorage(userId);
   }
 }
 // Get next item to swipe/match
@@ -104,7 +64,7 @@ export async function fetchMatchItem(userId, filterBySize = false) {
   return data.item;
 }
 
-// Record user action on an item
+// Record user like/pass on an item
 export async function sendMatchAction(userId, itemId, action, itemData, otherUserId) {
   const now = new Date();
   const nowIso = now.toISOString();
@@ -122,29 +82,32 @@ export async function sendMatchAction(userId, itemId, action, itemData, otherUse
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to send action");
   }
-  // Save action to localStorage
-  const actionObj = { action, item_id: itemId, timestamp: nowIso, user_id: userId };
-  upsertActionToLocalStorage(userId, actionObj);
-  // Update matches cache in localStorage
+  // Update liked items in localStorage
+  let liked = getLikedItemsFromLocalStorage(userId);
+  if (action === "like") {
+    if (!liked.some(i => i.id === itemId)) {
+      liked.push({ id: itemId });
+      setLikedItemsToLocalStorage(userId, liked);
+    }
+  } else if (action === "pass") {
+    liked = liked.filter(i => i.id !== itemId);
+    setLikedItemsToLocalStorage(userId, liked);
+  }
+  // Optionally update matches cache as before
   let cache = getMatchesCacheFromLocalStorage(userId) || { matches: [], lastFetch: nowMs };
   let updated = false;
   if (action === "pass") {
-    // Remove item from matches if present
     const before = cache.matches.length;
     cache.matches = cache.matches.filter(m => m.theirItem && m.theirItem.id !== itemId);
     if (cache.matches.length !== before) {
       updated = true;
     }
   } else if (action === "like" && itemData && otherUserId && otherUserId !== userId) {
-    // Find a match with otherUser.id === otherUserId
     const existingMatch = cache.matches.find(m => m.otherUser && m.otherUser.id === otherUserId);
     if (existingMatch) {
-      // Clone the match, but replace theirItem with itemData
       const newMatch = { ...existingMatch, theirItem: itemData };
       cache.matches.push(newMatch);
       updated = true;
-    } else {
-      setLastLikeToLocalStorage(userId, nowMs);
     }
   }
   if (updated) {
@@ -152,7 +115,6 @@ export async function sendMatchAction(userId, itemId, action, itemData, otherUse
     setMatchesCacheToLocalStorage(userId, cache);
     console.debug('[matches-cache] Updated matches cache after action:', cache);
   }
-  // Update lastAction timestamp in matches cache (for cache logic)
   if (cache) {
     cache.lastAction = nowIso;
     setMatchesCacheToLocalStorage(userId, cache);
@@ -167,9 +129,17 @@ export async function fetchMatches(userId) {
   // Throttle if less than 30s since last fetch
   if (now - lastFetch < 30 * 1000) {
     const lastLike = getLastLikeFromLocalStorage(userId);
-    if (lastLike < lastFetch || lastLike === null) {
+    if (lastLike < lastFetch || lastLike === null || now - lastFetch < 5 * 60 * 1000) {
         const cache = getMatchesCacheFromLocalStorage(userId);
         if (cache && Array.isArray(cache.matches) && cache.matches.length > 0) {
+          console.log('[matches-cache] Returning cached matches:', cache.matches);
+          // Update liked items in localStorage from cache for both users
+          cache.matches.forEach(m => {
+            if (m.otherUser && m.otherUser.id) {
+              fetchLikedItems(userId, m.otherUser.id, true).catch(() => {});
+              fetchLikedItems(m.otherUser.id, userId, true).catch(() => {});
+            }
+          });
           return cache.matches;
         } else {
           return [];
@@ -186,14 +156,22 @@ export async function fetchMatches(userId) {
   // Update matches cache in localStorage
   if (Array.isArray(data.matches)) {
     const cacheObj = { matches: data.matches, lastFetch: now };
+    console.log('[matches-cache] Fetched new matches from backend:', data.matches);
     setMatchesCacheToLocalStorage(userId, cacheObj);
+    data.matches.forEach(m => {
+      if (m.otherUser && m.otherUser.id) {
+        fetchLikedItems(userId, m.otherUser.id, false).catch(() => {});
+        fetchLikedItems(m.otherUser.id, userId, false).catch(() => {});
+      }
+    });
   } else {
     console.log('[matches-cache] No matches array in backend response:', data);
   }
   return data.matches || [];
 }
 
-// Fetch all items of profileUserId liked by visitorUserId (efficient, single call, with cache)
+
+// Fetch all items of profileUserId liked by visitorUserId (with cache)
 export async function fetchLikedItems(profileUserId, visitorUserId, useLocalStorage = false) {
   if (useLocalStorage) {
     const liked = getLikedItemsFromLocalStorage(visitorUserId);
@@ -201,63 +179,49 @@ export async function fetchLikedItems(profileUserId, visitorUserId, useLocalStor
       return liked;
     }
   }
-  const res = await fetch(`${BACKEND_URL}/user/${visitorUserId}/liked_items/${profileUserId}`);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "Failed to fetch liked items");
-  }
-  const { liked_items } = await res.json();
-  if (useLocalStorage && Array.isArray(liked_items)) {
-    // Merge liked items into localStorage actions (set action: 'like')
-    let actions = getActionsFromLocalStorage(visitorUserId);
-    const now = new Date().toISOString();
-    liked_items.forEach(item => {
-      const idx = actions.findIndex(a => a.item_id === item.id);
-      if (idx !== -1) {
-        actions[idx].action = "like";
-        actions[idx].timestamp = now;
-      } else {
-        actions.push({ action: "like", item_id: item.id, timestamp: now, user_id: visitorUserId });
-      }
-    });
-    setActionsToLocalStorage(visitorUserId, actions);
-  }
-  return liked_items || [];
+  // Always call /user/{visitorUserId}/actions endpoint to sync likes
+  await fetchUserLikes(visitorUserId);
+  // Now get liked items from localStorage
+  const liked = getLikedItemsFromLocalStorage(visitorUserId);
+  console.log(liked)
+  return liked;
 }
 
-// Cached matches logic
+
+// Cached matches logic (no actions, only likes)
 export async function getCachedOrFreshMatches(userId) {
   const cache = getMatchesCacheFromLocalStorage(userId);
-  const actionsArr = getActionsFromLocalStorage(userId);
-  // Find latest action timestamp
-  let latestActionTs = null;
-  actionsArr.forEach(action => {
-    if (!latestActionTs || (action.timestamp && action.timestamp > latestActionTs)) {
-      latestActionTs = action.timestamp;
-    }
-  });
   const now = Date.now();
   if (
     cache &&
     Array.isArray(cache.matches) &&
     cache.lastFetched &&
-    cache.lastAction !== undefined &&
-    latestActionTs === cache.lastAction &&
     now - cache.lastFetched < 3 * 60 * 1000
   ) {
+    // Update liked items in localStorage from cache for both users
+    fetchLikedItems(userId, userId, true).catch(() => {});
+    cache.matches.forEach(m => {
+      if (m.otherUser && m.otherUser.id) {
+        fetchLikedItems(m.otherUser.id, userId, true).catch(() => {});
+      }
+    });
     return cache.matches;
   }
   // Try to fetch new matches, but only if 30s have passed
   const matches = await fetchMatches(userId);
-  // if (matches === null) {
-  //   // Throttled, return cache if available
-  //   return cache && Array.isArray(cache.matches) ? cache.matches : [];
-  // }
   setMatchesCacheToLocalStorage(userId, {
     matches: Array.isArray(matches) ? matches : [],
-    lastFetched: now,
-    lastAction: latestActionTs !== undefined ? latestActionTs : null
+    lastFetched: now
   });
+  // Update liked items in localStorage after matches update for both users
+  fetchLikedItems(userId, userId, false).catch(() => {});
+  if (Array.isArray(matches)) {
+    matches.forEach(m => {
+      if (m.otherUser && m.otherUser.id) {
+        fetchLikedItems(m.otherUser.id, userId, false).catch(() => {});
+      }
+    });
+  }
   return Array.isArray(matches) ? matches : [];
 }
 

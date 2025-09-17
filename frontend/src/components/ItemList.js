@@ -6,7 +6,7 @@ import { ref, deleteObject } from "firebase/storage";
 import ItemDetailModal from "./ItemDetailModal";
 import LoadingSpinner from "./LoadingSpinner";
 import { fetchUserItems, syncItemsWithDB, deleteItem } from '../api/itemApi';
-import { fetchUserActions, syncActionsWithDB } from '../api/matchApi';
+// import { syncActionsWithDB } from '../api/matchApi';
 import { sendMatchAction, fetchLikedItems } from "../api/matchApi";
 import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
@@ -88,7 +88,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   const [menuOpenId, setMenuOpenId] = useState(null); // For dropdown menu
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [menuItem, setMenuItem] = useState(null);
-  const [userActions, setUserActions] = useState({});
+  const [userLikes, setUserLikes] = useState({});
 
   // Disable body scroll when ItemDetailModal is open
   useEffect(() => {
@@ -117,11 +117,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
     if (matching) {
       fetchLikedItems(user.id, from_user_matching.id, useLocalStorage)
         .then(likedItems => {
-          const actionsMap = {};
+          const likesMap = {};
           likedItems.forEach(item => {
-            actionsMap[item.id] = true;
+            likesMap[item.id] = true;
           });
-          setUserActions(actionsMap);
+          setUserLikes(likesMap);
         })
         .catch(err => {
           console.error("Error fetching liked items", err);
@@ -134,9 +134,8 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
       const syncData = async () => {
         const contextId = matching && from_user_matching ? from_user_matching.id : null;
         await syncItemsWithDB(user.id, contextId);
-
         if (matching) {
-          await syncActionsWithDB(user.id);
+          await fetchLikedItems(user.id, from_user_matching.id, false);
         }
       };
       syncData();
@@ -178,11 +177,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
           const res = await deleteItem(item.id, user.id);
           if (!res.ok) throw new Error("Failed to delete item");
           setItems(items => items.filter(i => i.id !== item.id));
-          // Update cached actions
-          setUserActions((prev) => {
-            const updatedActions = { ...prev };
-            delete updatedActions[item.id];
-            return updatedActions;
+          // Update cached likes
+          setUserLikes((prev) => {
+            const updatedLikes = { ...prev };
+            delete updatedLikes[item.id];
+            return updatedLikes;
           });
         } catch (err) {
           console.error("Error deleting item", err);
@@ -194,7 +193,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   };
 
   const userLiked = (itemId) => {
-    return userActions[itemId] === true;
+    return userLikes[itemId] === true;
   };
 
   // Update handleAction to use custom confirmation dialog
@@ -235,15 +234,19 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   const doAction = async (item, action) => {
     try {
       await sendMatchAction(from_user_matching.id, item.id, action, item, item.ownerId);
-      setUserActions((prev) => {
-        const updatedActions = { ...prev, [item.id]: action === "like" ? !prev[item.id] : false };
-        return updatedActions;
+      setUserLikes((prev) => {
+        const updated = { ...prev };
+        if (action === "like") {
+          updated[item.id] = true;
+        } else if (action === "pass") {
+          delete updated[item.id];
+        }
+        return updated;
       });
     } catch (e) {
       console.error("Error performing action", e);
     }
   };
-
   const sortedItems = [...items].sort((a, b) => {
     const aLiked = userLiked(b.id) ? 1 : 0;
     const bLiked = userLiked(a.id) ? 1 : 0;
@@ -254,7 +257,6 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   }
 
   const filteredItems = sortedItems.filter(item => !(matching && buttons!=='like_pass' && !userLiked(item.id)));
-
   // Limit items if maxItems is set and not expanded
   const itemsToShow = (maxItems && !expanded) ? filteredItems.slice(0, maxItems) : filteredItems;
 
@@ -478,7 +480,9 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
           ))}
         </div>
         {/* Expand/collapse button if maxItems is set and there are more items */}
-        {maxItems && filteredItems.length > maxItems && (
+        {maxItems && ((only_likes
+          ? filteredItems.filter(item => userLiked(item.id)).length
+          : filteredItems.length) > maxItems) && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
             <button
               onClick={onExpand}

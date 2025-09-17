@@ -26,7 +26,6 @@ class FirestoreDB:
 
         # Fetch all items once for lookup
         all_items = {i.id: i.to_dict() for i in self.db.collection("items").stream()}
-
         # Process actions and items
         my_items = {item["id"]: item for item in self.list_user_items(user_id)}
         my_item_ids = set(my_items.keys())

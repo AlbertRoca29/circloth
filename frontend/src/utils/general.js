@@ -1,7 +1,7 @@
 import { CATEGORY_EMOJI } from '../constants/categories';
 import { SIZE_OPTIONS } from '../constants/categories';
 import { fetchUserItems, syncItemsWithDB } from "../api/itemApi";
-import { fetchUserActions, syncActionsWithDB } from "../api/matchApi";
+import { syncActionsWithDB } from "../api/matchApi";
 import React from 'react';
 
 

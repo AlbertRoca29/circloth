@@ -216,23 +216,32 @@ function App() {
       )}
       {/* Header - fixed, outside main-container */}
   {!itemListModalOpen && !chatsModalOpen && (
-        <div>
-          <div style={{
-            position: "fixed",
-            top: 0,
-            left: "50vw",
-            transform: "translateX(-50%)",
-            width: "100%",
-            background: "var(--primary-light)",
-            boxShadow: "0 8px 19px var(--shadow)",
-            padding: "2.25vh 0 1.45vh 0",
-            zIndex: 500,
-            margin: "0",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div>
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: "50vw",
+        transform: "translateX(-50%)",
+        width: "100%",
+        background: activeTab === "matching" ? "transparent" : "var(--primary-light)",
+        boxShadow: "0 8px 19px var(--shadow)",
+        padding: "2.25vh 0 1.45vh 0",
+        zIndex: 500,
+        margin: "0",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {activeTab === 'matching' ? (
+            <img
+              src={process.env.PUBLIC_URL + '/logo512.png'}
+              alt="Circloth Logo"
+              style={{ height: '2.5rem', marginLeft: '5vw', objectFit: 'contain', userSelect: 'none' }}
+              draggable={false}
+            />
+          ) : (
+            <>
               <h1 style={{
                 color: "var(--primary-dark, #15803d)",
                 fontWeight: 600,
@@ -249,90 +258,92 @@ function App() {
                 style={{ height: '2.5rem', marginLeft: '1vw', objectFit: 'contain', userSelect: 'none' }}
                 draggable={false}
               />
-            </div>
-            <div style={{ position: "relative" }}>
+            </>
+          )}
+        </div>
+        <div style={{ position: "relative" }}>
+          <button
+            ref={menuButtonRef}
+            title="Menu"
+            onClick={e => { e.stopPropagation(); setMenuOpen(prev => !prev); }}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              marginRight: "10vw",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center"
+            }}
+          >
+            <MenuIcon />
+          </button>
+          {menuOpen && (
+            <div
+              ref={menuRef}
+              style={{
+                position: "absolute",
+                top: 36,
+                right: '5vw',
+                background: "#fff",
+                border: "1px solid var(--primary-dark, #15803d)",
+                borderRadius: 9,
+                boxShadow: "0 4px 16px rgba(34,197,94,0.13)",
+                padding: 10,
+                zIndex: 100,
+                width: '160px',
+                display: "flex",
+                flexDirection: "column",
+                gap: 8
+              }}
+            >
+              {/* User Info */}
+              <div style={{ marginBottom: 5 }}>
+                <div style={{ fontSize: '0.9rem', color: "#333", fontWeight: 150 }}>{appUser?.name || "User"}</div>
+                <div style={{ fontSize: '0.75rem', color: "#9b9b9bff", fontFamily: 'Geist Mono', fontWeight: 400 }}>
+                  {(() => {
+                    const email = appUser?.email || "user@example.com";
+                    const maxLen = 20;
+                    return email.length > maxLen ? email.slice(0, maxLen) + '...' : email;
+                  })()}
+                </div>
+              </div>
+              {/* Language Switcher - custom dropdown */}
+              <LanguageSwitcher
+                position="relative"
+                top={0}
+                right={0}
+                zIndex={200}
+                dropdownStyle={{ minWidth: "150px" }}
+                buttonStyle={{ fontSize: "0.82rem" }}
+                displayFullLanguageName={true}
+                appUser={appUser}
+              />
+              {/* Logout Button */}
               <button
-                ref={menuButtonRef}
-                title="Menu"
-                onClick={e => { e.stopPropagation(); setMenuOpen(prev => !prev); }}
+                onClick={() => {
+                  logOut();
+                  setMenuOpen(false);
+                }}
                 style={{
-                  background: "none",
+                  background: "var(--danger, #e11d48)",
+                  color: "#fff",
                   border: "none",
-                  padding: 0,
-                  marginRight: "10vw",
+                  borderRadius: 6,
+                  padding: "8px 12px",
+                  fontWeight: 600,
                   cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center"
+                  marginTop: 8
                 }}
               >
-                <MenuIcon />
+                {t('logout')}
               </button>
-              {menuOpen && (
-                <div
-                  ref={menuRef}
-                  style={{
-                    position: "absolute",
-                    top: 36,
-                    right: '5vw',
-                    background: "#fff",
-                    border: "1px solid var(--primary-dark, #15803d)",
-                    borderRadius: 9,
-                    boxShadow: "0 4px 16px rgba(34,197,94,0.13)",
-                    padding: 10,
-                    zIndex: 100,
-                    width: '160px',
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8
-                  }}
-                >
-                  {/* User Info */}
-                  <div style={{ marginBottom: 5 }}>
-                    <div style={{ fontSize: '0.9rem', color: "#333", fontWeight: 150 }}>{appUser?.name || "User"}</div>
-                    <div style={{ fontSize: '0.75rem', color: "#9b9b9bff", fontFamily: 'Geist Mono', fontWeight: 400 }}>
-                      {(() => {
-                        const email = appUser?.email || "user@example.com";
-                        const maxLen = 20;
-                        return email.length > maxLen ? email.slice(0, maxLen) + '...' : email;
-                      })()}
-                    </div>
-                  </div>
-                  {/* Language Switcher - custom dropdown */}
-                  <LanguageSwitcher
-                    position="relative"
-                    top={0}
-                    right={0}
-                    zIndex={200}
-                    dropdownStyle={{ minWidth: "150px" }}
-                    buttonStyle={{ fontSize: "0.82rem" }}
-                    displayFullLanguageName={true}
-                    appUser={appUser}
-                  />
-                  {/* Logout Button */}
-                  <button
-                    onClick={() => {
-                      logOut();
-                      setMenuOpen(false);
-                    }}
-                    style={{
-                      background: "var(--danger, #e11d48)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: 6,
-                      padding: "8px 12px",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      marginTop: 8
-                    }}
-                  >
-                    {t('logout')}
-                  </button>
-                </div>
-              )}
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
+    </div>
+  )}
 
       {/* Floating AddItem Button */}
       {!itemListModalOpen && !chatsModalOpen && activeTab === "clothes" && (
@@ -346,47 +357,58 @@ function App() {
         </div>
       )}
 
-      {/* Main content container, with margin for header and tabs */}
-      <div style={{
-            display: "flex",
-            flexDirection: "column",
-            position: "relative",
-            fontWeight: 100,
-            width: "100%",
-            boxSizing: "border-box",
-            background: "none",
-            fontFamily: 'Geist',
-            transition: "transform 0.1s",
-        }}>
-
-        {/* Scrollable content */}
-        {activeTab === "clothes" && !addItemOpen && (
-          <>
-            {
-              <ItemList
-                user={appUser}
-                refreshSignal={refreshItems}
-                onModalOpenChange={(open) => {setItemListModalOpen(open);}}
-              />
-            }
-          </>
-        )}
-        {activeTab === "matching" && (
-          <>
-            <Matching user={appUser} />
-          </>
-        )}
-        {activeTab === "chats" && (
-          <React.Suspense fallback={<div className="card">Loading chats...</div>}>
-            <Chats
+      {/* Main content container, flex column, scrollable middle */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "70dvh",
+          width: "100%",
+          fontFamily: 'Geist',
+          fontWeight: 100,
+          background: "none",
+          boxSizing: "border-box",
+          transition: "transform 0.1s",
+        }}
+      >
+        {/* Spacer for fixed header (height: ~64px) */}
+        <div style={{ height: '0px', flexShrink: 0 }} />
+        {/* Scrollable content area */}
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: 'auto',
+            width: '100%',
+            paddingBottom: '80px', // space for tabs
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+          }}
+        >
+          {activeTab === "clothes" && !addItemOpen && (
+            <ItemList
               user={appUser}
-              onModalOpenChange={setChatsModalOpen}
-              onUnreadChange={setHasUnreadChats}
-              refreshUnread={refreshUnread}
-              onChatClose={() => setRefreshUnread(r => r + 1)}
+              refreshSignal={refreshItems}
+              onModalOpenChange={(open) => { setItemListModalOpen(open); }}
             />
-          </React.Suspense>
-        )}
+          )}
+          {activeTab === "matching" && (
+            <Matching user={appUser} />
+          )}
+          {activeTab === "chats" && (
+            <React.Suspense fallback={<div className="card">Loading chats...</div>}>
+              <Chats
+                user={appUser}
+                onModalOpenChange={setChatsModalOpen}
+                onUnreadChange={setHasUnreadChats}
+                refreshUnread={refreshUnread}
+                onChatClose={() => setRefreshUnread(r => r + 1)}
+              />
+            </React.Suspense>
+          )}
+        </div>
       </div>
 
 

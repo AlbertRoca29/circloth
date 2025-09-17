@@ -429,7 +429,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
 
   if (chattingWith) {
     return (
-         <div style={{ position: 'fixed', top: '10%', width: '100%', height: '76dvh', zIndex: 10, background: 'transparent', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist' }}>
+         <div style={{ position: 'fixed', top: '10%', width: '100%', height: '76dvh', zIndex: 10, background: 'transparent', overflow: 'overlap', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', margin:'0px' }}>
 
   <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '96%', height: '100%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
           {/* Name at the top */}

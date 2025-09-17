@@ -10,6 +10,7 @@ import SizeSelectionModal from "../components/SizeSelectionModal";
 import "../styles/buttonStyles.css";
 
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
+import { SettingsIcon } from '../utils/svg';
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -101,34 +102,66 @@ function Matching({ user, setHasLocation }) {
   };
 
   // Move hooks to top-level, before any early returns
-  const [swipeDir, setSwipeDir] = useState(null);
-  const [swipeAnim, setSwipeAnim] = useState(0); // px offset for animation
+//   const [swipeDir, setSwipeDir] = useState(null);
+//   const [swipeAnim, setSwipeAnim] = useState(0); // px offset for animation
+  const [swipeOffset, setSwipeOffset] = useState(0); // current drag offset
+
+  const handleSwiping = (eventData) => {
+    setSwipeOffset(eventData.deltaX); // follow finger horizontally
+  };
 
   const handleSwiped = (eventData) => {
     if (eventData.dir === "Right") {
-      setSwipeDir("right");
-      setSwipeAnim(300);
-      setTimeout(() => {
-        setSwipeAnim(0);
-        setSwipeDir(null);
+        setSwipeOffset(300); // animate out to right
+        setTimeout(() => {
+        setSwipeOffset(0);
         handleAction("like");
-      }, 200);
+        }, 200);
     } else if (eventData.dir === "Left") {
-      setSwipeDir("left");
-      setSwipeAnim(-300);
-      setTimeout(() => {
-        setSwipeAnim(0);
-        setSwipeDir(null);
+        setSwipeOffset(-300); // animate out to left
+        setTimeout(() => {
+        setSwipeOffset(0);
         handleAction("pass");
-      }, 200);
+        }, 200);
+    } else {
+        // reset if swipe wasn't strong enough
+        setSwipeOffset(0);
     }
-  };
+    };
+
+//   const handleSwiped = (eventData) => {
+//     if (eventData.dir === "Right") {
+//       setSwipeDir("right");
+//       setSwipeAnim(300);
+//       setTimeout(() => {
+//         setSwipeAnim(0);
+//         setSwipeDir(null);
+//         handleAction("like");
+//       }, 200);
+//     } else if (eventData.dir === "Left") {
+//       setSwipeDir("left");
+//       setSwipeAnim(-300);
+//       setTimeout(() => {
+//         setSwipeAnim(0);
+//         setSwipeDir(null);
+//         handleAction("pass");
+//       }, 200);
+//     }
+//   };
+
 
   const handlers = useSwipeable({
+    onSwiping: handleSwiping,
     onSwiped: handleSwiped,
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
   });
+
+//   const handlers = useSwipeable({
+//     onSwiped: handleSwiped,
+//     preventDefaultTouchmoveEvent: true,
+//     trackMouse: true,
+//   });
 
   if (showSpinner) return <LoadingSpinner />;
   const cardStyle = {
@@ -164,8 +197,10 @@ function Matching({ user, setHasLocation }) {
 
   // Tinder-style card effect
   const tinderCardStyle = {
-    transition: swipeDir ? 'transform 0.2s cubic-bezier(.68,-0.55,.27,1.55)' : 'transform 0.5s',
-    transform: `translateX(${swipeAnim}px) rotate(${swipeAnim/10}deg)`,
+    // transition: swipeDir ? 'transform 0.2s cubic-bezier(.68,-0.55,.27,1.55)' : 'transform 0.5s',
+    // transform: `translateX(${swipeAnim}px) rotate(${swipeAnim/10}deg)`,
+    transition: swipeOffset === 0 ? 'transform 0.3s ease' : 'none',
+    transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 10}deg)`,
     borderRadius: 18,
     margin: 'auto',
     padding: 0,
@@ -181,81 +216,73 @@ function Matching({ user, setHasLocation }) {
   return (
     <div>
       {/* Only show filter and edit size preferences if sizePreferences is not empty */}
-  <div style={{ margin: '9.5dvh 0 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
-          {sizePreferences && Object.keys(sizePreferences).length > 0 && (
-          <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
-            <span style={{ fontSize: '0.9rem', fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
-            <span style={{
-              position: 'relative',
-              display: 'inline-block',
-              width: 42,
-              height: 22,
-              verticalAlign: 'middle',
-            }}>
-              <input
-                type="checkbox"
-                checked={filterBySize}
-                style={{ opacity: 0, width: 0, height: 0 }}
-                onChange={e => setFilterBySize(e.target.checked)}
-              />
+  <div style={{ margin: '6dvh 0 0 0',  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
+    {sizePreferences && Object.keys(sizePreferences).length > 0 && (
+      <>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '2vw' }}>
+          <span style={{ fontSize: '0.9rem', fontFamily:'Geist', fontWeight:150, color: '#00721cbb' }}>{t('filter')}</span>
+          <span style={{
+            position: 'relative',
+            display: 'inline-block',
+            width: 42,
+            height: 22,
+            verticalAlign: 'middle',
+          }}>
+            <input
+              type="checkbox"
+              checked={filterBySize}
+              style={{ opacity: 0, width: 0, height: 0 }}
+              onChange={e => setFilterBySize(e.target.checked)}
+            />
+            <span
+              style={{
+                position: 'absolute',
+                cursor: 'pointer',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: filterBySize ? '#22c55e' : '#e5e7eb',
+                transition: 'background 0.2s',
+                borderRadius: 22,
+                pointerEvents: 'none',
+              }}
+            >
               <span
                 style={{
                   position: 'absolute',
-                  cursor: 'pointer',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: filterBySize ? '#22c55e' : '#e5e7eb',
-                  transition: 'background 0.2s',
-                  borderRadius: 22,
-                  pointerEvents: 'none',
+                  height: 17,
+                  width: 17,
+                  left: filterBySize ? 21 : 3,
+                  bottom: 2.5,
+                  background: '#fff',
+                  transition: 'transform 0.2s, left 0.2s',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 8px #22c55e22',
                 }}
-              >
-                <span
-                  style={{
-                    position: 'absolute',
-                    height: 17,
-                    width: 17,
-                    left: filterBySize ? 21 : 3,
-                    bottom: 2.5,
-                    background: '#fff',
-                    transition: 'transform 0.2s, left 0.2s',
-                    borderRadius: '50%',
-                    boxShadow: '0 2px 8px #22c55e22',
-                  }}
-                />
-              </span>
+              />
             </span>
-          </label>
-          )}
-          <button
-            onClick={() => setShowSizeSelection(true)}
-            style={{
-              background: '#22c55e',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 12,
-              padding: '6px 16px',
-              fontSize: '0.9rem',
-              fontFamily: 'Geist',
-              fontWeight: 100,
-              boxShadow: '0 2px 8px #22c55e22',
-              cursor: 'pointer',
-              transition: 'background 0.18s, box-shadow 0.18s, transform 0.12s',
-            }}
-            onMouseOver={e => {
-              e.currentTarget.style.background = '#16a34a';
-              e.currentTarget.style.boxShadow = '0 4px 16px #22c55e33';
-            }}
-            onMouseOut={e => {
-              e.currentTarget.style.background = '#22c55e';
-              e.currentTarget.style.boxShadow = '0 2px 8px #22c55e22';
-            }}
-          >
-            {t('edit_size_preferences')}
-          </button>
-        </div>
+          </span>
+        </label>
+        <button
+          onClick={() => setShowSizeSelection(true)}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            marginLeft: 8,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            boxShadow: 'none',
+          }}
+          title={t('edit_size_preferences')}
+        >
+          <SettingsIcon size={28} style={{ color: '#106831ff' }} />
+        </button>
+      </>
+    )}
+  </div>
 
       {showSizeSelection && (
         <SizeSelectionModal

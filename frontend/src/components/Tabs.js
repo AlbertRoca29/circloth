@@ -7,7 +7,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
   const messageRef = useRef(null);
 
 
-  const TabButton = ({ tab, label, icon, onClick, disabled }) => (
+  const TabButton = ({ tab, label, icon, onClick }) => (
     <button
       style={{
         position: "relative",
@@ -16,28 +16,26 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
         alignItems: "center",
         justifyContent: "center",
         background: tab === activeTab ? "linear-gradient(135deg, var(--primary), var(--primary-dark))" : "transparent",
-        color: tab === activeTab ? "#fff" : disabled ? "#94a3b8" : "var(--primary-dark, #15803d)",
+        color: tab === activeTab ? "#fff" : "var(--primary-dark, #15803d)",
         border: "none",
         borderRadius: "12px",
-        padding: "0.4rem 1rem",
+        padding: "0.9rem 0.6rem",
         fontSize: "0.85rem",
         fontWeight: tab === activeTab ? 150 : 100,
         fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif",
-        cursor: disabled ? "not-allowed" : "pointer",
-        transition: "background 0.18s, color 0.18s",
+        cursor: "pointer",
+        transition: "background 2.88s, color 2.88s",
         borderBottom: tab === activeTab ? "4px solid var(--accent, #bbf7d0)" : "4px solid transparent",
         letterSpacing: tab === activeTab ? "0.01em" : "0.02em",
-        boxShadow: tab === activeTab ? "0 4px 16px rgba(34, 197, 94, 0.13)" : "none",
-        opacity: disabled ? 0.6 : 1,
+        boxShadow: tab === activeTab ? "0 4px 1px rgba(34, 197, 94, 0)" : "none",
         minWidth: 0,
       }}
       onClick={onClick}
-      disabled={disabled}
     >
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 2 }}>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 0 }}>
         {icon}
       </div>
-      {t(label)}
+      {/* {t(label)} */}
     </button>
   );
 
@@ -50,7 +48,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           left: "50%",
           bottom: 2,
           transform: "translateX(-50%)",
-          width: "72vw",
+          width: "60%",
           height: 68,
           display: "flex",
           justifyContent: "space-around",
@@ -60,7 +58,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           backdropFilter: "blur(12px)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
           zIndex: 200,
-          padding: "0px 100px",
+          padding: "0px 30%",
           gap: "2.5vw",
         }}
       >
@@ -68,13 +66,13 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           tab="clothes"
           label="tab_clothes"
           onClick={() => setActiveTab("clothes")}
-          icon={<UserIcon />}
+          icon={<UserIcon  size={27} />}
         />
         <TabButton
           tab="matching"
           label="tab_matching"
           onClick={() => setActiveTab("matching")}
-          icon={<HeartIcon />}
+          icon={<HeartIcon size={27} />}
         />
         <TabButton
           tab="chats"
@@ -82,7 +80,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           onClick={() => setActiveTab("chats")}
           icon={
             <span style={{ position: "relative", display: "inline-block" }}>
-              <ChatIcon />
+              <ChatIcon size={27}/>
               {hasUnreadChats && (
                 <span style={{
                   position: "absolute",
