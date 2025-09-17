@@ -264,12 +264,13 @@ function Matching({ user, setHasLocation }) {
             </span>
           </span>
         </label>
-        <button
+        <div
           onClick={() => setShowSizeSelection(true)}
           style={{
-            background: 'none',
+            background: 'transparent',
             border: 'none',
             padding: 0,
+            zIndex: 10,
             marginLeft: 8,
             cursor: 'pointer',
             display: 'flex',
@@ -279,7 +280,7 @@ function Matching({ user, setHasLocation }) {
           title={t('edit_size_preferences')}
         >
           <SettingsIcon size={28} style={{ color: '#106831ff' }} />
-        </button>
+        </div>
       </>
     )}
   </div>

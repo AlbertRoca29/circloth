@@ -214,7 +214,6 @@ function App() {
       {showPWAPrompt && (
         <PWAPrompt onInstall={handleInstall} onClose={() => setShowPWAPrompt(false)} />
       )}
-      {/* Header - fixed, outside main-container */}
   {!itemListModalOpen && !chatsModalOpen && (
     <div>
       <div style={{
@@ -226,7 +225,7 @@ function App() {
         background: activeTab === "matching" ? "transparent" : "var(--primary-light)",
         boxShadow: "0 8px 19px var(--shadow)",
         padding: "2.25vh 0 1.45vh 0",
-        zIndex: 500,
+        zIndex: activeTab === "matching" ? 0 : 500,
         margin: "0",
         display: "flex",
         justifyContent: "space-between",
