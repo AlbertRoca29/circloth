@@ -11,7 +11,7 @@ import "../styles/buttonStyles.css";
 
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
 import { SettingsIcon } from '../utils/svg';
-import { ReactComponent as HeartIcon } from '../assets/heart.svg';
+import { ReactComponent as TickIcon } from '../assets/tick.svg';
 import { ReactComponent as CrossIcon } from '../assets/cross.svg';
 
 function Matching({ user, setHasLocation }) {
@@ -310,24 +310,24 @@ function Matching({ user, setHasLocation }) {
           matching={true}
           showNavigation={true}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10vw', marginBottom: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '12vw', marginBottom: 0 }}>
               <button
                 onClick={() => handleAction("pass")}
                 disabled={actionLoading}
                 className="common-button pass"
                 title="Pass"
-                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
+                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 60, height: 60, border: '3px solid #cf000e55', background: '#fff' }}
               >
-                <CrossIcon width={32} height={32} style={{ color: '#15803d' }} />
+                <CrossIcon width={38} height={38} style={{ color: '#15803d' }} />
               </button>
               <button
                 onClick={() => handleAction("like")}
                 disabled={actionLoading}
                 className="common-button like"
                 title="Like"
-                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
+                style={{ fontSize: '1.8rem', borderRadius: '50%', width: 60, height: 60, border: '3px solid #23cf0055', background: '#fff' }}
               >
-                <HeartIcon width={32} height={32} style={{ color: '#15803d' }} />
+                <TickIcon width={38} height={38} style={{ color: '#15803d' }} />
               </button>
             </div>
           }
