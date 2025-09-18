@@ -4,7 +4,6 @@ import { ReactComponent as ArrowRightIcon } from '../assets/arrow-right.svg';
 import { ReactComponent as ChevronRightIcon } from '../assets/chevron-right.svg';
 import { ReactComponent as CloseIcon } from '../assets/close.svg';
 import { useTranslation } from "react-i18next";
-import { CategoryIcon } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import "../styles/buttonStyles.css";
 

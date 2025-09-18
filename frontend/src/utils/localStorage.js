@@ -2,7 +2,6 @@
 export function clearAllLocalStorage() {
   localStorage.clear();
 }
-// Item storage
 
 // Accepts userId and optionally a contextId (e.g. for matching)
 export function getItemsFromLocalStorage(userId, contextId = null) {

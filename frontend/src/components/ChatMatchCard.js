@@ -1,7 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { getCategoryEmoji } from "../utils/general";
-import { height } from "@mui/system";
 
 // Extracted common image rendering logic
 function ItemImage({ item, alt, style, ...rest }) {

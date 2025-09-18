@@ -1,13 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState} from "react";
 import { useTranslation } from "react-i18next";
 import { auth, provider } from "../utils/firebase";
 import { signInWithPopup } from "firebase/auth";
-import LoadingSpinner from '../components/LoadingSpinner';
-import changeLanguage from '../utils/changeLanguage';
-import { ReactComponent as GlobeIcon } from '../assets/globe.svg';
-import { ReactComponent as ChevronDownIcon } from '../assets/chevron-down.svg';
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import { setItemsToLocalStorage } from '../utils/localStorage';
 import { fetchUserProfile, createUserProfile } from "../api/userApi";
 
 function LoginPage({ firebaseUser, setAppUser }) {

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { showToast } from "../utils/toast";
 import { storage } from "../utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getCategoryEmoji, CategoryIcon } from "../utils/general";
+import { CategoryIcon } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
 import { COLORS } from "../constants/theme";

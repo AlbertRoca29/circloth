@@ -7,10 +7,6 @@ import { fetchMatches } from "../api/matchApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
 import { ReactComponent as HeartIcon } from '../assets/heart.svg';
-import { ref } from "firebase/storage";
-// IoSend icon for send button
-
-
 
 
 function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
