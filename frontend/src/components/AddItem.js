@@ -10,7 +10,7 @@ import { CATEGORIES } from "../constants/categories";
 import { getSizeOptions } from "../utils/general";
 import { COLORS } from "../constants/theme";
 import Button from "@mui/material/Button";
-import { PlusIcon } from '../utils/svg';
+import { ReactComponent as PlusIcon } from '../assets/plus.svg';
 import ProgressBarButton from "./ProgressBarButton";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -208,7 +208,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             title={t('add_item')}
             aria-label={t('add_item') || 'Add Item'}
           >
-            <PlusIcon style={{ transform: 'scale(1.3)' }} />
+            <PlusIcon width={24} height={24} style={{ transform: 'scale(1.3)' }} />
           </button>
         </div>
       )}

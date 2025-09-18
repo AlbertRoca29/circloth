@@ -6,8 +6,7 @@ import ItemList from "../components/ItemList";
 import { fetchMatches } from "../api/matchApi";
 import LoadingSpinner from '../components/LoadingSpinner';
 import "../styles/buttonStyles.css";
-import { CloseIcon, BackIcon } from '../constants/icons';
-import { HeartIcon } from '../utils/svg';
+import { ReactComponent as HeartIcon } from '../assets/heart.svg';
 import { ref } from "firebase/storage";
 // IoSend icon for send button
 
@@ -491,7 +490,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               onClick={() => handleViewTrade(chattingWith)}
               style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
             >
-              <HeartIcon style={{ marginRight: 6, verticalAlign: 'middle' }} />
+              <HeartIcon width={22} height={22} style={{ marginRight: 6, verticalAlign: 'middle' }} />
               {t('look_at_the_trade', 'Look at the trade')}
             </div>
             {/* Bubbles: big (their items), small (your items), side by side, big overlaps small, right of button, style matches ChatMatchCard */}

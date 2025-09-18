@@ -1,5 +1,8 @@
 import React from "react";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, CloseIcon } from "../utils/svg";
+import { ReactComponent as ArrowLeftIcon } from '../assets/arrow-left.svg';
+import { ReactComponent as ArrowRightIcon } from '../assets/arrow-right.svg';
+import { ReactComponent as ChevronRightIcon } from '../assets/chevron-right.svg';
+import { ReactComponent as CloseIcon } from '../assets/close.svg';
 import { useTranslation } from "react-i18next";
 import { CategoryIcon } from "../utils/general";
 import { CATEGORIES } from "../constants/categories";
@@ -164,7 +167,7 @@ function ItemDetailModal({
             aria-label={t('close') || 'Close'}
             title={t('close') || 'Close'}
           >
-            <CloseIcon />
+            <CloseIcon width={18} height={18} />
           </button>
         )}
         {/* Image section, takes most of the card */}
@@ -256,7 +259,7 @@ function ItemDetailModal({
                     }}
                     aria-hidden="true"
                   >
-                    <ArrowLeftIcon style={{ width: 30, height: 30 }} />
+                    <ArrowLeftIcon width={30} height={30} />
                   </button>
                 </div>
                 <div
@@ -298,7 +301,7 @@ function ItemDetailModal({
                     }}
                     aria-hidden="true"
                   >
-                    <ArrowRightIcon style={{ width: 30, height: 30 }} />
+                    <ArrowRightIcon width={30} height={30} />
                   </button>
                 </div>
               </>
@@ -414,7 +417,7 @@ function ItemDetailModal({
                   marginLeft: 6,
                   marginBottom: 0,
                 }}>
-                  <ChevronRightIcon />
+                  <ChevronRightIcon width={18} height={18} />
                 </span>
               </div>
               {detailsOpen && (

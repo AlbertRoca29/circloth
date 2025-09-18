@@ -10,7 +10,7 @@ import SizeSelectionModal from "../components/SizeSelectionModal";
 import "../styles/buttonStyles.css";
 
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
-import { SettingsIcon } from '../utils/svg';
+import { ReactComponent as SettingsIcon } from '../assets/settings.svg';
 import { ReactComponent as TickIcon } from '../assets/tick.svg';
 import { ReactComponent as CrossIcon } from '../assets/cross.svg';
 
@@ -281,7 +281,7 @@ function Matching({ user, setHasLocation }) {
           }}
           title={t('edit_size_preferences')}
         >
-          <SettingsIcon size={28} style={{ color: '#106831ff' }} />
+          <SettingsIcon width={28} height={28} style={{ color: '#106831ff' }} />
         </div>
       </>
     )}

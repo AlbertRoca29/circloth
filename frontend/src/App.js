@@ -14,7 +14,7 @@ import Matching from "./pages/Matching";
 import "./styles/App.css";
 import BACKEND_URL from "./config";
 import Chats from "./pages/Chats";
-import { MenuIcon } from './utils/svg';
+import { ReactComponent as MenuIcon } from './assets/menu.svg';
 import SizeSelectionModal from "./components/SizeSelectionModal";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import { fetchUserItems } from "./api/itemApi";
@@ -276,7 +276,7 @@ function App() {
               alignItems: "center"
             }}
           >
-            <MenuIcon />
+            <MenuIcon width={28} height={28} />
           </button>
           {menuOpen && (
             <div

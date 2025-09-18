@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import { UserIcon, HeartIcon, ChatIcon } from '../utils/svg';
+import { ReactComponent as UserIcon } from '../assets/user.svg';
+import { ReactComponent as HeartIcon } from '../assets/heart.svg';
+import { ReactComponent as ChatIcon } from '../assets/chat.svg';
 import { useTranslation } from "react-i18next";
 
 function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
@@ -66,13 +68,13 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           tab="clothes"
           label="tab_clothes"
           onClick={() => setActiveTab("clothes")}
-          icon={<UserIcon  size={27} />}
+          icon={<UserIcon width={27} height={27} />}
         />
         <TabButton
           tab="matching"
           label="tab_matching"
           onClick={() => setActiveTab("matching")}
-          icon={<HeartIcon size={27} />}
+          icon={<HeartIcon width={27} height={27} />}
         />
         <TabButton
           tab="chats"
@@ -80,7 +82,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           onClick={() => setActiveTab("chats")}
           icon={
             <span style={{ position: "relative", display: "inline-block" }}>
-              <ChatIcon size={27}/>
+              <ChatIcon width={27} height={27}/>
               {hasUnreadChats && (
                 <span style={{
                   position: "absolute",

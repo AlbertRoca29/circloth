@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { GlobeIcon, ChevronDownIcon } from "../utils/svg";
+import { ReactComponent as GlobeIcon } from '../assets/globe.svg';
+import { ReactComponent as ChevronDownIcon } from '../assets/chevron-down.svg';
 import changeLanguage from "../utils/changeLanguage";
 
 function LanguageSwitcher({ position = "fixed", top = 22, right = 22, zIndex = 1000, dropdownStyle = {}, buttonStyle = {}, displayFullLanguageName = false, appUser = null }) {
@@ -59,13 +60,13 @@ function LanguageSwitcher({ position = "fixed", top = 22, right = 22, zIndex = 1
           transition: "box-shadow 0.18s, border 0.18s",
         }}
       >
-        <GlobeIcon />
+  <GlobeIcon width={20} height={20} />
         <span style={{ minWidth: 22, textAlign: "center" }}>
           {displayFullLanguageName
             ? languages.find((l) => l.code === i18n.language?.slice(0, 2))?.fullName || "Català"
             : languages.find((l) => l.code === i18n.language?.slice(0, 2))?.label || "CA"}
         </span>
-        <ChevronDownIcon style={{ transform: "scale(1.3)" }} />
+  <ChevronDownIcon width={13} height={13} style={{ transform: "scale(1.3)" }} />
       </div>
       {langDropdown && (
         <div
