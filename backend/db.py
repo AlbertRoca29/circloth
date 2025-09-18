@@ -6,6 +6,13 @@ from datetime import datetime
 
 
 class FirestoreDB:
+    def set_item_locked_for(self, item_id: str, locked_for: str):
+        """
+        Set or clear the 'locked_for' field for an item.
+        """
+        update = {"locked_for": locked_for}
+        self.update_item(item_id, update)
+
     def get_liked_items_of_profile_by_visitor(self, profile_user_id: str, visitor_user_id: str):
         """
         Returns all items of profile_user_id that were liked by visitor_user_id.

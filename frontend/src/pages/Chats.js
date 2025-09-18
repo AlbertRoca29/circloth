@@ -450,13 +450,14 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
             <ItemList
               user={{ ...user, items: viewingTrade.yourItems }}
               onModalOpenChange={() => {}}
-              buttons="none"
+              buttons="lock"
               matching={true}
               from_user_matching={viewingTrade.otherUser}
               maxItems={2}
               expanded={expandYours}
               onExpand={() => setExpandYours(e => !e)}
               useLocalStorage={true}
+              lockUserId={viewingTrade.otherUser?.id}
             />
           </div>
         </div>

@@ -65,3 +65,14 @@ export async function syncItemsWithDB(userId, contextId = null) {
   return getItemsFromLocalStorage(userId, contextId);
   }
 }
+
+// Lock/unlock item for a trade
+export async function lockItem(itemId, lockedFor) {
+  const res = await fetch(`${BACKEND_URL}/item/${itemId}/lock`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_id: itemId, user_id: lockedFor })
+  });
+  if (!res.ok) throw new Error('Failed to update lock');
+  return await res.json();
+}

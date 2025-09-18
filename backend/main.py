@@ -15,6 +15,7 @@ import firebase_admin
 from firebase_admin import credentials
 import google.auth
 
+
 from db import FirestoreDB
 from matching_service import get_available_items_for_user, handle_user_action
 from image_checks import check_image
@@ -41,6 +42,7 @@ db = FirestoreDB()
 # =========================
 # FastAPI App & CORS
 # =========================
+
 app = FastAPI()
 
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "https://www.circloth.com,https://circloth.com")
@@ -341,7 +343,12 @@ def update_chat_access(req: ChatAccessUpdateRequest):
     db.update_chat_last_access(req.user1, req.user2, req.user_id)
     return {"message_key": "LAST_ACCESS_UPDATED"}
 
-
+@app.post("/item/{item_id}/lock")
+def lock_item(item_id: str, payload: dict = Body(...)):
+    user_id = payload.get("user_id")
+    print("Locking item", item_id, "for user", user_id)
+    db.set_item_locked_for(item_id, user_id)
+    return {"message_key": "ITEM_LOCK_UPDATED"}
 
 
 # # --- Admin Endpoint: Delete passed_items field for a user ---

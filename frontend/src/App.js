@@ -243,11 +243,12 @@ function App() {
             <>
               <h1 style={{
                 color: "var(--primary-dark, #15803d)",
-                fontWeight: 400,
-                fontSize: "1.45rem",
+                fontWeight: 1900,
+                fontSize: "1.4rem",
                 margin: 0,
                 marginLeft: "5vw",
-                letterSpacing: "-0.01em"
+                fontFamily:"Geist Mono",
+                letterSpacing: "-0.03em"
               }}>
                 Circloth
               </h1>

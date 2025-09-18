@@ -5,11 +5,16 @@ import { storage } from "../utils/firebase";
 import { ref, deleteObject } from "firebase/storage";
 import ItemDetailModal from "./ItemDetailModal";
 import LoadingSpinner from "./LoadingSpinner";
-import { fetchUserItems, syncItemsWithDB, deleteItem } from '../api/itemApi';
+import { fetchUserItems, syncItemsWithDB, deleteItem, lockItem } from '../api/itemApi';
 // import { syncActionsWithDB } from '../api/matchApi';
 import { sendMatchAction, fetchLikedItems } from "../api/matchApi";
 import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
+import { ReactComponent as LockIcon } from '../assets/lock.svg';
+import { ReactComponent as UnlockIcon } from '../assets/unlock.svg';
+import { ReactComponent as HeartIcon } from '../assets/heart.svg';
+import { ReactComponent as CrossIcon } from '../assets/cross.svg';
+
 
 
 function DropdownMenu({ onEdit, onDelete, onClose, position }) {
@@ -71,10 +76,13 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
   maxItems = null,
   onExpand = null,
   expanded = false,
-  useLocalStorage = true
+  useLocalStorage = true,
+  lockUserId = null // The user id to lock for (other user in trade)
 }) {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
+  // Track locked state for each item (itemId: locked_for)
+  const [lockedItems, setLockedItems] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   // Notify parent when modal open state changes
   useEffect(() => {
@@ -105,12 +113,65 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
         const contextId = matching && from_user_matching ? from_user_matching.id : null;
         const data = await fetchUserItems(user.id, useLocalStorage, contextId);
         setItems(data.items);
+        // Extract locked_for info
+        const lockedMap = {};
+        data.items.forEach(item => {
+          if (item.locked_for) lockedMap[item.id] = item.locked_for;
+        });
+        setLockedItems(lockedMap);
       } catch (error) {
         console.error("Error fetching items:", error);
       }
     };
     fetchItems();
   }, [user.id, refreshSignal, matching, from_user_matching, useLocalStorage]);
+  // Persist locked state in localStorage
+  useEffect(() => {
+    if (useLocalStorage) {
+      localStorage.setItem(`lockedItems_${user.id}`, JSON.stringify(lockedItems));
+    }
+  }, [lockedItems, user.id, useLocalStorage]);
+
+  // Load locked state from localStorage on mount
+  useEffect(() => {
+    if (useLocalStorage) {
+      const stored = localStorage.getItem(`lockedItems_${user.id}`);
+      if (stored) {
+        try {
+          setLockedItems(JSON.parse(stored));
+        } catch {}
+      }
+    }
+  }, [user.id, useLocalStorage]);
+  // Lock/unlock handler
+  const handleLockToggle = async (item) => {
+    // If already locked for this user, unlock; else lock for lockUserId
+    const isLocked = lockedItems[item.id] === lockUserId;
+    let newLockedFor = null;
+    if (!isLocked) {
+      // Only allow one item locked at a time for this trade
+      const alreadyLocked = Object.entries(lockedItems).find(([id, val]) => val === lockUserId);
+      if (alreadyLocked) {
+        // Optionally show a message or unlock previous
+        setLockedItems(prev => ({ ...prev, [alreadyLocked[0]]: null }));
+        // Update backend for previous item
+        await updateItemLock(alreadyLocked[0], null);
+      }
+      newLockedFor = lockUserId;
+    }
+    setLockedItems(prev => ({ ...prev, [item.id]: newLockedFor }));
+    console.log('Locking item', item.id, 'for', newLockedFor);
+    await updateItemLock(item.id, newLockedFor);
+  };
+
+  // Placeholder for backend update
+  async function updateItemLock(itemId, lockedFor) {
+    try {
+      await lockItem(itemId, lockedFor);
+    } catch (e) {
+      console.error('Failed to update lock', e);
+    }
+  }
 
 
   useEffect(() => {
@@ -399,66 +460,69 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                 {/* Right: Actions */}
                 {buttons === "like_pass" ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {!userLiked(item.id) ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAction(item, "like");
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          fontSize: '1.2rem',
-                          color: '#ff004c',
-                          padding: 4,
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          transition: 'background .12s'
-                        }}
-                        title={t("like")}
-                      >
-                        ❤️
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAction(item, "pass");
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          fontSize: '1.15rem',
-                          color: '#bbb',
-                          padding: 4,
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          transition: 'background .12s'
-                        }}
-                        title={t("pass")}
-                      >
-                        ❌
-                      </button>
-                    )}
-                  </div>
-                ) : buttons === "edit_delete" && (
-                  <div style={{ position: 'relative', marginLeft: 8 }}>
+                    {/* Like button */}
                     <button
                       onClick={e => {
                         e.stopPropagation();
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setMenuPosition({
-                          top: rect.bottom + window.scrollY,
-                          left: rect.right - 120
-                        });
-                        setMenuOpenId(menuOpenId === item.id ? null : item.id);
-                        setMenuItem(item);
+                        handleAction(item, userLiked(item.id) ? "like" : "like");
                       }}
                       style={{
                         background: 'none',
                         border: 'none',
                         fontSize: '1.4rem',
-                        color: '#888',
+                        display: !userLiked(item.id) ? 'flex' : 'none',
+                        color: '#ff004c' ,
+                        padding: 4,
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        width: 32,
+                        height: 32,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background .12s'
+                      }}
+                      title={userLiked(item.id) ? t('remove_like_title') || 'Remove Like' : t('like') || 'Like'}
+                    >
+                      <HeartIcon width={22} height={22} style={{ color: '#15803d' }} />
+                    </button>
+                    {/* Pass button */}
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleAction(item, "pass");
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '1.4rem',
+                        display: userLiked(item.id) ? 'flex' : 'none',
+                        color: '#e00',
+                        padding: 4,
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        width: 32,
+                        height: 32,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background .12s'
+                      }}
+                      title={t('pass') || 'Pass'}
+                    >
+                      <CrossIcon width={22} height={22} style={{ color: '#15803d' }} />
+                    </button>
+                  </div>
+                ) : buttons === "lock" ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleLockToggle(item);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '1.4rem',
+                        color: lockedItems[item.id] === lockUserId ? '#bbb' : '#22c55e',
                         padding: 4,
                         borderRadius: 8,
                         cursor: 'pointer',
@@ -469,10 +533,18 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         justifyContent: 'center',
                         transition: 'background .12s'
                       }}
-                      title={t('options')}
+                      title={lockedItems[item.id] === lockUserId ? t('unlock') || 'Unlock' : t('lock') || 'Lock'}
                     >
-                      <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>⋮</span>
+                      {lockedItems[item.id] === lockUserId ? (
+                        <LockIcon width={22} height={22} />
+                      ) : (
+                        <UnlockIcon width={22} height={22} />
+                      )}
                     </button>
+                  </div>
+                ) : buttons === "edit_delete" && (
+                  <div style={{ position: 'relative', marginLeft: 8 }}>
+                    {/* ...existing code for edit/delete... */}
                   </div>
                 )}
               </div>

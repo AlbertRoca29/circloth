@@ -11,6 +11,8 @@ import "../styles/buttonStyles.css";
 
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
 import { SettingsIcon } from '../utils/svg';
+import { ReactComponent as HeartIcon } from '../assets/heart.svg';
+import { ReactComponent as CrossIcon } from '../assets/cross.svg';
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
@@ -316,7 +318,7 @@ function Matching({ user, setHasLocation }) {
                 title="Pass"
                 style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #e11d4822', background: '#fff' }}
               >
-                <span role="img" aria-label="pass">❌</span>
+                <CrossIcon width={32} height={32} style={{ color: '#15803d' }} />
               </button>
               <button
                 onClick={() => handleAction("like")}
@@ -325,7 +327,7 @@ function Matching({ user, setHasLocation }) {
                 title="Like"
                 style={{ fontSize: '1.8rem', borderRadius: '50%', width: 54, height: 54, boxShadow: '0 2px 8px #22c55e22', background: '#fff' }}
               >
-                <span role="img" aria-label="like">❤️</span>
+                <HeartIcon width={32} height={32} style={{ color: '#15803d' }} />
               </button>
             </div>
           }
