@@ -18,7 +18,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
         alignItems: "center",
         justifyContent: "center",
         background: tab === activeTab ? "linear-gradient(135deg, var(--primary), var(--primary-dark))" : "transparent",
-        color: tab === activeTab ? "#fff" : "var(--primary-dark, #15803d)",
+        color: tab === activeTab ? "var(--text)" : "var(--primary-dark)",
         border: "none",
         borderRadius: "12px",
         padding: "0.9rem 0.6rem",
@@ -27,9 +27,9 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
         fontFamily: "Geist, Geist Sans, Segoe UI, Arial, sans-serif",
         cursor: "pointer",
         transition: "background 2.88s, color 2.88s",
-        borderBottom: tab === activeTab ? "4px solid var(--accent, #bbf7d0)" : "4px solid transparent",
+        borderBottom: tab === activeTab ? "4px solid var(--accent)" : "4px solid transparent",
         letterSpacing: tab === activeTab ? "0.01em" : "0.02em",
-        boxShadow: tab === activeTab ? "0 4px 1px rgba(34, 197, 94, 0)" : "none",
+        boxShadow: tab === activeTab ? "0 4px 1px var(--shadow)" : "none",
         minWidth: 0,
       }}
       onClick={onClick}
@@ -56,12 +56,12 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
           justifyContent: "space-around",
           alignItems: "center",
           borderRadius: 20,
-          background: "rgba(255,255,255,0.92)",
+             background: "var(--glass-bg)",
           backdropFilter: "blur(12px)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
           zIndex: 200,
           padding: "0px 30%",
-          gap: "3.5vw",
+          gap: "3vw",
         }}
       >
         <TabButton
@@ -90,11 +90,11 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
                   right: -2,
                   width: 8,
                   height: 8,
-                  background: "#23e900ff",
+                  background: "var(--primary)",
                   borderRadius: "50%",
-                  border: "2px solid #fff",
+                  border: "2px solid var(--glass-bg)",
                   zIndex: 2,
-                  boxShadow: "0 0 2px #2de11dff"
+                  boxShadow: "0 0 2px var(--primary-dark)"
                 }} />
               )}
             </span>
@@ -107,7 +107,7 @@ function Tabs({ activeTab, setActiveTab, hasClothes=true, hasUnreadChats }) {
         ref={messageRef}
         style={{
           textAlign: "center",
-          color: "#e11d48",
+             color: "var(--danger)",
           fontWeight: 150,
           fontSize: "1rem",
           marginTop: 10,

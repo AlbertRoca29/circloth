@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { useTranslation } from "react-i18next";
-import { fetchMatchItem, sendMatchAction } from "../api/matchApi";
+import { fetchMatchItem, sendMatchAction, fetchMatches } from "../api/matchApi";
 import { fetchUserSizePreferences } from "../api/userApi";
 import { fetchUserItems } from "../api/itemApi";
 import ItemDetailModal from "../components/ItemDetailModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import SizeSelectionModal from "../components/SizeSelectionModal";
+import NewMatchModal from "../components/NewMatchModal";
 import "../styles/buttonStyles.css";
 
 import { getItemsFromLocalStorage, setItemsToLocalStorage } from '../utils/localStorage';
@@ -16,6 +17,9 @@ import { ReactComponent as CrossIcon } from '../assets/cross.svg';
 
 function Matching({ user, setHasLocation }) {
   const { t } = useTranslation();
+  // New match popup state (must be inside component)
+  const [showNewMatch, setShowNewMatch] = useState(false);
+  const [newMatchData, setNewMatchData] = useState(null);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(false);
@@ -91,10 +95,22 @@ function Matching({ user, setHasLocation }) {
   }, [user, filterBySize]);
 
   const handleAction = async (action) => {
-    if (!item) return;
+    if (!item || showNewMatch) return; // Block if popup is open
     setActionLoading(true);
     try {
       await sendMatchAction(user.uid, item.id, action, item, item.ownerId);
+      if (action === "like") {
+        // Check for new match
+        const matches = await fetchMatches(user.uid);
+        // Find the most recent match involving this item and the other user
+        const found = matches.find(m => m.theirItem && m.theirItem.id === item.id && m.otherUser && m.otherUser.id === item.ownerId);
+        if (found) {
+          setNewMatchData(found);
+          setShowNewMatch(true);
+          // Don't load next item until popup closes
+          return;
+        }
+      }
       loadNextItem();
     } catch (e) {
       setError(e.message + (e.stack ? "\n" + e.stack : ""));
@@ -216,7 +232,31 @@ function Matching({ user, setHasLocation }) {
 
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* New Match Modal overlays everything */}
+      {showNewMatch && newMatchData && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 9999,
+          background: 'rgba(0,0,0,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <NewMatchModal
+            match={newMatchData}
+            onClose={() => {
+              setShowNewMatch(false);
+              setNewMatchData(null);
+              loadNextItem();
+            }}
+          />
+        </div>
+      )}
       {/* Only show filter and edit size preferences if sizePreferences is not empty */}
   <div style={{ margin: '6dvh 0 0 0',  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5vw'}}>
     {sizePreferences && Object.keys(sizePreferences).length > 0 && (

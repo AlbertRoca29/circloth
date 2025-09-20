@@ -89,10 +89,10 @@ function ItemDetailModal({
         overflow: 'hidden',
       };
   const cardStyle = matching
-    ? {
-        background: '#fff',
-        borderRadius: 10,
-        boxShadow: '0 4px 14px rgba(34, 197, 94, 0.13)',
+  ? {
+    background: 'var(--gray-bg)',
+    borderRadius: 10,
+    boxShadow: '0 4px 14px var(--shadow)',
         padding: 0,
         width: '100%',
         height: '100%',
@@ -103,10 +103,10 @@ function ItemDetailModal({
         position: 'relative',
         margin: 0,
       }
-    : {
-        background: '#fff',
-        borderRadius: 12,
-        boxShadow: '0 4px 24px rgba(34,197,94,0.10)',
+  : {
+    background: 'var(--gray-bg)',
+    borderRadius: 12,
+    boxShadow: '0 4px 24px var(--shadow)',
         padding: '0 0 1vh 0',
         width: '92%',
         height: '75dvh',
@@ -129,26 +129,26 @@ function ItemDetailModal({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#08a12cd0', // Green background to match app style
+    background: 'var(--primary)',
     border: 'none',
-    borderRadius: 4, // Square with slight rounding
+    borderRadius: 4,
     cursor: 'pointer',
     zIndex: 20,
     outline: 'none',
     padding: 0,
     transition: 'background 0.18s, box-shadow 0.18s',
     userSelect: 'none',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+    boxShadow: 'var(--shadow)',
   };
 
   const closeButtonHoverStyle = {
-    background: '#17a566', // Darker green on hover
+    background: 'var(--primary-dark)',
   };
 
   const closeIconStyle = {
     width: 18,
     height: 18,
-    stroke: '#fff', // White icon for contrast
+    stroke: 'var(--text)',
     strokeWidth: 1.7,
     strokeLinecap: 'round',
   };
@@ -337,7 +337,7 @@ function ItemDetailModal({
           margin: "1.5vh 1vw"
         }}>
           {/* Category and emoji */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '1.15rem', fontWeight: 400, color: '#222' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '1.15rem', fontWeight: 400, color: 'var(--text)' }}>
             <span style={{ fontSize: '0.95rem', color: '#000000ff', opacity: 0.75, fontWeight: 200 }}>{getCategoryLabel(item.category)}</span>
             {/* <span style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.6)' }}>
                 <CategoryIcon category={item.category} />
@@ -387,7 +387,7 @@ function ItemDetailModal({
                 onClick={() => setDetailsOpen((v) => !v)}
                 style={{
                   width: 'fit-content',
-                  color: '#222',
+                  color: 'var(--text)',
                   fontWeight: 120,
                   fontSize: '0.9rem',
                   cursor: 'pointer',
@@ -477,15 +477,15 @@ function ItemDetailModal({
             justifyContent: 'center',
             alignItems: 'center',
             padding: '1vh 0 1vh 0',
-            borderTop: '1px solid #f0f0f0',
-            background: '#fff',
+            borderTop: '1px solid var(--gray-border)',
+            background: 'var(--gray-bg)',
           }}>
             {footer ? footer : (
               <button
                 onClick={onClose}
                 style={{
-                  background: '#f5f5f5',
-                  color: '#222',
+                  background: 'var(--primary-light)',
+                  color: 'var(--text)',
                   border: 'none',
                   borderRadius: 8,
                   padding: '7px 18px',

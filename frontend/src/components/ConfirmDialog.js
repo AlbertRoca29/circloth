@@ -16,23 +16,23 @@ function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmText 
       justifyContent: 'center',
     }}>
       <div style={{
-        background: '#fff',
+        background: 'var(--gray-bg)',
         borderRadius: 16,
-        boxShadow: '0 2px 16px 0 rgba(0,0,0,0.13)',
+        boxShadow: '0 2px 16px 0 var(--shadow)',
         width: "65vw",
         padding: '28px 10px 18px 10px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <div style={{ fontWeight: 200, fontSize: 18, marginBottom: 10, color: '#232323', textAlign: 'center' }}>{title}</div>
-        <div style={{ fontSize: 15, color: '#444', marginBottom: 22, textAlign: 'center' }}>{message}</div>
+  <div style={{ fontWeight: 200, fontSize: 18, marginBottom: 10, color: 'var(--text)', textAlign: 'center' }}>{title}</div>
+  <div style={{ fontSize: 15, color: 'var(--gray-text)', marginBottom: 22, textAlign: 'center' }}>{message}</div>
         <div style={{ display: 'flex', gap: 12, width: '100%', justifyContent: 'center' }}>
           <button onClick={onCancel} style={{
-            background: '#eee', color: '#333', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
+            background: 'var(--gray-border)', color: 'var(--text)', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
           }}>{cancelText}</button>
           <button onClick={onConfirm} style={{
-            background: '#ff004c', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
+            background: 'var(--danger)', color: 'var(--text)', border: 'none', borderRadius: 8, padding: '8px 18px', fontWeight: 500, fontSize: 15, cursor: 'pointer', minWidth: 80
           }}>{confirmText}</button>
         </div>
       </div>

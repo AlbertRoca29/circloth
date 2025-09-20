@@ -16,26 +16,32 @@
 /* Common styles for Circloth app */
 
 /* Green theme and mobile improvements */
+
 :root {
-  --primary: #22c55e;
-  --primary-dark: #15803d;
-  --primary-light: #e6faed;
-  --accent: #81C784;
-  --danger: #e11d48;
-  --gray-bg: #f3f4f6;
-  --gray-border: #e5e7eb;
-  --gray-text: #64748b;
-  --radius: 18px;
-  --shadow: 0 8px 32px rgba(34, 197, 94, 0.13);
-  --glass-bg: rgba(255,255,255,0.7);
+  --primary: #7DBA8B; /* Fresh forest green */
+  --primary-dark: #568763; /* Deep green for contrast but soft */
+  --primary-light: #e4efdd; /* Airy, fresh background */
+  --accent: #A1CBA3; /* Warm, lively highlights */
+  --secondary-accent: #dcc6a9; /* Sunlit wood tone, more golden */
+  --danger: #E5988A; /* Warm, earthy red for alerts */
+  --gray-bg: #ffffff; /* Soft, cozy, slightly warm background */
+  --gray-border: #e9dccc; /* Gentle wood-like border */
+  --gray-text: #756a5b; /* Warm, soft text */
+  --text: #424334; /* Dark greenish-brown, readable but warm */
+  --shadow: 0 4px 12px rgba(125, 186, 139, 0.35); /* Warm, soft shadow */
+  --glass-bg: rgb(249, 245, 243); /* Light, warm glass effect */
   --glass-blur: blur(12px);
 }
 
+
+
+
+
 body {
-  background: linear-gradient(120deg, var(--primary-light) 0%, var(--gray-bg) 100%);
+  background: var(--primary-light);
   font-family: 'Geist';
   margin: 0;
-  color: #222;
+  color: var(--text);
   min-height: 100vh;
   -webkit-tap-highlight-color: transparent;
 }

@@ -177,7 +177,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             style={{
               marginBottom: 4,
               fontWeight: 175,
-              color: '#15803ca8',
+              color: 'var(--primary-dark)',
               fontSize: 13.5,
               width: '100%',
               textAlign: 'center',
@@ -191,8 +191,8 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
               width: 62,
               height: 62,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #22c55e 60%, #15803d 100%)',
-              color: 'white',
+              background: 'linear-gradient(135deg, var(--primary) 60%, var(--primary-dark) 100%)',
+              color: 'var(--text)',
               display: 'flex',
               justifyContent: 'center',
               margin: 5,
@@ -229,7 +229,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
         })}
       >
         <div style={{
-          background: '#fff',
+          background: 'var(--gray-bg)',
           borderRadius: 12,
           boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)',
           width: '100%',
@@ -247,7 +247,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#22c55e',
+            background: 'var(--primary)',
             padding: '11px 0 9px 0',
             position: 'relative',
         }}>
@@ -255,7 +255,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             fontWeight: 150,
             fontSize: 18,
             fontFamily: 'Geist',
-            color: '#fff',
+            color: 'var(--text)',
             flex: 1,
             textAlign: 'center',
             letterSpacing: 0.2,
@@ -274,14 +274,14 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 fontSize: 26,
                 fontWeight: 100,
                 cursor: 'pointer',
-                color: '#fff',
+                color: 'var(--text)',
                 padding: '-1px 8px',
                 borderRadius: 8,
                 boxShadow: '0 1px 4px rgba(0, 0, 0, 0)',
                 transition: 'background 0.18s',
             }}
-            onMouseOver={e => e.currentTarget.style.background = '#fff4'}
-            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+            onMouseOver={e => e.currentTarget.style.background = 'var(--glass-bg)'}
+            onMouseOut={e => e.currentTarget.style.background = 'var(--glass-bg)'}
             >
             ×
             </button>
@@ -297,7 +297,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
     flexDirection: 'column',
     fontFamily: 'Geist',
     gap: 2,
-    background: '#f8f8f8',
+    background: 'var(--gray-bg)',
     height: '100%',
     maxHeight: 'calc(78vh - 56px)',
   }}>
@@ -317,7 +317,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
               sx={{
                 flexDirection: 'column',
                 borderRadius: 1.2,
-                border: category === cat.key ? `3px solid ${APP_GREEN}` : '1px solid #ddd',
+                border: category === cat.key ? `3px solid var(--primary)` : '1px solid var(--gray-border)',
                 background: category === cat.key ? '#e4f7e9ff' : '#fdfdfd',
                 width: '26vw',
                 aspectRatio: '1.1',
@@ -332,7 +332,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
               <span style={{ textShadow: '0 4px 8px rgba(0, 0, 0, 0.8)' }}>
                 <CategoryIcon category={cat.key} />
               </span>
-              <span style={{ fontSize: '0.65rem', fontWeight: category === cat.key ? 135 : 95, color: '#555', marginTop: '10px', lineHeight: 1.25, height: '46%' }}>{cat.label}</span>
+              <span style={{ fontSize: '0.65rem', fontWeight: category === cat.key ? 135 : 95, color: 'var(--gray-text)', marginTop: '10px', lineHeight: 1.25, height: '46%' }}>{cat.label}</span>
             </Button>
           </Grid>
         ))}
@@ -360,9 +360,9 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                   fontFamily: 'Geist',
                   height: 40,
                   fontSize: size === opt.key ? 15 : 13,
-                  background: size === opt.key ? APP_GREEN : '#f6f6f6',
-                  color: size === opt.key ? '#fff' : '#166232',
-                  border: size === opt.key ? `1.5px solid ${APP_GREEN}` : '1px solid #ddd',
+                  background: size === opt.key ? 'var(--primary)' : 'var(--primary-light)',
+                  color: size === opt.key ? 'var(--text)' : 'var(--primary-dark)',
+                  border: size === opt.key ? `1.5px solid var(--primary)` : '1px solid var(--gray-border)',
                 }}
               >
                 {opt.label}
@@ -408,7 +408,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
         fontWeight: 150,
         fontFamily: 'Geist',
         fontSize: 14,
-        color: '#222',
+  color: 'var(--text)',
         mb: 0.5,
         letterSpacing: 0.1,
       }}>{t('photos_1_5')} <span style={{ color: 'red' }}>*</span></Typography>
@@ -437,10 +437,10 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             aspectRatio: '1',
             borderRadius: 3,
             overflow: 'visible',
-            boxShadow: idx === thumbnailIdx ? '0 0 0 3px #22c55e' : '0 0 0 1.5px #ddd',
-            border: idx === thumbnailIdx ? '3px solid #22c55e' : '1.5px solid #ddd',
+            boxShadow: idx === thumbnailIdx ? '0 0 0 3px var(--primary)' : '0 0 0 1.5px var(--gray-border)',
+            border: idx === thumbnailIdx ? '3px solid var(--primary)' : '1.5px solid var(--gray-border)',
             transition: 'box-shadow 0.18s, border 0.18s',
-            background: '#fafafa',
+            background: 'var(--gray-bg)',
             cursor: 'pointer',
             flex: '0 0 auto',
             marginTop: '6px', // add space for border
@@ -457,7 +457,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 filter: idx === thumbnailIdx ? 'brightness(1.05)' : 'brightness(0.98)',
                 border: 'none',
                 transition: 'filter 0.18s',
-                boxShadow: idx === thumbnailIdx ? '0 0 0 3px #22c55e' : 'none',
+                boxShadow: idx === thumbnailIdx ? '0 0 0 3px var(--primary)' : 'none',
               }}
               onClick={() => setThumbnailIdx(idx)}
             />
@@ -480,7 +480,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
                 height: 28,
                 borderRadius: '50%',
                 background: 'rgba(255,255,255,0.7)',
-                color: '#e11d48',
+                color: 'var(--danger)',
                 fontWeight: 900,
                 fontSize: 18,
                 boxShadow: '0 1px 4px #0001',
@@ -507,12 +507,12 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
             aspectRatio: 1,
             borderRadius: 12,
             background: "#f5f5f5",
-            color: "#22c55e",
+            color: "var(--primary)",
             fontSize: 44,
             fontWeight: 200,
-            border: "2.5px dashed #22c55e",
+            border: "2.5px dashed var(--primary)",
             cursor: "pointer",
-            boxShadow: '0 1px 4px #22c55e11',
+            boxShadow: '0 1px 4px var(--shadow)',
             transition: 'background 0.15s, border 0.15s',
             position: 'relative',
             overflow: 'hidden',
@@ -526,7 +526,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
               width: '100%',
               height: '100%',
               fontSize: 50,
-              color: '#22c55e',
+              color: 'var(--primary)',
               opacity: 0.85,
               userSelect: 'none',
             }}>+</span>
@@ -544,7 +544,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
       </Box>
       <Typography sx={{
         fontSize: 12,
-        color: '#888',
+  color: 'var(--gray-text)',
         fontWeight: 120,
         textAlign: 'center',
         mt: 0.5,
@@ -561,7 +561,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
         borderRadius: 1.2,
         boxShadow: 0,
         background: '#f9f9f9',
-        border: '1px solid #ddd',
+  border: '1px solid var(--gray-border)',
       }}
     >
       <AccordionSummary
@@ -570,7 +570,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
           px: 1,
           py: 0,
           background: 'transparent',
-          borderBottom: showAdvanced ? `1px solid #ddd` : 'none',
+          borderBottom: showAdvanced ? `1px solid var(--gray-border)` : 'none',
           display: 'flex',
           alignItems: 'center',
         }}
@@ -593,7 +593,7 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
       <AccordionDetails sx={{
         pt: 1,
         px: 1,
-        background: '#fff',
+  background: 'var(--gray-bg)',
         borderRadius: 1.2,
       }}>
         <FormControl fullWidth sx={{ mb: 1 }}>
@@ -696,10 +696,10 @@ function AddItem({ user, onItemAdded, open, setOpen }) {
           py: 1,
           fontSize: 14,
           borderRadius: 2,
-          background: '#22c55e',
-          color: '#fff',
+          background: 'var(--primary)',
+          color: 'var(--text)',
           mt: 2,
-          '&:hover': { background: '#15803d' },
+          '&:hover': { background: 'var(--primary-dark)' },
         }}
       >
         {t('submit') || 'Submit'}

@@ -4,23 +4,26 @@ body {
   font-weight: 100;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(120deg, var(--primary-light, #e6faed) 0%, #f3f4f6 100%);
+  background: linear-gradient(120deg, var(--primary-light, #E6EFE7) 0%, var(--gray-bg, #F5F3EE) 100%);
   min-height: 100vh;
 }
+
 a {
-  color: var(--primary, #22c55e);
+  color: var(--primary, #355E3B);
   text-decoration: underline;
   transition: color 0.18s;
 }
 
+
 h1, h2, h3, h4, h5, h6 {
-  color: var(--primary-dark, #15803d);
+  color: var(--primary-dark, #223322);
   font-family: 'Geist';
   font-weight: 200;
   letter-spacing: 0.01em;
 }
+
 a:hover {
-  color: var(--primary-dark, #15803d);
+  color: var(--primary-dark, #223322);
 }
 
 @media (max-width: 600px) {

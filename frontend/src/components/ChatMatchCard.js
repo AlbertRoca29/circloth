@@ -97,15 +97,15 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
       </>
     );
   } else if (items.length === 4) {
-    // 2x2 grid, add green border between images
+    // 2x2 grid, add palette border between images
     return items.slice(0, 4).map((item, i) => {
       // 0 | 1
       // 2 | 3
       let style = { ...baseStyle };
       // Right border for left column
-      if (i % 2 === 0) style.borderRight = '3px solid #22c55e';
+      if (i % 2 === 0) style.borderRight = '3px solid var(--primary)';
       // Bottom border for top row
-      if (i < 2) style.borderBottom = '3px solid #22c55e';
+      if (i < 2) style.borderBottom = '3px solid var(--primary)';
       return (
         <ItemImage
           key={item.id || i}
@@ -116,16 +116,16 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
       );
     });
   } else if (items.length > 4) {
-    // 2x2 grid, last cell is "+N" overlay, add green border between images
+    // 2x2 grid, last cell is "+N" overlay, add palette border between images
     return [
       ...items.slice(0, 3).map((item, i) => {
         // 0 | 1
         // 2 | +N
         let style = { ...baseStyle };
         // Right border for left column
-        if (i % 2 === 0) style.borderRight = '3px solid #22c55e';
+        if (i % 2 === 0) style.borderRight = '3px solid var(--primary)';
         // Bottom border for top row
-        if (i < 2) style.borderBottom = '3px solid #22c55e';
+        if (i < 2) style.borderBottom = '3px solid var(--primary)';
         return (
           <ItemImage
             key={item.id || i}
@@ -139,17 +139,17 @@ function ItemGrid({ items, size = 85, borderRadius = 12, border = 0, fontSize = 
         key="plus"
         style={{
           ...baseStyle,
-          background: 'rgba(0,0,0,0.35)',
-          color: '#fff',
+          background: 'var(--glass-bg)',
+          color: 'var(--text)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize,
           fontWeight: 700,
           // Right border for left column
-          borderRight: '3px solid #22c55e',
+          borderRight: '3px solid var(--primary)',
           // Bottom border for top row
-          borderBottom: '3px solid #22c55e',
+          borderBottom: '3px solid var(--primary)',
         }}
       >
         +{items.length - 3}
@@ -198,13 +198,13 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
           <span style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
             {isSent && (
               <svg width="12" height="12" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 4}}>
-                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill="#22c55e" />
+                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill="var(--primary)" />
               </svg>
             )}
             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: "30vw" }}>{lastMessage.content}</span>
           </span>
           {timeStr && (
-            <span style={{ color: '#888', fontSize: 12, fontWeight: 100, marginTop: 2, marginLeft: isSent ? 18 : 0, whiteSpace: 'nowrap' }}>{timeStr}</span>
+            <span style={{ color: 'var(--gray-text)', fontSize: 12, fontWeight: 100, marginTop: 2, marginLeft: isSent ? 18 : 0, whiteSpace: 'nowrap' }}>{timeStr}</span>
           )}
         </span>
       );
@@ -214,7 +214,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
       return null;
     }
     // Otherwise, show New match!
-    return <span style={{ color: '#19b653ff', fontWeight: 175, marginLeft:'0.5vw' }}>{t('new_match', 'New match!')}</span>;
+  return <span style={{ color: 'var(--primary)', fontWeight: 175, marginLeft:'0.5vw' }}>{t('new_match', 'New match!')}</span>;
   }
 
   return (
@@ -223,9 +223,9 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
       className="chat-match-card"
       style={{
         cursor: "pointer",
-        background: "#fff",
+        background: "var(--glass-bg)",
         borderRadius: 13,
-        boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+        boxShadow: "var(--shadow)",
         marginBottom: 0,
         height: "16.5vh",
         width: "90vw",
@@ -243,11 +243,11 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
             left: 6,
             width: 12,
             height: 12,
-            background: "#22c55e",
+            background: "var(--primary)",
             borderRadius: "50%",
             zIndex: 2,
-            border: "2.5px solid #fff",
-            boxShadow: '0 0 0 2px #e5e5e5',
+            border: "2.5px solid var(--glass-bg)",
+            boxShadow: '0 0 0 2px var(--gray-border)',
           }}
         />
       )}
@@ -292,7 +292,7 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
           style={{
             fontWeight: 175,
             fontSize: '1.05rem',
-            color: "#15803d",
+            color: "var(--primary-dark)",
             letterSpacing: 0.2,
             lineHeight: 1.7,
             minWidth: '100%',
@@ -319,8 +319,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
               {/* Small bubble: your items */}
               {yourItemsCount > 0 && (
                 <span style={{
-                  background: '#15803d',
-                  color: '#fff',
+                  background: 'var(--primary-dark)',
+                  color: 'var(--text)',
                   borderRadius: '50%',
                   width: 18,
                   height: 18,
@@ -329,8 +329,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
                   justifyContent: 'center',
                   fontWeight: 175,
                   fontSize: 10,
-                  boxShadow: '0 1.5px 5px #0002',
-                  border: '2px solid #fff',
+                  boxShadow: 'var(--shadow)',
+                  border: '2px solid var(--glass-bg)',
                   zIndex: 20,
                   marginRight: -30,
                 }}>{yourItemsCount}</span>
@@ -338,8 +338,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
               {/* Big bubble: their items, overlaps small */}
               {theirItemsCount > 0 && (
                 <span style={{
-                  background: '#22c55e',
-                  color: '#fff',
+                  background: 'var(--primary)',
+                  color: 'var(--text)',
                   borderRadius: '50%',
                   width: 25,
                   height: 25,
@@ -348,8 +348,8 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
                   justifyContent: 'center',
                   fontWeight: 175,
                   fontSize: 13,
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0)',
-                  border: '2.5px solid #fff',
+                  boxShadow: 'var(--shadow)',
+                  border: '2.5px solid var(--glass-bg)',
                   zIndex: 30,
                   marginLeft: -20,
                 }}>{theirItemsCount}</span>
@@ -357,13 +357,13 @@ function ChatMatchCard({ match, onChat, isUnread, onViewProfile, lastMessage, cu
             </span>
           )}
         </div>
-        <div style={{ width: '95%', borderBottom: '1.5px solid #e5e5e5', margin: '0px 0 0px 0' }} />
+  <div style={{ width: '95%', borderBottom: '1.5px solid var(--gray-border)', margin: '0px 0 0px 0' }} />
         <div
           style={{
             lineHeight: 1.3,
             fontWeight: lastMessage && lastMessage.sender === currentUserId ? 100 : 150,
             fontSize: '0.9rem',
-            color: "#555",
+            color: "var(--gray-text)",
             display: 'flex',
             alignItems: 'center',
             gap: 0,

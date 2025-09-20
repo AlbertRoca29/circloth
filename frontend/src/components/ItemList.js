@@ -12,7 +12,7 @@ import '../styles/buttonStyles.css';
 import ConfirmDialog from './ConfirmDialog';
 import { ReactComponent as LockIcon } from '../assets/lock.svg';
 import { ReactComponent as UnlockIcon } from '../assets/unlock.svg';
-import { ReactComponent as HeartIcon } from '../assets/heart.svg';
+import { ReactComponent as TickIcon } from '../assets/tick.svg';
 import { ReactComponent as CrossIcon } from '../assets/cross.svg';
 
 
@@ -46,8 +46,8 @@ function DropdownMenu({ onEdit, onDelete, onClose, position }) {
           position: 'fixed',
           top: position?.top || 60,
           left: position?.left || 60,
-          background: "#fff",
-          border: '1px solid #eee',
+          background: "var(--gray-bg)",
+          border: '1px solid var(--gray-border)',
           borderRadius: 8,
           boxShadow: '0 2px 8px 0 rgba(0,0,0,0.12)',
           minWidth: 90,
@@ -57,9 +57,9 @@ function DropdownMenu({ onEdit, onDelete, onClose, position }) {
           pointerEvents: 'auto',
         }}
       >
-        <button onClick={onEdit} style={{
-          background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '8px 16px', cursor: 'pointer', color: '#222'
-        }}>Edit</button>
+        {/* <button onClick={onEdit} style={{
+          background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '8px 16px', cursor: 'pointer', color: 'var(--text)'
+        }}>Edit</button> */}
         <button onClick={onDelete} style={{
           background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '8px 16px', cursor: 'pointer', color: '#e00'
         }}>Delete</button>
@@ -370,11 +370,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               style={{
                 display: !userLiked(item.id) && only_likes===true ? 'none' : 'flex',
                 // display: 'flex',
-                border: userLiked(item.id) && only_likes===false && buttons==="like_pass" ? "2.5px solid #ff004cb4" : "1.5px solid #eaeaea",
+                border: userLiked(item.id) && only_likes===false && buttons==="like_pass" ? "2.5px solid var(--accent)" : "1.5px solid var(--gray-border)",
                 aspectRatio: 0.9,
-                background: "#fff",
+                background: "var(--gray-bg)",
                 borderRadius: 9,
-                boxShadow: "0 1.5px 8px 0 rgba(0,0,0,0.04)",
+                boxShadow: "var(--shadow)",
                 padding: 0,
                 flexDirection: "column",
                 alignItems: "stretch",
@@ -408,7 +408,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                   position: 'relative',
                   width: '100%',
                   height: "85%",
-                  background: '#f6f6f6',
+                  background: 'var(--primary-light)',
                   overflow: 'hidden',
                   transition: 'transform 0.25s ease-in-out',
                   cursor: 'pointer',
@@ -445,7 +445,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                   <span style={{
                     fontWeight: 200,
                     fontSize: '0.8rem',
-                    color: '#232323',
+                    color: 'var(--text)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -453,7 +453,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                   }}>{t(`short_${item.category}`) || t('item_name_placeholder') || 'Item'}</span>
                   <span style={{
                     fontSize: '0.75rem',
-                    color: '#888',
+                    color: 'var(--gray-text)',
                     marginTop: 2
                   }}>{t('size')}: {t(item.size) || item.size || '-'}</span>
                 </div>
@@ -471,7 +471,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         border: 'none',
                         fontSize: '1.4rem',
                         display: !userLiked(item.id) ? 'flex' : 'none',
-                        color: '#ff004c' ,
+                        color: 'var(--accent)',
                         padding: 4,
                         borderRadius: 8,
                         cursor: 'pointer',
@@ -483,7 +483,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                       }}
                       title={userLiked(item.id) ? t('remove_like_title') || 'Remove Like' : t('like') || 'Like'}
                     >
-                      <HeartIcon width={22} height={22} style={{ color: '#15803d' }} />
+                      <TickIcon width={22} height={22} style={{ color: 'var(--primary-dark)' }} />
                     </button>
                     {/* Pass button */}
                     <button
@@ -496,7 +496,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         border: 'none',
                         fontSize: '1.4rem',
                         display: userLiked(item.id) ? 'flex' : 'none',
-                        color: '#e00',
+                        color: 'var(--danger)',
                         padding: 4,
                         borderRadius: 8,
                         cursor: 'pointer',
@@ -508,7 +508,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                       }}
                       title={t('pass') || 'Pass'}
                     >
-                      <CrossIcon width={22} height={22} style={{ color: '#15803d' }} />
+                      <CrossIcon width={22} height={22} style={{ color: 'var(--primary-dark)' }} />
                     </button>
                   </div>
                 ) : buttons === "lock" ? (
@@ -522,7 +522,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                         background: 'none',
                         border: 'none',
                         fontSize: '1.4rem',
-                        color: lockedItems[item.id] === lockUserId ? '#bbb' : '#22c55e',
+                        color: lockedItems[item.id] === lockUserId ? '#bbb' : 'var(--primary)',
                         padding: 4,
                         borderRadius: 8,
                         cursor: 'pointer',
@@ -544,7 +544,36 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
                   </div>
                 ) : buttons === "edit_delete" && (
                   <div style={{ position: 'relative', marginLeft: 8 }}>
-                    {/* ...existing code for edit/delete... */}
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setMenuPosition({
+                          top: rect.bottom + window.scrollY,
+                          left: rect.right - 120
+                        });
+                        setMenuOpenId(menuOpenId === item.id ? null : item.id);
+                        setMenuItem(item);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '1.4rem',
+                        color: 'var(--gray-text)',
+                        padding: 4,
+                        borderRadius: 8,
+                        cursor: 'pointer',
+                        width: 32,
+                        height: 32,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background .12s'
+                      }}
+                      title={t('options')}
+                    >
+                      <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: 2 }}>⋮</span>
+                    </button>
                   </div>
                 )}
               </div>
@@ -559,20 +588,20 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
             <button
               onClick={onExpand}
               style={{
-                background: 'white',
-                color: '#15803d',
-                border: '1.5px solid #118a3d13',
+                background: 'var(--glass-bg)',
+                color: 'var(--primary-dark)',
+                border: '1.5px solid var(--primary-light)',
                 borderRadius: 8,
                 padding: '6.5px 18px 6.5px 12px',
                 fontSize: '0.85rem',
                 cursor: 'pointer',
                 margin: '0 auto',
-                boxShadow: expanded ? '0 2px 12px #22c55e33' : '0 1px 4px #0001',
+                boxShadow: expanded ? '0 2px 12px var(--shadow)' : 'var(--shadow)',
                 transition: 'box-shadow 0.25s cubic-bezier(.4,2,.6,1), background 0.18s',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                outline: expanded ? '2px solid #22c55e55' : 'none',
+                outline: expanded ? '2px solid var(--primary)' : 'none',
               }}
               onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
               onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
@@ -586,7 +615,7 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
               }}>
                 {/* Down arrow SVG */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.5 8.5L10 13L14.5 8.5" stroke="#15803d" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5.5 8.5L10 13L14.5 8.5" stroke="var(--primary-dark)" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </span>
               {expanded ? t('show_less') || 'Show less' : t('show_all') || 'Show all'}
@@ -598,11 +627,11 @@ function ItemList({ user, refreshSignal, onModalOpenChange,
       {/* DropdownMenu rendered at root for overlay */}
       {menuOpenId && menuItem && (
         <DropdownMenu
-          onEdit={e => {
-            e?.stopPropagation?.();
-            setMenuOpenId(null);
-            // Edit coming soon
-          }}
+        //   onEdit={e => {
+        //     e?.stopPropagation?.();
+        //     setMenuOpenId(null);
+        //     // Edit coming soon
+        //   }}
           onDelete={e => {
             e?.stopPropagation?.();
             setMenuOpenId(null);

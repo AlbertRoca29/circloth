@@ -13,7 +13,9 @@
 "category_dresses_skirts": "Vestidos y Faldas",
 "category_shoes": "Calzado",
 "category_accessories": "Complementos y Accesorios",
-"category_other": "Otras prendas",
+
+  "category_other": "Otras prendas",
+  "their_items_named": "Artículos de {{name}}",
 
 
 "short_tops": "Tops",

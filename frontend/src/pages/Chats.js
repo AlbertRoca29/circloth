@@ -15,7 +15,6 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
   const [chats, setChats] = useState([]); // Store chat list with unread info
   const [chattingWith, setChattingWith] = useState(null); // match
   const [viewingTheirProfile, setviewingTheirProfile] = useState(null);
-  const [viewingYourProfile, setviewingYourProfile] = useState(null);
   // New state for trade view
   const [viewingTrade, setViewingTrade] = useState(null); // { otherUser, yourItems, theirItems }
   const [itemListModalOpen, setItemListModalOpen] = useState(false);
@@ -224,25 +223,12 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     };
   }, [chattingWith, user]);
 
-
   if (showSpinner) {
     return <LoadingSpinner />;
   }
 
-
-
-  // Move handleViewProfile above its first usage
-  const handleViewProfile = (user, yours=false) => {
-    if (yours) {
-      setviewingYourProfile(user);
-    } else {
-      setviewingTheirProfile(user);
-    }
-  };
-
   // Handler for viewing the trade
   const handleViewTrade = (chatObj) => {
-    // chatObj is the group object from groupedArr
     setViewingTrade({
       otherUser: chatObj.otherUser,
       yourItems: chatObj.yourItems,
@@ -251,11 +237,31 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
     });
   };
 
+  // Shared modal container and header for trade and chat views
+  function ModalContainer({ title, onClose, children, headerRight }) {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
+  <div style={{ background: 'var(--gray-bg)', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '94vw', height: '78dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top: "-1vh" }}>
+          {/* App-like header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--primary)', padding: '11px 0 9px 0', position: 'relative' }}>
+            <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>{title}</div>
+            {headerRight}
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
+              onMouseOver={e => e.currentTarget.style.background = '#fff4'}
+              onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+            >
+              ×
+            </button>
+          </div>
+          {children}
+        </div>
+      </div>
+    );
+  }
 
-
-
-
-  // Trade view main
   if (viewingTrade) {
     // If viewing their profile from trade view, show only their items with bigger font and an exit profile view button
     if (viewingTheirProfile) {
@@ -266,67 +272,56 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
         await fetchAndSetMatchesAndChats();
       };
       return (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
-          <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '90vw', height: '78vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top: "-1vh" }}>
-            {/* App-like header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#22c55e', padding: '11px 0 9px 0', position: 'relative' }}>
-              <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>
-                {t('trade_view_title', 'Trade View')}
-              </div>
+        <ModalContainer
+          title={t('trade_view_title', 'Trade View')}
+          onClose={handleCloseTradeView}
+          headerRight={null}
+        >
+          {/* Profile view: only their items, bigger font, exit profile view button */}
+          <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '32px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: 'var(--gray-bg)', height: '100%' }}>
+            <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span style={{ color: 'var(--primary-dark)', fontWeight: 200, fontSize: 18, letterSpacing: 0.5 }}>
+                {t('their_items_named', { name: viewingTheirProfile?.name || viewingTheirProfile?.displayName || t('their', 'Their') })}
+              </span>
               <button
-                onClick={handleCloseTradeView}
-                aria-label="Close trade view"
-                style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
-                onMouseOver={e => e.currentTarget.style.background = '#fff4'}
-                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
+                onClick={() => setviewingTheirProfile(null)}
+                style={{
+                  fontFamily: 'Geist',
+                  background: 'var(--danger)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  padding: '8px 18px',
+                  fontWeight: 500,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  marginLeft: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.18)',
+                  transition: 'background 0.18s',
+                  outline: 'none',
+                }}
+                title={t('exit_profile_view', 'Exit profile view')}
+                onMouseOver={e => e.currentTarget.style.background = '#a94442'} // deeper danger
+                onMouseOut={e => e.currentTarget.style.background = 'var(--danger)'}
               >
-                ×
+                {t('exit_profile_view', 'Exit profile view')}
               </button>
             </div>
-            {/* Profile view: only their items, bigger font, exit profile view button */}
-            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '32px 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: '#f8f8f8', height: '100%' }}>
-              <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ color: '#15803d', fontWeight: 200, fontSize: 18, letterSpacing: 0.5 }}>{t('their_items', 'Their items')}</span>
-                <button
-                  onClick={() => setviewingTheirProfile(null)}
-                  style={{
-                    fontFamily: 'Geist',
-                    background: '#f87171', // red-400
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 18px',
-                    fontWeight: 500,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                    marginLeft: 6,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.18)',
-                    transition: 'background 0.18s',
-                    outline: 'none',
-                  }}
-                  title={t('exit_profile_view', 'Exit profile view')}
-                  onMouseOver={e => e.currentTarget.style.background = '#dc2626'} // red-600
-                  onMouseOut={e => e.currentTarget.style.background = '#f87171'}
-                >
-                  {t('exit_profile_view', 'Exit profile view')}
-                </button>
-              </div>
-              <ItemList
-                user={viewingTheirProfile}
-                onModalOpenChange={() => {}}
-                buttons="like_pass"
-                matching={true}
-                from_user_matching={user}
-                maxItems={16}
-                expanded={true}
-                useLocalStorage={true}
-              />
-            </div>
+            <ItemList
+              user={viewingTheirProfile}
+              onModalOpenChange={() => {}}
+              buttons="like_pass"
+              matching={true}
+              from_user_matching={user}
+              maxItems={16}
+              expanded={true}
+              useLocalStorage={true}
+            />
           </div>
-        </div>
+        </ModalContainer>
       );
     }
     // Trade view
@@ -337,177 +332,124 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
       await fetchAndSetMatchesAndChats();
     };
     return (
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.2)', width: '94vw',height: '78dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', top:"-1vh" }}>
-          {/* App-like header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#22c55e', padding: '11px 0 9px 0', position: 'relative' }}>
-            <div style={{ fontWeight: 150, fontSize: 18, color: '#fff', flex: 1, textAlign: 'center', letterSpacing: 0.2 }}>
-              {t('trade_view_title', 'Trade View')}
+      <ModalContainer
+        title={t('trade_view_title', 'Trade View')}
+        onClose={handleCloseTradeView}
+        headerRight={null}
+      >
+        {/* Main trade content: two ItemLists stacked vertically */}
+  <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '12px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, background: 'var(--gray-bg)', height: '100%' }}>
+          {/* Their Items */}
+          <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, position: 'relative' }}>
+            <span style={{ color: 'var(--primary-dark)', fontWeight: 400, fontSize: 15 }}>
+              {t('their_items_named', { name: viewingTrade?.otherUser?.name || viewingTrade?.otherUser?.displayName || t('their', 'Their') })}
+            </span>
+            <button
+              onClick={() => setviewingTheirProfile(viewingTrade.otherUser)}
+              style={{
+                fontFamily: 'Geist',
+                background: 'var(--primary)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                padding: '6px 14px',
+                fontWeight: 170,
+                fontSize: 13,
+                cursor: 'pointer',
+                marginLeft: 6,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.35)',
+                transition: 'background 0.18s'
+              }}
+              title={t('view_profile', 'View profile')}
+              onMouseOver={e => e.currentTarget.style.background = 'var(--primary-dark)'}
+              onMouseOut={e => e.currentTarget.style.background = 'var(--primary)'}
+            >
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 2}}>
+                <circle cx="10" cy="7.5" r="3.5" stroke="#fff" strokeWidth="1.5"/>
+                <path d="M3.5 16c0-2.485 2.5-4.5 6.5-4.5s6.5 2.015 6.5 4.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              {t('view_profile', 'Profile')}
+            </button>
+          </div>
+          <ItemList
+            user={{ ...viewingTrade.otherUser, items: viewingTrade.theirItems }}
+            onModalOpenChange={() => {}}
+            buttons="like_pass"
+            only_likes={true}
+            matching={true}
+            from_user_matching={user}
+            maxItems={2}
+            expanded={expandTheir}
+            onExpand={() => setExpandTheir(e => !e)}
+            useLocalStorage={true}
+          />
+          {/* Your Items */}
+          <div style={{ width: '92%', display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+            <span style={{ color: 'var(--primary-dark)', fontWeight: 400, fontSize: 15 }}>{t('your_items', 'Your Items')}</span>
+          </div>
+          <ItemList
+            user={{ ...user, items: viewingTrade.yourItems }}
+            onModalOpenChange={() => {}}
+            buttons="lock"
+            matching={true}
+            from_user_matching={viewingTrade.otherUser}
+            maxItems={2}
+            expanded={expandYours}
+            onExpand={() => setExpandYours(e => !e)}
+            useLocalStorage={true}
+            lockUserId={viewingTrade.otherUser?.id}
+          />
+        </div>
+      </ModalContainer>
+    );
+  }
+
+  if (chattingWith) {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 30, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', overflow: 'auto' }}>
+  <div style={{ background: 'var(--gray-bg)', borderRadius: 14, boxShadow: '0 3px 7px rgba(0, 0, 0, 0.18)', width: '94vw', maxWidth: 540, height: '78dvh', display: 'flex', flexDirection: 'column', position: 'relative', top: '-1vh', overflow: 'hidden' }}>
+          {/* Header: name and close */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--primary)', padding: '13px 24px 13px 24px', borderTopLeftRadius: 14, borderTopRightRadius: 14, position: 'relative' }}>
+            <div style={{ fontWeight: 500, fontSize: 19, color: '#fff', flex: 1, textAlign: 'left', letterSpacing: 0.2 }}>
+              {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
             </div>
             <button
-              onClick={handleCloseTradeView}
-              aria-label="Close trade view"
-              style={{ position: 'absolute', right: 12, top: 4, border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', padding: '-1px 8px', borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
+              onClick={() => setChattingWith(null)}
+              aria-label="Close chat"
+              style={{ border: 'none', background: 'transparent', fontSize: 26, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer', color: '#fff', marginLeft: 12, borderRadius: 8, boxShadow: '0 1px 4px rgba(0, 0, 0, 0)', transition: 'background 0.18s' }}
               onMouseOver={e => e.currentTarget.style.background = '#fff4'}
               onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
             >
               ×
             </button>
           </div>
-          {/* Main trade content: two ItemLists stacked vertically */}
-          <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '12px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, background: '#f8f8f8', height: '100%' }}>
-            {/* Their Items */}
-            <div style={{ width: '92%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, position: 'relative' }}>
-              <span style={{ color: '#15803d', fontWeight: 400, fontSize: 15 }}>{t('their_items', 'Their items')}</span>
-              {/* Bubbles for total and liked items */}
-              {Array.isArray(viewingTrade.theirItems) && viewingTrade.theirItems.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'absolute', left: 110, top: '50%', transform: 'translateY(-50%)' }}>
-                  {/* Medium bubble: total items */}
-                  <div style={{
-                    background: '#22c55e',
-                    color: '#fff',
-                    borderRadius: '50%',
-                    width: 32,
-                    height: 32,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 600,
-                    fontSize: 17,
-                    boxShadow: '0 2px 8px #0002',
-                    border: '2.5px solid #fff',
-                  }}>{viewingTrade.theirItems.length}</div>
-                  {/* Small bubble: liked items */}
-                  {viewingTrade.theirItems.filter(i => i.liked).length > 0 && (
-                    <div style={{
-                      background: '#15803d',
-                      color: '#fff',
-                      borderRadius: '50%',
-                      width: 18,
-                      height: 18,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 600,
-                      fontSize: 11,
-                      boxShadow: '0 1.5px 5px #0002',
-                      border: '2px solid #fff',
-                    }}>{viewingTrade.theirItems.filter(i => i.liked).length}</div>
-                  )}
-                </div>
-              )}
-              <button
-                onClick={() => setviewingTheirProfile(viewingTrade.otherUser)}
-                style={{
-                  fontFamily: 'Geist',
-                  background: '#22c55e',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '6px 14px',
-                  fontWeight: 170,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  marginLeft: 6,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.35)',
-                  transition: 'background 0.18s'
-                }}
-                title={t('view_profile', 'View profile')}
-                onMouseOver={e => e.currentTarget.style.background = '#15803d'}
-                onMouseOut={e => e.currentTarget.style.background = '#22c55e'}
-              >
-                <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 2}}>
-                  <circle cx="10" cy="7.5" r="3.5" stroke="#fff" strokeWidth="1.5"/>
-                  <path d="M3.5 16c0-2.485 2.5-4.5 6.5-4.5s6.5 2.015 6.5 4.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                {t('view_profile', 'Profile')}
-              </button>
-            </div>
-            <ItemList
-              user={{ ...viewingTrade.otherUser, items: viewingTrade.theirItems }}
-              onModalOpenChange={() => {}}
-              buttons="like_pass"
-              only_likes={true}
-              matching={true}
-              from_user_matching={user}
-              maxItems={2}
-              expanded={expandTheir}
-              onExpand={() => setExpandTheir(e => !e)}
-              useLocalStorage={true}
-            />
-            {/* Your Items */}
-            <div style={{ width: '92%', display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-              <span style={{ color: '#15803d', fontWeight: 400, fontSize: 15 }}>{t('your_items', 'Your Items')}</span>
-            </div>
-            <ItemList
-              user={{ ...user, items: viewingTrade.yourItems }}
-              onModalOpenChange={() => {}}
-              buttons="lock"
-              matching={true}
-              from_user_matching={viewingTrade.otherUser}
-              maxItems={2}
-              expanded={expandYours}
-              onExpand={() => setExpandYours(e => !e)}
-              useLocalStorage={true}
-              lockUserId={viewingTrade.otherUser?.id}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (chattingWith) {
-    return (
-         <div style={{ position: 'fixed', top: '10%', width: '100%', height: '76dvh', zIndex: 10, background: 'transparent', overflow: 'overlap', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist', margin:'0px' }}>
-
-  <div style={{ borderRadius: 18, display: 'flex', flexDirection: 'column', width: '96%', height: '100%', background: '#fff', boxShadow: '0 1.5px 6px #0003', position: 'relative' }}>
-          {/* Name at the top */}
-          <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', padding: '18px 24px 0 24px', background: '#f6f6f6', borderTopLeftRadius: 18, borderTopRightRadius: 18 }}>
-            <div style={{ fontWeight: 500, fontSize: 18, color: '#15803d', flex: 1, textAlign: 'left' }}>
-              {chattingWith.otherUser.name || chattingWith.otherUser.displayName}
-            </div>
-          </div>
-          <div style={{ position: 'absolute', top: '10px', right: '20px', cursor: 'pointer' }}>
-            <button
-                onClick={() => setChattingWith(null)}
-                aria-label="Go back"
-                style={{ border: 'none', background: 'none', fontSize: 20, fontFamily: 'Geist', fontWeight: 100, cursor: 'pointer' ,color: '#555' }}
-                >
-                x
-            </button>
-          </div>
-          {/* Button below name with bubbles to the right (copied style from ChatMatchCard) */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '13px 24px 15px 24px', background: '#f6f6f6', fontWeight: 150, borderBottom: '1px solid #e5e5e5', position: 'relative' }}>
+          {/* Trade button and bubbles */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '14px 24px 10px 24px', background: 'var(--primary-light)', borderBottom: '1px solid var(--gray-border)', gap: 12 }}>
             <div
               onClick={() => handleViewTrade(chattingWith)}
-              style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 9, padding: '12px 18px', fontSize: 16, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
+              style={{ background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 9, padding: '10px 16px', fontSize: 15, cursor: 'pointer', outline: 'none', display: 'inline-flex', alignItems: 'center', textAlign: 'center', userSelect: 'none', gap: 8 }}
             >
-              <HeartIcon width={22} height={22} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+              <HeartIcon width={20} height={20} style={{ marginRight: 4, verticalAlign: 'middle' }} />
               {t('look_at_the_trade', 'Look at the trade')}
             </div>
-            {/* Bubbles: big (their items), small (your items), side by side, big overlaps small, right of button, style matches ChatMatchCard */}
             {(chattingWith?.theirItems?.length > 0 || chattingWith?.yourItems?.length > 0) && (
               <span style={{
                 display: 'flex',
                 alignItems: 'center',
-                right: '10vw',
-                position: 'absolute',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
+                marginLeft: 2,
+                marginTop: 2,
               }}>
                 {/* Small bubble: your items */}
                 {chattingWith?.yourItems?.length > 0 && (
                   <span style={{
-                    background: '#15803d',
+                    background: 'var(--primary-dark)',
                     color: '#fff',
                     borderRadius: '50%',
-                    width: 18,
-                    height: 18,
+                    width: 16,
+                    height: 16,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -516,17 +458,17 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                     boxShadow: '0 1.5px 5px #0002',
                     border: '2px solid #fff',
                     zIndex: 20,
-                    marginRight: -30,
+                    marginRight: -18,
                   }}>{chattingWith.yourItems.length}</span>
                 )}
                 {/* Big bubble: their items, overlaps small */}
                 {chattingWith?.theirItems?.length > 0 && (
                   <span style={{
-                    background: '#22c55e',
+                    background: 'var(--primary)',
                     color: '#fff',
                     borderRadius: '50%',
-                    width: 25,
-                    height: 25,
+                    width: 22,
+                    height: 22,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -535,14 +477,14 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0)',
                     border: '2.5px solid #fff',
                     zIndex: 30,
-                    marginLeft: -20,
+                    marginLeft: -10,
                   }}>{chattingWith.theirItems.length}</span>
                 )}
               </span>
             )}
           </div>
           {/* Chat messages */}
-          <div style={{ background: '#f6f6f6', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: 'var(--primary-light)', borderRadius: 10, padding: 10, margin: 16, flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             {loading && <div style={{ color: '#888', fontSize: 13 }}>Loading...</div>}
             {messages.filter(msg => msg && msg.sender && msg.content).map((msg, i) => (
               <div key={i} style={{
@@ -552,8 +494,8 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               }}>
                 <span style={{
                   display: 'inline-block',
-                  background: msg.sender === user.uid ? '#bbf7d0' : '#fff',
-                  color: '#222',
+                  background: msg.sender === user.uid ? 'var(--primary-light)' : 'var(--gray-bg)',
+                  color: 'var(--text)',
                   borderRadius: 8,
                   padding: '6px 12px',
                   maxWidth: '70%',
@@ -571,7 +513,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder={t('type_a_message', 'Type a message...')}
-              style={{ flex: 1, borderRadius: 20, border: '1px solid #ddd', padding: '11px 16px', fontSize: 15.5, outline: 'none', background: '#fafafa' }}
+              style={{ flex: 1, borderRadius: 20, border: '1px solid var(--gray-border)', padding: '11px 16px', fontSize: 15.5, outline: 'none', background: 'var(--gray-bg)' }}
             />
             <button
               type="submit"
@@ -581,7 +523,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
             >
               {/* WhatsApp-like send icon SVG */}
               <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill={input.trim() ? '#22c55e' : '#bbb'} />
+                <path d="M3.05 24.95L25 15.5C25.8333 15.1667 25.8333 13.8333 25 13.5L3.05 4.05C2.21667 3.71667 1.38333 4.55 1.71667 5.38333L4.95 13.5L1.71667 21.6167C1.38333 22.45 2.21667 23.2833 3.05 22.95Z" fill={input.trim() ? 'var(--primary)' : '#bbb'} />
               </svg>
             </button>
           </form>
@@ -645,7 +587,7 @@ function Chats({ user, onUnreadChange, refreshUnread, onChatClose }) {
               match={group}
               isUnread={group.isUnread}
               onChat={handleChatClick}
-              onViewProfile={handleViewProfile}
+              onViewProfile={setviewingTheirProfile}
               lastMessage={group._lastMessage}
               currentUserId={user?.uid}
             />

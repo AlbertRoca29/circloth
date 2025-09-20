@@ -1,6 +1,7 @@
 /* Common button styles */
+
 .common-button {
-  background: #ffffffc9;
+  background: var(--glass-bg, #ffffffc9);
   border: none;
   border-radius: 50%;
   width: 56px;
@@ -14,24 +15,25 @@
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
+
 .common-button.pass {
-  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.08);
+  box-shadow: 0 2px 8px var(--shadow, rgba(185, 74, 72, 0.08));
 }
 
 .common-button.like {
-  box-shadow: 0 2px 8px rgba(162, 89, 230, 0.13);
+  box-shadow: 0 2px 8px var(--shadow, rgba(78, 125, 90, 0.13));
 }
 
 .common-button.edit {
-  color: #22c55e;
+  color: var(--primary, #355E3B);
 }
 
 .common-button.delete {
-  color: #7c7c7c;
+  color: var(--gray-text, #5A5A4C);
 }
 
 .common-button.cancel {
-  color: #f97316;
+  color: var(--danger, #B94A48);
 }
 
 .common-button.go-back {
@@ -46,8 +48,8 @@
 }
 
 .small {
-    width: 38px;
-    height: 38px;
-    background-color: transparent;
-    font-size: 25px;
+  width: 38px;
+  height: 38px;
+  background-color: transparent;
+  font-size: 25px;
 }
